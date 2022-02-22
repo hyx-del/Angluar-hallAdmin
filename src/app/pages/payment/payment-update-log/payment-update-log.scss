@@ -1,0 +1,13 @@
+.payment-item {
+    & > span {
+        margin-right: 8px;
+    }
+}
+.td-before, .td-after {
+    & > div > p {
+        margin-bottom: 8px;
+        &:last-child {
+            margin-bottom: 0px;
+        }
+    }
+}

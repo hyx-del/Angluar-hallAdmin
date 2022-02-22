@@ -1,0 +1,162 @@
+<nz-tabset class="video-tabs" [nzSelectedIndex]="tabSelectedIndex" (nzSelectedIndexChange)="tabChange($event)">
+    <nz-tab nzTitle="视频库">
+        <content-header [buttonGroups]="buttons" [collection]="collection">
+            <ny-search-input #searchInput uri="mix/video/admin/data/list" [pageSize]="20"
+                (collection)="setCollection($event)">
+            </ny-search-input>
+        </content-header>
+
+        <div style="flex: 1; overflow: auto;">
+            <ul class="video-list clearfix">
+                <li class="cell" *ngFor="let video of videoList">
+                    <div class="thumbnail-outer">
+                        <div class="thumbnail">
+                            <img [src]="video.cover" alt="">
+                        </div>
+                        <!-- <div class="date">00:00:10</div> -->
+                    </div>
+                    <div class="detail">
+                        <p class="date">{{ video.created_at }}</p>
+                        <p class="title">{{ video.title }}</p>
+                        <div class="handle">
+                            <a (click)="showDetail(video)">修改</a>
+                            <nz-divider nzType="vertical"></nz-divider>
+                            <a (click)="remove(video)">删除</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nz-tab>
+    <nz-tab nzTitle="视频上传记录">
+        <div style="margin-bottom: 8px;">
+            <span style="display: inline-block;line-height: 32px;margin-right: 8px;">时间：</span>
+            <nz-select style="width: 200px;" [(ngModel)]="cateId" (ngModelChange)="cateChange()" >
+                <nz-option *ngFor="let item of cateList" [nzLabel]="item.CateName" [nzValue]="item.CateId"></nz-option>
+            </nz-select>
+
+            <button nz-button (click)="refreshVideoList()" style="margin-left: 8px;">刷新</button>
+        </div>
+        <nz-table [nzData]="[{}]" [nzShowPagination]="false" [nzFrontPagination]="false" [nzBordered]="true"
+                [nzSize]="'small'"
+            [nzLoading]="isLoading">
+            <thead>
+                <tr>
+                    <th nzWidth="220px">id</th>
+                    <th>名称</th>
+                    <th>状态</th>
+                    <th nzWidth="220px">上传时间</th>
+                    <th nzWidth="120px">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of mediaList">
+                    <td>{{ data.VideoId }}</td>
+                    <td>{{ data.Title }}</td>
+                    <td>
+                        <span [ngStyle]="{color: videoStatus[data.Status].color }" >
+                            {{ videoStatus[data.Status].label }}
+                        </span>
+                        
+                    </td>
+                    <td>{{ data.CreationTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+                    <td>
+                        <a *ngIf="data.Status == 'Normal'" (click)="saveVideo(data)">保存</a>
+                        <a *ngIf="data.Status == 'Uploading'" (click)="upload(data)">续传</a>
+                    </td>
+                </tr>
+            </tbody>
+        </nz-table>
+
+        <div *ngIf="total > 0 && total > pageSize">
+            <nz-pagination class="pagination" [(nzPageIndex)]="pageIndex" 
+            [(nzPageSize)]="pageSize" (nzPageIndexChange)="refreshVideoList()" [nzTotal]="total"></nz-pagination>
+        </div>
+    </nz-tab>
+</nz-tabset>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" [autoClose]="true" (onClose)="cancel()">
+    <ny-header>
+        <h2>{{ params.id ? '修改' : '添加' }}视频</h2>
+        <p style="flex: 1"></p>
+        <button nz-button nzType="default" (click)="cancel()" style="margin-right: 16px;">取消</button>
+        <button nz-button nzType="primary" (click)="save()">保存</button>
+    </ny-header>
+    <div nyForm="form" (onInit)="onFormInit($event)">
+
+        <div class="form-group">
+            <label class="label"><em>*</em>视频标题:</label>
+            <div>
+                <input nz-input placeholder="输入视频标题" nyName="title" errorStyle="float" style="width: 300px" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label"><em>*</em>视频封面:</label>
+            <div>
+                <crop-image [aspectRatio]="16 / 9" [ossBucket]="bucket" (onComplete)="uploadImgComplete($event)">
+                    <nz-upload class="avatar-uploader" nzName="avatar" nzListType="picture-card"
+                        [nzShowUploadList]="false" >
+                        <ng-container *ngIf="!params.cover">
+                            <i class="upload-icon" nz-icon [nzType]="loading ? 'loading' : 'plus'"></i>
+                            <div class="ant-upload-text">上传图片</div>
+                        </ng-container>
+                        <img *ngIf="params.cover" [src]="params.imageUrl" class="avatar" />
+                    </nz-upload>
+                </crop-image>
+                <input nz-input nyName="cover" hidden />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">列表封面:</label>
+            <div>
+                <crop-image [aspectRatio]="9 / 12" [ossBucket]="bucket" (onComplete)="uploadCoverImgComplete($event)">
+                    <nz-upload class="avatar-uploader" nzName="avatar" nzListType="picture-card"
+                        [nzShowUploadList]="false" [nzCustomRequest]="uploadImg">
+                        <ng-container *ngIf="!params.vertical_cover">
+                            <i class="upload-icon" nz-icon [nzType]="loading ? 'loading' : 'plus'"></i>
+                            <div class="ant-upload-text">上传图片</div>
+                        </ng-container>
+                        <img *ngIf="params.vertical_cover" [src]="params.verticalCover" class="avatar" />
+                    </nz-upload>
+                </crop-image>
+                <input nz-input nyName="vertical_cover" hidden />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label"><em>*</em>视频ID:</label>
+            <div>
+                <input nz-input placeholder="视频Id" [(ngModel)]="params.video_url_id" nyName="video_url_id"
+                    [disabled]="disabledId" errorStyle="float" style="width: 300px" />
+            </div>
+            <span class="unit">
+                <nz-upload *ngIf="!params.id" [nzShowUploadList]="false" [nzCustomRequest]="uploadVideo"
+                    [nzDisabled]="isUploadVideo" [nzAccept]="'video/mp4,video/avi,video/wmv,video/flv,video/mkv'">
+                    <button nz-button [disabled]="isUploadVideo">
+                        <i nz-icon [nzType]="isUploadVideo ? 'loading' : 'upload'"></i>
+                        <span>上传视频</span>
+                    </button>
+                </nz-upload>
+
+                <button nz-button *ngIf="isUploadVideo" style="margin-left: 8px;"
+                    (click)="cancelUploadVideo()">取消上传</button>
+
+                <button nz-button *ngIf="params.video_url_id && params.id" style="margin-left: 8px;"
+                    (click)="copyVideoId()">复制ID</button>
+                <button *ngIf="!params.id" nz-button style="margin-left: 8px;" (click)="insertVideoId()">插入ID</button>
+            </span>
+        </div>
+
+        <div class="form-group">
+            <label class="label">视频内容:</label>
+            <div class="control-input" style="flex: 1; max-width: 600px;">
+                <div class="editor-wrap">
+                    <ueditor [(ngModel)]="videoHtmlContent" [ossBucket]="bucket"></ueditor>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</ny-modal>

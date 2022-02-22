@@ -1,0 +1,257 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="listUrl" [pageSize]="20" (collection)="setCollection($event)"></ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" showIndex="true">
+    <ng-template nyColumn="name" let-item>
+        <a [class.warning]="item.login_limit" (click)="edit(item)">{{item.name}}</a>
+    </ng-template>
+
+    <ng-template nyColumn="roles" let-item>{{item.roles}}</ng-template>
+    <ng-template nyColumn label="操作" let-item>
+        <a (click)="bindMember(item)">绑定会员</a>
+        <ng-container *ngIf="item.type == 1">
+            <nz-divider nzType="vertical"></nz-divider>
+            <a (click)="coversion(item)">转正</a>
+        </ng-container>
+        <ng-container *ngIf="group">
+            <nz-divider nzType="vertical"></nz-divider>
+            <a (click)="remove(item)">移除</a>
+        </ng-container>
+
+    </ng-template>
+</ny-table>
+
+<ny-modal [title]="isCreate ? '添加': '修改'" appendTo="nz-content" isFull="true" ndForm="data" 
+(onInit)="formInit($event)" (onChange)="formChange($event)" [(visible)]="visible" (onClose)="cancel()">
+
+    <div class="form-group">
+        <label class="label"><em>*</em>手机号：</label>
+        <div>
+            <input nz-input type="tel" ndName="mobile">
+            <button style="margin-left: 8px" *ngIf="isCreate" nz-button (click)="find()">查找</button>
+            <button style="margin-left: 8px" *ngIf="isBinding" nz-button (click)="unbind()">取消</button>
+            
+            <button style="margin-left: 8px" *ngIf="!isCreate" nz-button (click)="cleanBind()">清除企业微信绑定</button>
+
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label"><em>*</em>名字：</label>
+        <div>
+            <input nz-input type="text" ndName="name" [disabled]="isBinding">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <span class="label">英文名：</span>
+        <div>
+            <input nz-input type="text" ndName="name_en" [disabled]="isBinding">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label">头像：</label>
+        <div style="display: flex;">
+            <crop-image [aspectRatio]="1" (onComplete)="uploadImgComplete($event)">
+                <nz-upload class="avatar-uploader" nzListType="picture-card" [nzShowUploadList]="false" >
+                    <ng-container *ngIf="!avatar">
+                        <i class="upload-icon" nz-icon [nzType]="isUploadLoading ? 'loading' : 'plus'"></i>
+                        <div class="ant-upload-text">上传图片</div>
+                    </ng-container>
+                    <img *ngIf="avatar" [src]="ossPath + avatar" class="avatar"/>
+                </nz-upload>
+            </crop-image>
+            <input nz-input ndName="avatar" hidden/>
+
+            <div style="display: flex; flex-direction: column-reverse;margin-bottom: 8px;" *ngIf="!isCreate">
+                <button nz-button [nzType]="'primary'" nzSize="small" (click)="amendImg(imgType.headPhoto)">修改</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label">图片展示：</label>
+        <div class="galleria">
+            <!-- 选择图片 -->
+            <ul>
+                <li *ngFor="let item of showImgList;let index = index" [class.helper-hidden]="index !== active">
+                    <img [src]="ossPath+item.path" alt="">
+                    <span class="tag" *ngIf="item.checked == true">主图</span>
+                </li>
+            </ul>
+            <!-- 下面小图 -->
+            <div class="slider-panel-wraper">
+                <ul #slider id="slider">
+                    <li *ngFor="let item of showImgList;let index = index" [class.slider-frame-active]="index == active" (click)="activeImage(index)">
+                        <img [src]="ossPath+item.path" alt="">
+                    </li>
+                </ul>    
+            </div>
+
+            <!--上一张-->
+            <div class="nav-prev" (click)="prev()">
+                <i class="anticon anticon-left"></i>
+            </div>
+            <!--下一张-->
+            <div class="nav-next" (click)="next()">
+                <i class="anticon anticon-right"></i>
+            </div>
+            <!-- <input nz-input ndName="display_pgotos" hidden/> -->
+        </div>
+    </div>
+
+    <!-- 相关操作按钮 -->
+    <div class="form-group">
+        <label class="label"></label>
+        <div>
+            <!-- [aspectRatio] = '43/25'  -->
+            <crop-image #images (onComplete)="uploadShowImg($event)" [aspectRatio] = '43/25'></crop-image>
+            <!-- <input type="file" #file hidden (change)="fileChange($event)"/> -->
+            <button nz-button [nzType]="'primary'" (click)="images.onClick()" style="margin-left: 8px;">
+                <i class="upload-icon" nz-icon [nzType]="'plus'"></i>
+                <span>添加图片</span>
+            </button>
+            
+            <button nz-button [nzType]="'primary'" (click)="setActiveImg()" style="margin-left: 8px;">
+                <i nz-icon [nzType]="'setting'"></i>
+                <span>设为主图</span>
+            </button>
+
+            <button nz-button style="margin-left: 8px" (click)="removeImg()">
+                <i nz-icon nzType="delete" nzTheme="outline"></i>
+                <span>移除</span>
+            </button>
+
+            <button nz-button [nzType]="'primary'" style="margin-left: 8px" (click)="amendImg(imgType.showImg)" *ngIf="!isCreate">修改</button>
+        </div>
+    </div>    
+
+    <div class="form-group flex-center">
+        <label class="label">性别：</label>
+        <div>
+            <nz-radio-group ndName="gender" [nzDisabled]="isBinding">
+                <label nz-radio [nzValue]="1">男</label>
+                <label nz-radio [nzValue]="2">女</label>
+            </nz-radio-group>
+        </div>
+    </div>
+    <div class="form-group flex-center">
+        <label class="label">岗位状态：</label>
+        <div>
+            <nz-radio-group [nzDisabled]='isShowType == 2' ndName="type" [nzDisabled]="isBinding" [(ngModel)]="types" (ngModelChange)="typeChange($event)">
+                <label nz-radio [nzValue]="1">试用期</label>
+                <label nz-radio [nzValue]="2">正式员工</label>
+            </nz-radio-group>
+        </div>
+    </div>
+
+    <div class="form-group" [ngStyle]="{'display':isShowFormalInput?'flex':'none'}">
+        <label class="label"><em>*</em>转正日期：</label>
+        <div>
+            <nz-date-picker ndName="conversion_date"
+                nzFormat="yyyy-MM-dd"
+                [nzDisabledDate]="disabledFormalDate"
+            >
+            </nz-date-picker>
+        </div>
+    </div>
+
+    <div class="form-group" *ngIf="!isBinding">
+        <label class="label"><em>*</em>密码：</label>
+        <div>
+            <ng-container *ngIf="isCreate">
+                <input nz-input [type]="isShowPwd ? 'text' : 'password'" ndName="password">
+                <span class="unit eye" (click)="changePwdShow()"><i nz-icon nzType="eye" nzTheme="outline"></i></span>
+            </ng-container>
+            <ng-container *ngIf="!isCreate">
+                <a class="form-action" (click)="resetPassword()">重置密码</a>
+            </ng-container>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label">职能：</label>
+        <div>
+            <nz-select ndName="functions" nzMode="multiple" style="width: 200px" [nzDisabled]="isBinding">
+                <nz-option *ngFor="let item of functions" [nzLabel]="item.label" [nzValue]="item.value" [nzDisabled]="item.disabled"></nz-option>
+            </nz-select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label">角色：</label>
+        <div>
+            <nz-select ndName="roles" nzMode="multiple" style="width: 200px" (onChange)="roleChange($event)">
+                <nz-option *ngFor="let item of roleManage.items" [nzLabel]="item.name" [nzValue]="item.id" [nzDisabled]="item.disabled"></nz-option>
+            </nz-select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label"><em>*</em>入职日期：</label>
+        <div>
+            <nz-date-picker ndName="entry_time" [nzDisabled]="isBinding"></nz-date-picker>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label"><em>*</em>住址：</label>
+        <div>
+            <textarea nz-input ndName="address" [nzAutosize]="{ minRows: 3, maxRows: 6 }" style="width: 500px;" [disabled]="isBinding"></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label">个人简介：</label>
+        <div>
+            <textarea nz-input ndName="profile" [nzAutosize]="{ minRows: 3, maxRows: 6 }" style="width: 500px;" [disabled]="isBinding"></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label">详细介绍：</label>
+        <div style="width: 800px; min-height: 200px;">
+            <ueditor [(ngModel)]="staffDescription"></ueditor>
+        </div>
+    </div>
+
+    <ny-footer>
+        <button nz-button (click)="submit()" nzType="primary">保存</button>
+    </ny-footer>
+</ny-modal>
+
+<nz-modal nzTitle="警告" [(nzVisible)]="confirm.visible" [nzOnOk]="confirm.onOk" (nzOnCancel)="confirm.visible = false">
+    <span>{{confirm.content}}</span>
+</nz-modal>
+
+<nz-modal nzTitle="绑定会员" [(nzVisible)]="memberInfo.visible" (nzOnCancel)="memberInfo.visible = false" (nzOnOk)="bindMember()">
+    <div class="form-group">
+        <label class="label">手机号:</label>
+        <input nz-input type="tel" [(ngModel)]="memberInfo.mobile" [readOnly]="memberInfo.info">
+        <a *ngIf="!memberInfo.info" class="form-action" (click)="findMember()">查找</a>
+        <a *ngIf="memberInfo.info" class="form-action" (click)="reset()">重置</a>
+    </div>
+
+    <div class="form-group" *ngIf="memberInfo.info">
+        <label class="label">用户名:</label>
+        <input nz-input type="text" readonly [value]="memberInfo.info.name">
+    </div>
+</nz-modal>
+
+
+<!-- 转正日期 -->
+<nz-modal nzTitle="转正" [(nzVisible)]="positiveVisible" (nzOnCancel)="positiveCancel()" (nzOnOk)="positiveOk()">
+    <div class="form-group" nyForm="formDate">
+        <label class="label"><em>*</em>转正日期</label>
+        <div>
+            <nz-date-picker
+                [nzDisabledDate]="disabledDate"
+                nyName="conversion_date"
+                errorStyle="float"
+                >
+             </nz-date-picker>
+        </div>
+    </div>
+</nz-modal>

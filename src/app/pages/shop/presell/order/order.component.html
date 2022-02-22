@@ -1,0 +1,8 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'presell/admin-hall/order/list'" [pageSize]="50"
+        (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+</ny-table>

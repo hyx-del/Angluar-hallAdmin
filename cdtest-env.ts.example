@@ -1,0 +1,19 @@
+module.exports = {
+    clientId : 2,
+    clientSecret: 'ny8qOsRycE6HWgZXZYzVcl4DGQnLaEJy6OsFzlsW',
+    
+    baseUrl: 'http://api.t.jiayu.gold',
+    tokenApi: 'http://api.t.jiayu.gold/staff/oauth/token',
+    userApi: 'http://api.t.jiayu.gold/staff/info',
+
+    ossBucket: 'admin',
+    
+    buckets: {
+        admin: 'admin',
+        video: 'video',
+    },
+    
+    aliyunUserId: '290969971646573700',
+    env: "test",
+    imageMaxSize: 5, // M
+};

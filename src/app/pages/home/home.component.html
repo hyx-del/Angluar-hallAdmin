@@ -1,0 +1,47 @@
+<div class="header">
+    <div class="avatar">
+        <img [src]="avatar">
+    </div>
+    <div class="content">
+        <h2>你好，{{ user.name }}，欢迎使用梵音瑜伽管理系统！</h2>
+        <h3>Welcome to Fine Yoga Management System</h3>
+    </div>
+</div>
+
+<div class="container">
+    <div class="tab">
+        <div class="tab-outer">
+            <div class="title">提醒信息</div>
+            <div class="content">
+                <div>团课预约规则：</div>
+                <div>团课预约最多提前时间：1周</div>
+                <div>团课预约至少提前时间：课前1小时</div>
+                <div>团课预约取消至少提前时间：课前1小时</div>
+                <div style="margin-top: 10px">排队规则：</div>
+                <div>团课排队最多提前时间：1周</div>
+                <div>团课排队至少提前时间：课前120分钟</div>
+                <div>团课排队取消至少提前时间：课前90分钟</div>
+                <div style="margin-top: 10px">私教预约规则：</div>
+                <div>会员小程序端自助私教预约时间：至少提前时间：1天（24小时），超出1天，会员需要联系门店，前台在工作台为会员添加私教预约。</div>
+                <div>会员和教练签到时间：课前1小时内开放签到</div>
+                <div>私教课预约取消至少提前时间：课前4小时</div>
+                <div style="margin-top: 10px">期限卡会员约课限制条件：</div>
+                <div>会员可提前预约3节团课（含排队），每天可上2节课</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab">
+        <div class="tab-outer">
+            <div class="title">常用功能</div>
+            <div class="content link-container">
+                <div class="link" *ngFor="let item of links" [class.disabled]="item.disabled" (click)="navigateLink(item)">{{item.label}}</div>
+                <div class="link link-add" (click)="editLinks()">+添加</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nz-modal [(nzVisible)]="linkVisible" nzTitle="链接" [nzMaskClosable]="false" (nzOnCancel)="cancelEditLink()" (nzOnOk)="saveLink()">
+    <div class="link" *ngFor="let item of allLinks" [class.disabled]="item.disabled" [class.checked]="item.checked" (click)="addLink(item)">{{item.label}}</div>
+</nz-modal>

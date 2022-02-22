@@ -1,0 +1,32 @@
+<!--
+ * @Author: jiu yin
+ * @Date: 2021-11-26 09:49:25
+ * @LastEditTime: 2021-11-26 13:53:05
+ * @LastEditors: jiu yin zhen jing
+ * @Description: 666
+ * @FilePath: \admin\src\app\pages\member\member-promotion\member-promotion.html
+ * jiu
+-->
+<div class="search-box">
+    <content-header [collection]="collection" style="flex: 1;" [buttonGroups]="buttons">
+        <div style="width: 350px;">
+            <ny-complex-search [uri]="'member/admin/coupon/activity-coupon-list'" [pageSize]="20"
+                (collection)="setCollection($event)">
+            </ny-complex-search>
+        </div>
+    </content-header>
+</div>
+
+<div style="overflow-x: auto;flex: 1; display: flex; flex-direction: column;">
+    <div style="min-width: 1600px; flex: 1; display: flex; flex-direction: column;">
+        <ny-table [collection]="collection">
+            <ng-template nyColumn label="操作" width="100px" let-item>
+                <ng-container *ngIf="item.member_coupon_status==0&&item.used==2">
+                    <a (click)="invalidCoupon(item)">作废</a>
+                    <nz-divider nzType="vertical"></nz-divider>
+                    <a (click)="dispose(item)">核销</a>
+                </ng-container>
+            </ng-template>
+        </ny-table>
+    </div>
+</div>

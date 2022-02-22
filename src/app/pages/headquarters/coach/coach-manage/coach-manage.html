@@ -1,0 +1,320 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'hall/course/admin/coach/list'" [pageSize]="50" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template nyColumn label="操作" width="200px" let-item>
+        <a (click)="display(item)">{{ item.display ? '小程序隐藏' : '小程序显示' }}</a>
+        <nz-divider nzType="vertical"></nz-divider>
+        <a *ngIf="item.show_on_web" (click)="displayWeb(item)">官网隐藏</a>
+        <a *ngIf="!item.show_on_web" (click)="displayWeb(item)">官网显示</a>
+    </ng-template>
+</ny-table>
+
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" (onClose)="close()">
+    <ny-header>
+        <h2>添加教练</h2>
+        <p style="flex: 1"></p>
+        <button nz-button nzType="default" (click)="close()" style="margin-right: 16px;">取消</button>
+        <button nz-button nzType="primary" (click)="save()">保存</button>
+    </ny-header>
+    <div nyForm="form" (onInit)="onFormInit($event)">
+        <div class="form-group">
+            <label class="label"><em>*</em>姓名:</label>
+            <div>
+                <input nz-input placeholder="姓名" nyName="name" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">英文名:</label>
+            <div>
+                <input nz-input placeholder="英文名" nyName="name_en" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">照片:</label>
+            <div>
+                <nz-upload class="avatar-uploader" nzName="avatar" nzListType="picture-card" [nzShowUploadList]="false"
+                    [nzCustomRequest]="uploadImg">
+                    <ng-container *ngIf="!params.photo">
+                        <i class="upload-icon" nz-icon [nzType]="'plus'"></i>
+                        <div class="ant-upload-text">上传图片</div>
+                    </ng-container>
+                    <img *ngIf="params.photo" [src]="ossPath + params.photo" class="avatar" />
+                </nz-upload>
+                <input nz-input nyName="photo" hidden />
+            </div>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">性别:</label>
+            <div>
+                <nz-radio-group nyName="gender">
+                    <label nz-radio [nzValue]="1">男</label>
+                    <label nz-radio [nzValue]="2">女</label>
+                </nz-radio-group>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>手机号:</label>
+            <div>
+                <input nz-input placeholder="手机号" nyName="mobile" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>入职日期:</label>
+            <div>
+                <nz-date-picker [(ngModel)]="params.hire_date" nyName="hire_date" errorStyle="float" style="width: 200px;"></nz-date-picker>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">教练组:</label>
+            <nz-select style="width: 200px;" nyName="coach_group_id" errorStyle="float">
+                <nz-option *ngFor="let group of coachGroup" [nzLabel]="group.name" [nzValue]="group.id">
+                </nz-option>
+            </nz-select>
+            <span class="unit pointer" (click)="getCoachGroupList()">
+                <i nz-icon nzType="sync" nzTheme="outline"></i>
+            </span>
+        </div>
+
+        <div class="form-group">
+            <label class="label">授课城市:</label>
+            <nz-select style="width: 200px;" [(ngModel)]="params.resident_city_id" nyName="resident_city_id" errorStyle="float"
+                (ngModelChange)="cityChange($event)">
+                <nz-option *ngFor="let item of cityList" [nzLabel]="item.name" [nzValue]="item.id">
+                </nz-option>
+            </nz-select>
+            <span class="unit pointer" (click)="getCityList()">
+                <i nz-icon nzType="sync" nzTheme="outline"></i>
+            </span>
+        </div>
+        <div class="form-group">
+            <label class="label">常驻场馆:</label>
+            <nz-select style="width: 200px;" nyName="resident_hall_id" errorStyle="float">
+                <nz-option *ngFor="let item of hallData[params.resident_city_id]" [nzLabel]="item.name" [nzValue]="item.id">
+                </nz-option>
+            </nz-select>
+            <span class="unit pointer" (click)="refreshCityHall()">
+                <i nz-icon nzType="sync" nzTheme="outline"></i>
+            </span>
+        </div>
+        <div class="form-group">
+            <label class="label">住址:</label>
+            <div>
+                <input nz-input placeholder="住址" [(ngModel)]="params.address" nyName="address" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">个人简介:</label>
+            <div>
+                <textarea nz-input [(ngModel)]="params.profile" nyName="profile"
+                    [nzAutosize]="{ minRows: 3, maxRows: 6 }" style="width: 300px;"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">权重:</label>
+            <div>
+                <nz-input-number [(ngModel)]="params.weight" [nzMin]="1" [nzStep]="1" style="width:110px;"
+                    nyName="weight">
+                </nz-input-number>
+            </div>
+        </div>
+    </div>
+</ny-modal>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="detailVisible" (onClose)="close()">
+    <ny-header>
+        <h2>教练详情</h2>
+        <p style="flex: 1"></p>
+    </ny-header>
+    <div class="modal-content">
+        <div class="user-info">
+            <div class="head">
+                <img *ngIf="!detail.avatar && detail.id" src="../../../../../assets/img/user-30.svg" width="100%" />
+                <img *ngIf="detail.avatar" [src]="ossPath + detail.avatar"/>
+            </div>
+            <div class="info">
+                <div class="name">{{ detail.name }}</div>
+                <div>{{ detail.mobile }}</div>
+            </div>
+        </div>
+        <nz-tabset [(nzSelectedIndex)]="tabIndex" (nzSelectChange)="tabChange($event)">
+            <nz-tab nzTitle="基本信息">
+                <div nyForm="detailForm" (onInit)="detailFormInit($event)">
+                    <div class="form-group">
+                        <span class="label">姓名:</span>
+                        <div>
+                            <input nz-input placeholder="姓名" nyName="name" disabled errorStyle="float" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <span class="label">英文名:</span>
+                        <input nz-input type="text" placeholder="英文名" nyName="name_en" disabled errorStyle="float">
+                    </div>
+                    <div class="form-group">
+                        <label class="label">照片:</label>
+                        <div>
+                            <nz-upload class="avatar-uploader" nzName="avatar" nzListType="picture-card"
+                                [nzShowUploadList]="false" [nzCustomRequest]="uploadImg" [nzDisabled]="true">
+                                <ng-container *ngIf="!params.avatar">
+                                    <i class="upload-icon" nz-icon [nzType]="'plus'"></i>
+                                    <div class="ant-upload-text">上传图片</div>
+                                </ng-container>
+                                <img *ngIf="params.avatar" [src]="ossPath + params.avatar" class="avatar" />
+                            </nz-upload>
+                            <input nz-input nyName="avatar" hidden />
+                        </div>
+                    </div>
+                    <div class="form-group flex-center">
+                        <label class="label">性别:</label>
+                        <div>
+                            <nz-radio-group [(ngModel)]="detail.gender" nyName="gender" [nzDisabled]="true">
+                                <label nz-radio [nzValue]="1">男</label>
+                                <label nz-radio [nzValue]="2">女</label>
+                            </nz-radio-group>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">手机号:</label>
+                        <div>
+                            <input nz-input type="text" placeholder="手机号" nyName="mobile" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">入职日期:</label>
+                        <div>
+                            <nz-date-picker [(ngModel)]="detail.entry_time" nyName="entry_time" [nzDisabled]="true" errorStyle="float" style="width: 200px;">
+                            </nz-date-picker>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">教练组:</label>
+                        <nz-select style="width: 200px;" [(ngModel)]="detail.coach_group_id" nyName="coach_group_id"
+                            errorStyle="float">
+                            <nz-option *ngFor="let group of coachGroup" [nzLabel]="group.name" [nzValue]="group.id">
+                            </nz-option>
+                        </nz-select>
+                        <span class="unit pointer" (click)="getCoachGroupList()">
+                            <i nz-icon nzType="sync" nzTheme="outline"></i>
+                        </span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label">授课城市:</label>
+                        <nz-select style="width: 200px;" [(ngModel)]="params.resident_city_id" nyName="resident_city_id"
+                            errorStyle="float" (ngModelChange)="cityChange($event)">
+                            <nz-option *ngFor="let item of cityList" [nzLabel]="item.name" [nzValue]="item.id">
+                            </nz-option>
+                        </nz-select>
+                        <!-- <span class="unit pointer" (click)="getCityList()">
+                            <i nz-icon nzType="sync" nzTheme="outline"></i>
+                        </span> -->
+                    </div>
+                    <div class="form-group">
+                        <label class="label">常驻场馆:</label>
+                        <nz-select style="width: 200px;" nyName="resident_hall_id" errorStyle="float">
+                            <nz-option *ngFor="let item of hallData[params.resident_city_id]" [nzLabel]="item.name"
+                                [nzValue]="item.id">
+                            </nz-option>
+                        </nz-select>
+                        <span class="unit pointer" (click)="refreshCityHall()">
+                            <i nz-icon nzType="sync" nzTheme="outline"></i>
+                        </span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label">住址:</label>
+                        <div>
+                            <input nz-input placeholder="住址" [(ngModel)]="detail.address" disabled nyName="address" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">权重:</label>
+                        <div>
+                            <nz-input-number [(ngModel)]="detail.weight" [nzMin]="1" [nzStep]="1" style="width:110px;"
+                                nyName="weight">
+                            </nz-input-number>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">个人简介:</label>
+                        <div>
+                            <textarea nz-input placeholder="个人简介" [(ngModel)]="detail.profile" disabled nyName="profile"
+                                [nzAutosize]="{ minRows: 3, maxRows: 6 }" style="width: 300px;"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">详细介绍:</label>
+                        <div class="control-input" style="flex: 1; max-width: 650px;">
+                            <div class="editor-wrap">
+                                <ueditor [(ngModel)]="detail.description"></ueditor>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label"></label>
+                    <div>
+                        <button nz-button nzType="primary" (click)="updateCoach()">保存</button>
+                    </div>
+                </div>
+            </nz-tab>
+
+            <nz-tab nzTitle="场馆">
+                <div class="flex-end">
+                    <button nz-button nzType="default" style="margin-bottom: 8px;"
+                    (click)="refreshHallList()">刷新</button>
+                    <button nz-button nzType="primary" style="margin-bottom: 8px;margin-left: 8px;" (click)="hallSetting();">保存</button>
+                </div>
+                <div class="group-item" *ngFor="let item of hallList">
+                    <div class="title">{{ item.city_name }}<span class="select" (click)="selectAllHall(item)">全选</span></div>
+                    <div class="content">
+                        <label nz-checkbox *ngFor="let child of item.children"
+                            [(ngModel)]="child.checked">{{ child.name }}</label>
+                    </div>
+                </div>
+            </nz-tab>
+            <nz-tab nzTitle="可授课程">
+                <div class="flex-end">
+                    <button nz-button nzType="default" style="margin-bottom: 8px;"
+                        (click)="refreshCourseList()">刷新</button>
+                    <button nz-button nzType="primary" style="margin-bottom: 8px;margin-left: 8px;" (click)="setCourse()">保存</button>
+                </div>
+                <div class="group-item" *ngFor="let item of courseData">
+                    <div class="title">{{ item.title }}<span class="select" (click)="selectAllHall(item)">全选</span></div>
+                    <div class="content">
+                        <label nz-checkbox *ngFor="let child of item.children"
+                            [(ngModel)]="child.checked">{{ child.name }}</label>
+                    </div>
+                </div>
+            </nz-tab>
+            <nz-tab nzTitle="课时限制">
+                <div *ngIf="coachCourse.length">
+                    <div class="" style="display: flex;margin-bottom: 8px;">
+                        <div class="form-group">
+                            <label class="label">月总课时限制：</label>
+                            <input nz-input style="width: 120px;" [(ngModel)]="coachCourseLimit" />
+                        </div>
+                        <button nz-button nzType="primary" style="margin-left: 8px;" (click)="saveCoachCourseLimit()">保存</button>
+                        <button *ngIf="coachLimitData && coachLimitData.coach_id" nz-button nzType="danger" style="margin-left: 8px;"
+                         (click)="removeSetting()">删除设置</button>
+                    
+                    </div>
+                    <div class="limit-title">限制课程范围</div>
+                    <div class="group-item" *ngFor="let item of coachCourse">
+                        <div class="title">{{ item.title }}<span class="select" (click)="selectAllHall(item)">全选</span></div>
+                        <div class="content">
+                            <label nz-checkbox *ngFor="let child of item.children"
+                                [(ngModel)]="child.checked">{{ child.name }}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="no-data" *ngIf="isLoadingCoachCourse && !coachCourse.length">
+                    暂无可授课程
+                </div>
+            </nz-tab>
+        </nz-tabset>
+    </div>
+</ny-modal>

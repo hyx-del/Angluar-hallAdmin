@@ -1,0 +1,114 @@
+<content-header [collection]="collection">
+  <ny-search-input [uri]="'hall/member/admin-city/member-course-card/refund/order-list'" [pageSize]="50"
+      (collection)="setCollection($event)">
+  </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+  <ng-template nyColumn label="操作" width="120px" let-item>
+      <a *ngIf="item.status == 0" (click)="agreed(item)">审核</a>
+      <nz-divider *ngIf="item.status == 0" nzType="vertical"></nz-divider>
+      <a *ngIf="item.status == 0" (click)="reject(item)">驳回</a>
+      <a *ngIf="item.status == 10" (click)="checkCancel(item)">审核作废</a>
+  </ng-template>
+</ny-table>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="retreatCardVisible" (onClose)="cancelRetreatCard()"
+    nyForm="form">
+    <ny-header>
+        <h2>退卡详情</h2>
+        <p style="flex:1"></p>
+    </ny-header>
+    <div>
+        <!-------------------------- 原卡信息 ---------------------------->
+        <div class="info-title">原卡信息</div>
+       <div class="form-group flex-center">
+            <label class="label">卡类:</label>
+            <input nz-input [value]="retreatCardParams.course_card_name" disabled />
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">绑定会员:</label>
+            <div>
+                <input nz-input [value]="retreatCardParams.member_name" disabled />
+            </div>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">原卡余额:</label>
+            <div>
+                <input nz-input [value]="retreatCardParams.balance" disabled />
+            </div> 
+             <span class="unit">天</span>
+        </div>
+         <div class="form-group flex-center">
+            <label class="label">原价:</label>
+            <div>
+                <input nz-input disabled [value]="retreatCardParams.original_price" />
+            </div>
+            <span class="unit">元</span>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">剩余价值:</label>
+            <div>
+                <input nz-input disabled [value]="retreatCardParams.surplus_price" />
+            </div>
+            <span class="unit">元</span>
+        </div> 
+
+        <!---------------------------- 退卡信息 ------------------------>
+        <div class="info-title">退卡信息</div>
+        
+        <div class="form-group flex-center">
+            <label class="label">会员卡剩余价值:</label>
+            <div>
+                <nz-input-number [(ngModel)]="retreatCardParams.original_price" [nzMin]="0"
+                    [nzStep]="1" style="width: 200px;" disabled></nz-input-number>
+            </div>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">费率:</label>
+            <div>
+                <nz-input-number [(ngModel)]="retreatCardParams.rate" [nzMin]="0" [nzStep]="1" style="width: 200px;"
+                    errorStyle="float" nyName="rate" disabled></nz-input-number>
+            </div>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">手续费:</label>
+            <div>
+                <nz-input-number [(ngModel)]="retreatCardParams.commission" [nzMin]="0" [nzStep]="1"
+                    style="width: 200px;" disabled [nzPrecision]="2">
+                </nz-input-number>
+            </div>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">实际退款金额:</label>
+            <span>{{retreatCardParams.pay_money}}</span>
+            <span class="ml8"></span>
+            元
+        </div>
+
+        <div class="form-group">
+            <label class="label" style="min-width: 120px;">附件:</label>
+            <div style="display: flex;flex-wrap: wrap;max-width: 700px;">
+                <div class="upload-card" *ngFor="let imageUrl of retreatCardParams.appendixes; let i = index;">
+                    <div class="upload">
+                        <img [src]="ossPath+imageUrl" class="avatar">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">退卡日期:</label>
+            <nz-date-picker [(ngModel)]="retreatCardParams.date" disabled></nz-date-picker>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">备注:</label>
+            <div style="width: 400px;">
+                <textarea rows="4" nz-input [(ngModel)]="retreatCardParams.remark" disabled></textarea>
+            </div>
+        </div> 
+    </div>
+</ny-modal>

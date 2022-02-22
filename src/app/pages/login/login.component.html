@@ -1,0 +1,96 @@
+<div class="container">
+    <div class="content">
+        <div class="logo">
+            <img src="../../../assets/img/logo.svg" alt="">
+        </div>
+        <div class="login" *ngIf="isLogin">
+            <form nz-form [formGroup]="validateForm" class="login-form" (ngSubmit)="login()">
+                <!-- <div class="tabs">
+                    <div class="tabs-tab">
+                        登录后台
+                    </div>
+                </div> -->
+                <p class="title">登录</p>
+                <nz-form-item>
+                    <nz-form-control>
+                        <nz-input-group [nzPrefix]="prefixUser" [nzSize]="'large'">
+                            <input type="text" nz-input formControlName="username" placeholder="账户"/>
+                        </nz-input-group>
+                        <nz-form-explain *ngIf="validateForm.get('username')?.dirty && validateForm.get('username')?.errors">
+                            <span *ngIf="validateForm.get('username').errors.required">请输入用户名</span>
+                            <span *ngIf="validateForm.get('username').errors.invalid">用户不存在</span>
+                        </nz-form-explain>
+                    </nz-form-control>
+                </nz-form-item>
+                <nz-form-item>
+                    <nz-form-control>
+                        <nz-input-group [nzPrefix]="prefixLock" [nzSize]="'large'">
+                            <input type="password" nz-input formControlName="password" placeholder="密码"/>
+                        </nz-input-group>
+                        <nz-form-explain *ngIf="validateForm.get('password')?.dirty && validateForm.get('password')?.errors">
+                            <span *ngIf="validateForm.get('password').errors.required">请输入密码</span>
+                            <span *ngIf="validateForm.get('password').errors.invalid">密码错误，{{validateForm.get('password').errors.invalid.times}}次错误后将限制登录</span>
+                            <span *ngIf="validateForm.get('password').errors.limit">登录限制，请24小时后重试</span>
+                        </nz-form-explain>
+                    </nz-form-control>
+                </nz-form-item>
+                <nz-form-item>
+                    <nz-form-control>
+                        <button nz-button class="login-form-button" [nzType]="'primary'" [nzSize]="'large'">登录</button>
+                        <!-- <a (click)="changeType()">注册账户</a> -->
+                    </nz-form-control>
+                </nz-form-item>
+            </form>
+
+            <ng-template #prefixUser><i nz-icon type="user"></i></ng-template>
+            <ng-template #prefixLock><i nz-icon type="lock"></i></ng-template>
+
+        </div>
+
+        <div class="register" *ngIf="!isLogin">
+            <p class="title">注册</p>
+            <form nz-form [formGroup]="registerForm" class="login-form" (ngSubmit)="register()">
+                <nz-form-item>
+                    <nz-form-control>
+                        <input type="text" nz-input nzSize="large" formControlName="name" placeholder="用户名"/>
+                        <nz-form-explain *ngIf="registerForm.get('name')?.dirty && registerForm.get('name')?.errors">请输入用户名</nz-form-explain>
+                    </nz-form-control>
+                </nz-form-item>
+                <nz-form-item>
+                    <nz-form-control>
+                        <input type="text" nz-input nzSize="large" formControlName="mobile" placeholder="11 位手机号"/>
+                        <nz-form-explain *ngIf="registerForm.get('mobile')?.dirty && registerForm.get('mobile')?.errors">
+                            <span *ngIf="registerForm.get('mobile')?.errors.required">请输入手机号</span>
+                            <span *ngIf="registerForm.get('mobile')?.errors.pattern">手机号格式错误</span>
+                        </nz-form-explain>
+                    </nz-form-control>
+                </nz-form-item>
+                <nz-form-item>
+                    <nz-form-control>
+                        <input type="password" nz-input nzSize="large" formControlName="password" placeholder="6 - 16 位密码，区分大小写"/>
+                        <nz-form-explain *ngIf="registerForm.get('password')?.dirty && registerForm.get('password')?.errors">
+                            <span *ngIf="registerForm.get('password')?.errors.required">请输入密码</span>
+                            <span *ngIf="registerForm.get('password')?.errors.minlength">密码长度最少为6个字符</span>
+                            <span *ngIf="registerForm.get('password')?.errors.maxlength">密码长度最少为16个字符</span>
+                        </nz-form-explain>
+                    </nz-form-control>
+                </nz-form-item>
+                <nz-form-item>
+                    <nz-form-control>
+                        <input type="password" nz-input nzSize="large" formControlName="confirmPassword" placeholder="确认密码"/>
+                        <nz-form-explain *ngIf="registerForm.get('confirmPassword')?.dirty && registerForm.get('confirmPassword')?.errors">
+                            <span *ngIf="registerForm.get('confirmPassword')?.errors.required">请输入确认密码</span>
+                            <span *ngIf="registerForm.get('confirmPassword')?.errors.mustMatch">确认密码与密码不匹配</span>
+                        </nz-form-explain>
+                    </nz-form-control>
+                </nz-form-item>
+                <nz-form-item>
+                    <nz-form-control>
+                        <button nz-button class="login-form-button" [nzType]="'primary'" [nzSize]="'large'" style="width: 50%;">注册</button>
+                        <a (click)="changeType()" style="float: right;">使用已有帐户登录</a>
+                    </nz-form-control>
+                </nz-form-item>
+            </form>
+        </div>
+    </div>
+</div>

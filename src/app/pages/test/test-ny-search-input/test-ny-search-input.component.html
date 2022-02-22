@@ -1,0 +1,13 @@
+<div style="margin-bottom: 8px;">
+    <input nz-input style="width: 320px;" placeholder="请输入url" [(ngModel)]="url">
+    <button nz-button nzType="primary" style="margin-left: 8px;" (click)="create()">生成</button>
+    <button nz-button nzType="primary" style="margin-left: 8px;" (click)="destroy()">销毁</button>
+</div>
+
+<div class="content-box" *ngIf="createUrl" style="flex: 1;">
+    <content-header [buttonGroups]="buttons" [collection]="collection">
+        <ny-search-input [uri]="createUrl" [pageSize]="50" (collection)="setCollection($event)"></ny-search-input>
+    </content-header>
+
+    <ny-table [collection]="collection" [showIndex]="true"></ny-table>
+</div>

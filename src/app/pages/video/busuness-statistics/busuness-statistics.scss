@@ -1,0 +1,12 @@
+.nav {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    &_item {
+        padding: 12px;
+        cursor: pointer;
+        &.current {
+            color: #1890ff;
+        }
+    }
+}

@@ -1,0 +1,335 @@
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="transformVisible" (onClose)="cancelTransformCard()">
+    <ny-header>
+        <h2>转卡</h2>
+        <p style="flex: 1"></p>
+    </ny-header>
+    <div>
+        <div class="info-title">原卡信息</div>
+        <div class="form-group flex-center">
+            <label class="label">卡类:</label>
+            <input nz-input [value]="transformParams.course_card_name || detail.courseCard.name" disabled />
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">绑定会员:</label>
+            <div>
+                <input nz-input [value]="transformParams.member_name || detail.member_name" disabled />
+            </div>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">原卡余额:</label>
+            <div>
+                <input nz-input disabled [value]="transformParams.old_balance || detail.balance" />
+            </div>
+            <span class="unit">{{ courseCardType == 1 ? '次' : '天' }}</span>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">原价:</label>
+            <div>
+                <input nz-input disabled [value]="transformParams.old_price || detail.price" />
+            </div>
+            <span class="unit">元</span>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">剩余价值:</label>
+            <div>
+                <input nz-input disabled [value]="transformParams.surplus_value || detail.surplus_value" />
+            </div>
+            <span class="unit">元</span>
+        </div>
+        <div class="info-title">转卡信息</div>
+        <div class="row-flex-end">
+            <button nz-button nzType="primary" (click)="transformCard()" [disabled]="transformParams.id">提交申请</button>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">转卡类型:</label>
+            <label nz-checkbox [(ngModel)]="tType.hall" [nzDisabled]="transformParams.id"
+                (ngModelChange)="hallCheckChange()">转场馆</label>
+            <label nz-checkbox [(ngModel)]="tType.member" [nzDisabled]="transformParams.id"
+                (ngModelChange)="memberCheckChange()">转会员</label>
+            <label nz-checkbox [(ngModel)]="tType.card" [nzDisabled]="transformParams.id"
+                (ngModelChange)="cardCheckChange()">转换卡种</label>
+        </div>
+
+        <div class="form-group" *ngIf="tType.hall">
+            <label class="label"><em>*</em>场馆:</label>
+            <nz-select [(ngModel)]="transformParams.to_hall_id" style="width: 200px;" [nzShowSearch]="true"
+                [nzDisabled]="transformParams.id" (ngModelChange)="hallChange()">
+                <nz-option *ngFor="let item of hallList" [nzLabel]="item.name" [nzValue]="item.id"></nz-option>
+            </nz-select>
+            <span class="unit pointer" (click)="getHallList()">
+                <i nz-icon nzType="sync" nzTheme="outline"></i>
+            </span>
+        </div>
+
+        <!-- 转会员需显示 -->
+        <div class="form-group" *ngIf="tType.member">
+            <label class="label">会员:</label>
+            <nz-select [(ngModel)]="transformParams.to_member_id"
+                *ngIf="!transformParams.to_member_name && !transformParams.member_name" style="width: 200px;"
+                [nzDisabled]="transformParams.id" [nzShowSearch]="true" [nzServerSearch]="true"
+                (nzOnSearch)="onSearch($event)" (nzScrollToBottom)="loadMore()" (ngModelChange)="memberChange()">
+                <ng-container *ngFor="let member of memberList">
+                    <nz-option [nzLabel]="member.label" [nzValue]="member.id" [nzDisabled]="member.member_status == -1 ? true : false"></nz-option>
+                </ng-container>
+                <nz-option *ngIf="isLoading" nzDisabled nzCustomContent>
+                    <i nz-icon nzType="loading" class="loading-icon"></i> 加载中
+                </nz-option>
+            </nz-select>
+            <input *ngIf="transformParams.to_member_name || transformParams.member_name" nz-input
+                [value]="transformParams.to_member_name || transformParams.member_name" disabled>
+        </div>
+
+        <div class="form-group">
+            <label class="label">销售:</label>
+            <nz-select [(ngModel)]="transformParams.to_salesman_id" style="width: 200px;"
+                [nzDisabled]="transformParams.id" [nzShowSearch]="true">
+                <nz-option *ngFor="let sales of salesmanListData" [nzLabel]="sales.name" [nzValue]="sales.id">
+                </nz-option>
+            </nz-select>
+
+            <app-payment-dialog *ngIf="transformParams.id" [tag]="'transform_salesman'" [params]="transformParams" 
+            [salesmanList]="salesmanListData" (onChange)="refreshDetail()"></app-payment-dialog>
+
+            <app-payment-update-log *ngIf="transformParams.id" [tag]="'transform_salesman'" [orderId]="transformParams.id"></app-payment-update-log>
+        </div>
+
+        <!-- 转卡种需显示 -->
+        <div *ngIf="tType.card">
+            <div class="form-group">
+                <label class="label">卡类:</label>
+                <nz-select [(ngModel)]="transformParams.to_course_card_id" style="width: 200px;"
+                    [nzDisabled]="transformParams.id" (ngModelChange)="courseCardChange()" [nzShowSearch]="true">
+                    <nz-option *ngFor="let card of courseCardList" [nzValue]="card.id" [nzLabel]="card.name">
+                    </nz-option>
+                </nz-select>
+            </div>
+            <div class="form-group">
+                <label class="label">规格:</label>
+                <nz-select [(ngModel)]="transformParams.to_course_card_spec_id" [nzDisabled]="transformParams.id"
+                    style="width: 200px;" (ngModelChange)="specsChange()">
+                    <nz-option *ngFor="let specs of courseCardSpecsList" [nzLabel]="specs.label" [nzValue]="specs.id"
+                        [nzDisabled]="!specs.status">
+                    </nz-option>
+                </nz-select>
+            </div>
+        </div>
+
+        <!-- 转会馆/会员显示 -->
+        <div *ngIf="tType.hall || tType.member">
+            <div class="form-group">
+                <label class="label">费率:</label>
+                <div>
+                    <nz-input-number [(ngModel)]="transformParams.rate" [nzPrecision]="4" [nzStep]="0.01" [nzMax]="1"
+                        [disabled]="transformParams.id" (ngModelChange)="rateChange()" style="width: 200px;">
+                    </nz-input-number>
+                </div>
+                <!-- <span class="unit">%</span> -->
+            </div>
+            <div class="form-group">
+                <label class="label">手续费:</label>
+                <div>
+                    <nz-input-number [(ngModel)]="transformParams.commission" [nzPrecision]="2"
+                        [disabled]="transformParams.id" style="width: 200px;" (ngModelChange)="commissionChange()">
+                    </nz-input-number>
+                </div>
+                <span class="unit">元</span>
+            </div>
+        </div>
+
+        <!-- 新卡余额 -->
+        <div class="form-group flex-center">
+            <label class="label">
+                <em>*</em>
+                <span>转卡后</span>
+                <span *ngIf="selectCardType">{{ selectCardType == 1 ? '次数' : '天数' }}:</span>
+                <span *ngIf="!selectCardType">{{ courseCardType == 1 ? '次数' : '天数' }}:</span>
+            </label>
+            <div>
+                <nz-input-number [(ngModel)]="transformParams.new_card_amount" [disabled]="isCustomSpecs || transformParams.id"
+                    style="width: 200px;">
+                </nz-input-number>
+            </div>
+            <span class="unit" *ngIf="selectCardType">{{ selectCardType == 1 ? '次' : '天'}}</span>
+            <span class="unit" *ngIf="!selectCardType">{{ courseCardType == 1 ? '次' : '天'}}</span>
+        </div>
+
+        <!-- 新卡原价 -->
+        <div class="form-group flex-center">
+            <label class="label"><em>*</em>转卡后总价:</label>
+            <div>
+                <nz-input-number [(ngModel)]="transformParams.new_card_price" [disabled]="isCustomSpecs || transformParams.id"
+                    style="width: 200px;" (ngModelChange)="priceChange()">
+                </nz-input-number>
+            </div>
+            <span class="unit">元</span>
+        </div>
+
+        <!-- 剩余有效天数(次卡才显示) -->
+        <!-- *ngIf="(courseCardType == 1 && !selectCardType) || (courseCardType == 1 && selectCardType == 1)" -->
+        <div class="form-group flex-center" *ngIf="courseCardType == 1 || selectCardType == 1">
+            <label class="label">剩余有效天数:</label>
+            <div>
+                <nz-input-number [(ngModel)]="transformParams.valid_days" style="width: 200px;" [disabled]="transformParams.id">
+                </nz-input-number>
+            </div>
+            <span class="unit">天</span>
+            <span class="unit">(次卡的剩余有效期天数)</span>
+        </div>
+
+        <!-- 调整价格(自定义规格时显示) -->
+        <div class="form-group flex-center" *ngIf="isCustomSpecs || transformParams.to_course_card_spec_id > 0">
+            <label class="label">调整价格:</label>
+            <div>
+                <nz-input-number [(ngModel)]="changNewCardPrice" style="width: 200px;" (ngModelChange)="priceChange()" [disabled]='isDisableAdjust'>
+                </nz-input-number>
+            </div>
+            <span class="unit">元</span>
+        </div>
+
+        <!-- 原卡剩余价值 -->
+        <div class="form-group flex-center">
+            <label class="label">原卡剩余价值:</label>
+            <div>
+                <input nz-input disabled [value]="transformParams.surplus_value || detail.surplus_value" />
+            </div>
+            <span class="unit">元</span>
+            <!-- <button nz-button nzType="primary" (click)="adjustEvent.emit()" style="margin-left: 16px;">剩余价值调整</button> -->
+        </div>
+
+        <!-- 新卡实际价格 -->
+        <div class="form-group flex-center">
+            <label class="label">新卡实际价格:</label>
+            <span class="textStyle">{{ transformParams.actual_price }}</span>
+            <span class="unit mr8">元</span>
+        </div>
+
+        <!-- 转卡补差 -->
+        <div class="form-group flex-center">
+            <label class="label">转卡补差:</label>
+            <span class="textStyle">{{ transformParams.agio }}</span>
+            <span class="unit mr8">元</span>
+            <span>(新卡实际价格 - 原卡剩余价值)</span>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">调整转卡补差:</label>
+            <div>
+                <nz-input-number [nzStep]="1" [(ngModel)]="transformParams.adjust_shortfall" [nzDisabled]="transformParams.id">
+                </nz-input-number>
+            </div>
+            <span class="unit">元</span>
+            <span class="unit">(请输入调整后的补差价，负数请加-号)</span>
+        </div>
+
+        <!-- 总计补差 -->
+        <div class="form-group flex-center">
+            <label class="label">总支付补差:</label>
+            <span *ngIf="!transformParams.id" class="textStyle" style="color: red;">{{ totalPrice() }}</span>
+            <span *ngIf="transformParams.id" class="textStyle" style="color: red;">{{ transformParams.pay_money }}</span>
+
+            <span class="unit mr8">元</span>
+            <span>{{(!tType.hall && !tType.member) ? '(转卡补差)' : '(转卡补差 + 手续费)' }}</span>
+        </div>
+
+        <div class="form-group">
+            <label class="label">备注:</label>
+            <div>
+                <textarea nz-input style="width: 200px;" [(ngModel)]="transformParams.remark"
+                    [nzAutosize]="{ minRows: 3, maxRows: 6 }" [disabled]="transformParams.id"></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label" style="min-width: 120px;">附件:</label>
+            <div style="display: flex;flex-wrap: wrap;max-width: 700px;">
+                <div class="upload-card" *ngFor="let imageUrl of imageList; let i = index;">
+                    <div class="upload">
+                        <div *ngIf="transformParams.id">
+                            <img [src]="ossPath + imageUrl" class="avatar">
+                        </div>
+                        <div class="item-info" *ngIf="!transformParams.id">
+                            <img [src]="ossPath + imageUrl" class="avatar">
+                            <div class="item-actions">
+                                <i nz-icon nzType="delete" nzTheme="outline" (click)="removeFile(i)"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <nz-upload class="avatar-uploader" nzName="avatar" nzListType="picture-card"
+                    [nzCustomRequest]="uploadImg" [nzShowUploadList]="false"
+                    *ngIf="imageList.length < 9 && !transformParams.id">
+                    <i class="upload-icon" nz-icon [nzType]="isUploadLoading ? 'loading' : 'plus'"></i>
+                    <div class="ant-upload-text">上传图片</div>
+                </nz-upload>
+            </div>
+        </div>
+
+        <div class="info-title">支付信息</div>
+        <div class="row-flex-end">
+            <button nz-button nzType="primary" (click)="transformCardPayment()" [disabled]="isShowDetail">确认支付</button>
+        </div>
+        <div class="form-group">
+            <label class="label">支付类型:</label>
+            <nz-radio-group [(ngModel)]="paymentMethod" [nzDisabled]="isShowDetail">
+                <label nz-radio-button [nzValue]="'one'">单一支付</label>
+                <label nz-radio-button [nzValue]="'multiple'">组合支付</label>
+            </nz-radio-group>
+            <!-- status = 1 还没有支付-->
+            <app-payment-dialog *ngIf="isShowDetail && transformParams.status != 1 && transformParams.pay_money_copy" [tag]="'transform'" [paymentList]="paymentOptions"
+            [params]="transformParams" (onChange)="refreshDetail()"></app-payment-dialog>
+
+            <app-payment-update-log *ngIf="isShowDetail && transformParams.status != 1  && transformParams.pay_money_copy" [tag]="'transform'" [orderId]="transformParams.id"></app-payment-update-log>
+        </div>
+
+        <div *ngIf="paymentMethod == 'one'">
+            <div class="form-group">
+                <label class="label"><em>*</em>支付方式:</label>
+                <nz-select [(ngModel)]="params.payment_id" style="width: 200px;" [nzDisabled]="isShowDetail">
+                    <nz-option *ngFor="let payment of paymentOptions" [nzLabel]="payment.name" [nzValue]="payment.id">
+                    </nz-option>
+                </nz-select>
+                <span class="unit pointer" *ngIf="!isShowDetail" (click)="getMemberPaymentList(true)">
+                    <i nz-icon nzType="sync" nzTheme="outline"></i>
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label class="label">交易号:</label>
+                <!-- <input nz-input [(ngModel)]="params.payment_no" /> -->
+                <nz-input-number [(ngModel)]="params.trade_no" [nzMin]="0" style="width: 200px;"
+                    [nzDisabled]="isShowDetail"></nz-input-number>
+            </div>
+        </div>
+        <div *ngIf="paymentMethod == 'multiple' ">
+            <div class="pay-info" *ngFor="let item of payInfo; let index = index;">
+                <span class="mr8 label"><em style="color: red;margin-right: 5px;">*</em>支付方式:</span>
+                <nz-select [(ngModel)]="item.mode" style="width: 120px;" [nzDisabled]="isShowDetail">
+                    <nz-option *ngFor="let payment of paymentOptions" [nzLabel]="payment.name" [nzValue]="payment.id">
+                    </nz-option>
+                </nz-select>
+                <span class="mr8 ml8">支付金额:</span>
+                <nz-input-number [nzStep]="1" [(ngModel)]="item.amount" [nzPrecision]="2" [nzDisabled]="isShowDetail">
+                </nz-input-number>
+                <span class="mr8 ml8">交易号:</span>
+                <nz-input-number [nzMin]="1" [nzStep]="1" [(ngModel)]="item.trade_no" [nzDisabled]="isShowDetail">
+                </nz-input-number>
+
+                <span class="ml8 mr8 add" *ngIf="!isShowDetail" (click)="addPayInfo()">
+                    <i nz-icon nzType="plus-circle" nzTheme="outline"></i>
+                </span>
+                <span class="ml8 remove" *ngIf="index > 0 && !isShowDetail" (click)="removePayInfo(index)">
+                    <i nz-icon nzType="delete" nzTheme="outline"></i>
+                </span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label"><em>*</em>收款时间:</label>
+            <nz-date-picker [nzShowTime]="'true'" [nzDisabled]="isShowDetail" [(ngModel)]="paymentTime"
+                [nzAllowClear]="false" [nzDisabledDate]="disabledPaymentDate"></nz-date-picker>
+        </div>
+
+    </div>
+</ny-modal>

@@ -1,0 +1,223 @@
+<div style="display: flex;">
+    <button nz-button nzType="primary" (click)="showModal()" style="margin-right: 8px;">发布视频</button>
+    <content-header [collection]="collection" style="flex: 1;">
+        <ny-search-input #searchInput uri="mix/video/admin/list" [pageSize]="20" (collection)="setCollection($event)">
+        </ny-search-input>
+    </content-header>
+</div>
+
+<ny-table [collection]="collection" showIndex="true">
+    <ng-template nyColumn="category_name" width="240px" let-item>
+        {{ item.category_name }}
+    </ng-template>
+    <ng-template nyColumn="title" width="180px" let-item>
+        <a (click)="showDetail(item)">{{ item.title }}</a>
+    </ng-template>
+    <ng-template nyColumn="coach_id" width="80px" let-item let-header="header" let-value="value">
+        {{ value(item, header) }}
+    </ng-template>
+    <ng-template nyColumn="video_position_id" width="90px" let-item let-header="header" let-value="value">
+        {{ value(item, header) }}
+    </ng-template>
+    
+    <ng-template nyColumn label="操作" width="120px" let-item>
+        <a (click)="enableVideo(item)" *ngIf="!item.status">上线</a>
+        <a (click)="disabledVideo(item)" *ngIf="item.status">下线</a>
+        <nz-divider nzType="vertical"></nz-divider>
+        <a (click)="remove(item)">删除</a>
+    </ng-template>
+</ny-table>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" [autoClose]="true" (onClose)="cancel()">
+    <ny-header>
+        <h2>{{ params.id ? '视频信息' : '发布视频' }}</h2>
+        <p style="flex: 1"></p>
+        <button nz-button nzType="default" (click)="cancel()" style="margin-right: 16px;">取消</button>
+        <button nz-button nzType="primary" (click)="save()">保存</button>
+    </ny-header>
+    <div nyForm="form" (onInit)="onFormInit($event)">
+        <div class="form-group">
+            <label class="label"><em>*</em>选择视频:</label>
+            <div style="flex: 1;">
+                <div class="video-wrap" >
+                    <div *ngIf="!currentVideo.id" class="icon-wrap" (click)="showVideoModal()">
+                        <i nz-icon nzType="folder-add" nzTheme="outline" ></i>
+                        <p class="desc">从视频库选择</p>
+                    </div>
+                    <div class="video-info" *ngIf="currentVideo.id">
+                        <div class="cover-box">
+                            <div class="cover">
+                                <img [src]="currentVideo.cover" alt="">
+                                <div class="mask">
+                                    <span class="mask-text" (click)="showPreviewModal()">预览</span>
+                                </div>
+                            </div>
+                            <span class="swap" nz-tooltip nzTitle="替换视频" (click)="showVideoModal()">
+                                <i nz-icon nzType="swap" nzTheme="outline"></i>
+                            </span>
+                        </div>
+                        <!-- <p class="title">{{ currentVideo.title }}</p> -->
+                        <!-- <p class="desc"></p> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label"><em>*</em>视频标题:</label>
+            <div>
+                <input nz-input placeholder="输入视频标题" nyName="title" errorStyle="float" style="width: 300px" />
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="label">瑜伽流派:</label>
+            <div>
+                <nz-tree-select style="width: 200px" [nzNodes]="genreList" errorStyle="float" nzShowSearch
+                    nzPlaceHolder="瑜伽流派" nyName="video_genre_id" [nzDropdownStyle]="{ 'max-height': '300px' }">
+                </nz-tree-select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">瑜伽教练:</label>
+            <div>
+                <nz-select nyName="coach_id" [nzPlaceHolder]="'瑜伽教练'" errorStyle="float"
+                    style="width: 200px;" nzAllowClear>
+                    <nz-option *ngFor="let coach of coachList" [nzLabel]="coach.label" [nzValue]="coach.id">
+                    </nz-option>
+                </nz-select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">体位类别:</label>
+            <div>
+                <nz-select nyName="video_position_id" [nzPlaceHolder]="'体位类别'" errorStyle="float"
+                    style="width: 200px;" nzAllowClear>
+                    <nz-option *ngFor="let position of positionList" [nzLabel]="position.name"
+                        [nzValue]="position.id">
+                    </nz-option>
+                </nz-select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">分类:</label>
+            <div style="padding-top: 5px;flex: 1;">
+                <div *ngFor="let category of categoryList">
+                    <span class="mr16">{{ category.name }}:</span>
+                    <label *ngFor="let child of category.children" [ngClass]="{ 'red': !!child.is_internal }" nz-checkbox
+                        [(ngModel)]="child.checked">{{ child.name }}</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="label">权重:</label>
+            <nz-input-number [nzMin]="0" [nzStep]="1" style="width:110px;" nyName="priority" errorStyle="float">
+            </nz-input-number>
+        </div>
+
+        <div class="form-group" >
+            <label class="label">视频内容:</label>
+            <div class="control-input" style="flex: 1; max-width: 600px;">
+                <div class="editor-wrap">
+                    <ueditor [(ngModel)]="videoHtmlContent" [ossBucket]="videoBucket"></ueditor>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="label">发布时间:</label>
+            <div>
+                <nz-date-picker [(ngModel)]="params.created_at" nyName="created_at" style="width: 200px;" [nzShowTime]="true"></nz-date-picker>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">浏览次数:</label>
+            <div>
+                <nz-input-number [nzMin]="0" [nzStep]="1" style="width:110px;" nyName="play_count" errorStyle="float">
+                </nz-input-number>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">点赞人数:</label>
+            <div>
+                <nz-input-number [nzMin]="0" [nzStep]="1" style="width:110px;" nyName="praise_count" errorStyle="float">
+                </nz-input-number>
+            </div>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">首页显示:</label>
+            <div>
+                <label nz-checkbox [(ngModel)]="params.is_show_front">勾选后，视频将在首页显示</label>
+            </div>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">是否专享视频:</label>
+            <div>
+                <label nz-checkbox [(ngModel)]="params.is_internal">专享视频只能通过专区分享链接观看</label>
+            </div>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">是否免费视频:</label>
+            <div>
+                <label nz-checkbox [(ngModel)]="params.is_free">(如果选中的话则为免费视频)</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">视频点数:</label>
+            <div>
+                <nz-input-number [nzMin]="0" [nzStep]="1" style="width:110px;" nyName="points" errorStyle="float">
+                </nz-input-number>
+            </div>
+        </div>
+    </div>
+</ny-modal>
+
+
+<nz-modal [(nzVisible)]="videoVisible" nzTitle="选择视频" (nzOnCancel)="cancelVideoSelect()"
+ (nzOnOk)="confirmVideoSelect()" [nzMaskClosable]="false" [nzWidth]="964">
+ <div>
+
+    <content-header [collection]="videoCollection">
+        <ny-search-input #searchInput uri="mix/video/admin/data/list" [pageSize]="20" (collection)="setVideoCollection($event)">
+        </ny-search-input>
+    </content-header>
+    <div style="height: 390px; overflow: auto;">
+        <ul class="video-list clearfix">
+            <li class="cell" *ngFor="let video of videoList; let index = index;"
+             [ngClass]="{'checked': video.id == selectVideo.id}">
+                <div class="cell-box" (click)="checkVideo(video)">
+                    <div class="thumbnail-outer">
+                        <div class="thumbnail">
+                            <img [src]="video.cover" alt="">
+                        </div>
+                        <!-- <div class="date">00:00:10</div> -->
+                    </div>
+                    <div class="detail">
+                        <p class="date">{{ video.created_at }}</p>
+                        <p class="title">{{ video.title }}</p>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="previewVisible" nzTitle="预览视频" (nzOnCancel)="cancelPreviewVideo()"
+    [nzFooter]="null" [nzMaskClosable]="false" [nzWidth]="964">
+    <div class="player-container-outer">
+        <div class="player-container-inner">
+            <div class="player-container">
+                <video id="previewVideo" playsinline controls></video>
+            </div>
+        </div>
+    </div>
+
+</nz-modal>

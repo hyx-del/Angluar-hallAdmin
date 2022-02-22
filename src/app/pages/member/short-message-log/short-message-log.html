@@ -1,0 +1,52 @@
+<div class="header">
+    <div class="form">
+        <label class="label">时间:</label>
+        <div>
+            <nz-date-picker [(ngModel)]="sendDate"></nz-date-picker>
+        </div>
+    </div>
+
+    <div class="form">
+        <label class="label">手机号:</label>
+        <div>
+           <input nz-input [(ngModel)]="mobile">
+        </div>
+    </div>
+
+    <button nz-button nzType="primary" (click)="search()">查询</button>
+</div>
+
+<div class="tabel">
+    <nz-table [nzData]="[{}]" nzBordered 
+              [nzShowPagination]="false" 
+              [nzFrontPagination]="false" 
+              [nzSize]="'small'" 
+             >
+        <thead>
+          <tr>
+            <th>手机号码</th>
+            <th>发送时间</th>
+            <th>收到时间</th>
+            <th>短信模板</th>
+            <th>内容</th>
+            <th>状态</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of smsSendData">
+            <td>{{data.PhoneNum}}</td>
+            <td>{{data.SendDate}}</td>
+            <td>{{data.ReceiveDate}}</td>
+            <td>{{data.TemplateCode}}</td>
+            <td>
+                <span [title]="data.Content" class="content">{{data.Content}}</span>
+            </td>
+            <td>
+                <span *ngIf="data.SendStatus === 1">等待回执</span>
+                <span *ngIf="data.SendStatus === 2">失败</span>
+                <span *ngIf="data.SendStatus === 3">成功</span>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+</div>

@@ -1,0 +1,128 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'hall/course/admin-city/course-fee-statistics'" [pageSize]="50"
+        (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection">
+    <ng-template nyColumn let-item label="操作" width="200px">
+        <a (click)="multipleCheck(item)">审核</a>
+        <!-- <nz-divider nzType="vertical"></nz-divider>
+        <a>撤销</a> -->
+    </ng-template>
+    
+</ny-table>
+
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" (onClose)="close()">
+    <ny-header>
+        <h2>课时费详情</h2>
+        <p style="flex: 1"></p>
+    </ny-header>
+    <div *ngIf="isVisible" style="height: 100%; display: flex;flex-direction: column;">
+        <div class="detail-head">
+            <span>教练：{{ currentData.coach_name }}</span>
+            <span style="margin-left: 8px;">手机号：{{ currentData.mobile }}</span>
+            <span style="margin-left: 40px;">上课次数：{{ currentData.course_frequency }}</span>
+            <span style="margin-left: 40px;">迟到次数：{{ currentData.late_frequency }}</span>
+            <span style="margin-left: 40px;">课时费：{{ currentData.cost || 0}}</span>
+        </div>
+        <content-header [buttonGroups]="detailButtons" [collection]="detailCollection">
+            <ny-search-input
+                [uri]="'hall/course/admin-city/course-fee-statistics/class-detail?coach_id=' + currentData.coach_id"
+                [pageSize]="50" (collection)="setDetailCollection($event)">
+            </ny-search-input>
+        </content-header>
+
+
+        <ny-table [collection]="detailCollection">
+            <ng-template nyColumn="course_date" width="180px" let-item let-header="header" let-value="value">
+                {{value(item, header)}} ({{item.start_time}}~{{item.end_time}})
+            </ng-template>
+            <ng-template nyColumn="sign_in_person" width="180px" let-item let-header="header" let-value="value">
+                <a nz-tooltip (click)="signAt(item)">{{value(item,header)}}</a>
+            </ng-template>
+            <ng-template nyColumn="sign_out_person" width="180px" let-item let-header="header" let-value="value">
+                <a nz-tooltip (click)="signOut(item)">{{value(item,header)}}</a>
+            </ng-template>
+            <ng-template nyColumn label="操作" width="100px" let-item>
+                <a (click)="showUpdateModal(item)">修改课时费</a>
+            </ng-template>
+        </ny-table>
+    </div>
+
+</ny-modal>
+<!--签到弹出框-->
+<nz-modal [(nzVisible)]="signAtIsVisible" [nzTitle]="modalTitle1" [nzContent]="modalContent1" [nzFooter]="modalFooter1"
+    (nzOnCancel)="signAtHandleCancel()">
+    <ng-template #modalTitle1>
+        签到信息
+    </ng-template>
+
+    <ng-template #modalContent1>
+        <p>签到的时间：{{signAtModelDate.sign_at}}</p>
+        <div class="signAt">
+            <div class="cause">签到的原因：</div>
+            <p>{{signAtModelDate.sign_in_remark}}</p>
+        </div>
+    </ng-template>
+
+    <ng-template #modalFooter1>
+        <button nz-button nzType="primary" (click)="signAtHandleOk()">确认</button>
+    </ng-template>
+</nz-modal>
+
+<!--签出弹出框-->
+<nz-modal [(nzVisible)]="signOutIsVisible" [nzTitle]="modalTitle" [nzContent]="modalContent" [nzFooter]="modalFooter"
+    (nzOnCancel)="signOutHandleCancel()">
+    <ng-template #modalTitle>
+        签出信息
+    </ng-template>
+
+    <ng-template #modalContent>
+        <p>签出的时间：{{signOutModelDate.sign_out_at}}</p>
+        <div class="signAt">
+            <div class="cause">签出的原因：</div>
+            <p>{{signOutModelDate.sign_out_remark}}</p>
+        </div>
+    </ng-template>
+
+    <ng-template #modalFooter>
+        <button nz-button nzType="primary" (click)="signOutHandleOk()">确认</button>
+    </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="exportManagerIsVisible" nzTitle="教练课时费明细分批导出" [nzFooter]="modalFooter" (nzOnCancel)="exportManagerHandleCancel()">
+    <p>共有<strong>{{total}}</strong>个教练可以导出</p>
+    <div style="margin-bottom: 14px;">
+        <label class="label"> 每批导出：</label>
+        <nz-radio-group [(ngModel)]="size">
+            <label nz-radio-button nzValue="20" (click)="maxpages()">20</label>
+            <label nz-radio-button nzValue="30" (click)="maxpages()">30</label>
+            <label nz-radio-button nzValue="50" (click)="maxpages()">50</label>
+        </nz-radio-group>
+        <span style="margin-left: 10px">个</span>
+    </div>
+    <div>
+        <label class="label">批次：</label>
+        <nz-input-number [(ngModel)]="pages" [nzMin]="1" [nzStep]="1" (nzBlur)="maxpages()"></nz-input-number>
+        <span style="margin-left: 15px;color: red;">*每次导出一个批次,请填写需导出的批次号</span>
+    </div>
+    <ng-template #modalFooter>
+        <button nz-button nzType="default" (click)="exportManagerHandleCancel()" [disabled]="isConfirmLoading?'disabled':''">取消</button>
+        <button nz-button nzType="primary" (click)="exportManagerHandleOk()" [nzLoading]="isConfirmLoading">确定</button>
+    </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isUpdateVisible" [nzTitle]="'修改课时费'" 
+    (nzOnCancel)="isUpdateVisible = false" (nzOnOk)="updateCourseFee()">
+    <div class="form-group">
+        <label class="label">上课人数：</label>
+        <div><input nz-input [(ngModel)]="courseFee.attend_amount" [disabled]="true" /></div>
+    </div>
+    <div class="form-group">
+        <label class="label">课时费：</label>
+        <div><nz-input-number [(ngModel)]="courseFee.course_fee" [nzMin]="0" style="width: 200px;"></nz-input-number>
+        </div>
+    </div>
+</nz-modal>

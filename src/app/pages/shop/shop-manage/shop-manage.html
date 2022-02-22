@@ -1,0 +1,31 @@
+
+<div *ngFor="let rules of rulesList">
+    <div>{{ textMap[rules.type] }}</div>
+    <div style="padding: 16px;" *ngIf="rules.type == 1">
+        <div class="rule__item" *ngFor="let item of rules.rule.commission_rule">
+            <span>业绩： {{ item.performance_start }}~{{ item.performance_end ? item.performance_end : "不限" }}</span>
+            <span>试用期提成：{{ item.probation }}%</span>
+            <span>正式提成：{{ item.official }}%</span>
+        </div>
+    </div>
+    <div style="padding: 16px;" *ngIf="rules.type == 2 || rules.type == 3">
+        <div class="rule__item" *ngFor="let item of rules.rule.commission_rule">
+            <span>业绩： {{ item.performance_start }}~{{ item.performance_end ? item.performance_end : "不限" }}</span>
+            <span>提成：{{ item.rate }}%</span>
+        </div>
+    </div>
+</div>
+
+<div style="margin-top: 24px;" *ngIf="shopManageList.length">
+    <label class="text-label">拥有团队提成店长：</label>
+
+    <nz-radio-group [(ngModel)]="shopManageId">
+        <label nz-radio *ngFor="let item of shopManageList" [nzValue]="item.id">{{ item.name }}</label>
+    </nz-radio-group>
+
+</div>
+
+<div style="margin-top: 16px;" *ngIf="shopManageList.length"> 
+    <span class="text-label"></span>
+    <button nz-button nzType="primary" (click)="save()">保存</button>
+</div>

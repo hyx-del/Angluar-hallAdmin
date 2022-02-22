@@ -1,0 +1,34 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="urls.list" [pageSize]="50" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template nyColumn label="操作" width="200px" let-item>
+        <a (click)="changeStatus(item)">{{ item.status ? '禁用' : '启用' }}</a>
+        <nz-divider nzType="vertical"></nz-divider>
+        <a (click)="remove(item)">删除</a>
+    </ng-template>
+</ny-table>
+
+<nz-modal [(nzVisible)]="isVisible" nzTitle="体测项目" (nzOnCancel)="cancel()" [nzOkText]="'保存'" (nzOnOk)="save()" [nzMaskClosable]="false"
+    nyForm="form" [nzWidth]="600" (onInit)="onFormInit($event)">
+    <div class="form-group">
+        <label class="label"><em>*</em>项目名:</label>
+        <div>
+            <input nz-input nyName="name" errorStyle="float" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label"><em>*</em>项目英文名:</label>
+        <div>
+            <input nz-input nyName="name_en" errorStyle="float" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label">单位:</label>
+        <div>
+            <input nz-input nyName="unit" errorStyle="float" />
+        </div>
+    </div>
+</nz-modal>

@@ -1,0 +1,34 @@
+<div *ngIf="info.id">
+    <div class="form-group flex-center">
+        <span class="label">场馆名称:</span>
+        <span>{{ info.name }}</span>
+    </div>
+    <div class="form-group flex-center">
+        <span class="label">英文名称:</span>
+        <span>{{ info.name_en }}</span>
+    </div>
+    <div class="form-group">
+        <span class="label">场馆图片:</span>
+        <span>
+            <div class="photo">
+                <img [src]="ossPath + info.picture" />
+            </div>
+        </span>
+    </div>
+    <div class="form-group flex-center">
+        <span class="label">联系电话:</span>
+        <span>{{ info.phone }}</span>
+    </div>
+    <div class="form-group flex-center">
+        <span class="label">邮箱地址:</span>
+        <span>{{ info.email }}</span>
+    </div>
+    <div class="form-group flex-center">
+        <span class="label">地址:</span>
+        <span>{{ info.full_address }}</span>
+    </div>
+    <div class="form-group">
+        <span class="label">场馆描述:</span>
+        <span style="flex: 1;max-width: 500px;">{{ info.description }}</span>
+    </div>
+</div>

@@ -1,0 +1,40 @@
+<!-- <content-header [collection]="collection">
+    <ny-complex-search [uri]="'hall/admin-hall/business-order'" [pageSize]="50" (collection)="setCollection($event)"></ny-complex-search>
+</content-header>  
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template let-item nyColumn="remark" maxWidth="240px">
+        <span class="remarkStyle">{{item.remark}}</span>
+    </ng-template>
+</ny-table> -->
+
+<nz-tabset class="business-order" [(nzSelectedIndex)]="selectedIndex">
+    <nz-tab nzTitle="本店订单">
+        <div style="height: 100%;display: flex;flex-direction: column;">
+            <content-header [collection]="collection">
+                <ny-complex-search [uri]="'hall/admin-hall/business-order'" [pageSize]="50" (collection)="setCollection($event)"></ny-complex-search>
+            </content-header>  
+            
+            <ny-table [collection]="collection" [showIndex]="true">
+                <ng-template let-item nyColumn="remark" maxWidth="240px">
+                    <span class="remarkStyle">{{item.remark}}</span>
+                </ng-template>
+            </ny-table>
+        </div>
+    </nz-tab>
+    <nz-tab nzTitle="本店卡跨店消耗订单">
+        <div style="height: 100%;display: flex;flex-direction: column;">
+            <content-header [collection]="crossHallCollection">
+                <ny-complex-search [uri]="'hall/admin-hall/cross-hall-order'" [pageSize]="50" (collection)="setCrossHallCollection($event)"></ny-complex-search>
+            </content-header>  
+            
+            <ny-table [collection]="crossHallCollection" [showIndex]="true">
+                <ng-template let-item nyColumn="remark" maxWidth="240px">
+                    <span class="remarkStyle">{{item.remark}}</span>
+                </ng-template>
+            </ny-table>
+        </div>
+    </nz-tab>
+</nz-tabset>
+
+

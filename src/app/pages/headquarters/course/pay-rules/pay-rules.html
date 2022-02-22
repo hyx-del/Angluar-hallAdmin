@@ -1,0 +1,67 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'hall/course/admin/card-pay-rules/list'" [pageSize]="50"
+        (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection">
+    <!-- <ng-template nyColumn label="操作" width="200px" let-item>
+        <a (click)="edit(item)">编辑</a>
+        <nz-divider nzType="vertical"></nz-divider>
+        <a (click)="remove(item)">删除</a>
+    </ng-template> -->
+</ny-table>
+
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" (onClose)="cancel()">
+    <ny-header>
+        <h2>结算规则</h2>
+        <p style="flex: 1"></p>
+        <button nz-button nzType="default" (click)="cancel()" style="margin-right: 16px;">取消</button>
+        <button nz-button nzType="primary" (click)="saveRules()">保存</button>
+    </ny-header>
+    <div>
+        <div class="form-group">
+            <label class="label">教练组:</label>
+            <div>
+                <nz-select style="width: 200px;" [(ngModel)]="params.coach_group_id"
+                    (ngModelChange)="coachGroupChange()">
+                    <nz-option *ngFor="let group of coachGroup" [nzLabel]="group.name" [nzValue]="group.id">
+                    </nz-option>
+                </nz-select>
+            </div>
+            <span class="unit pointer" (click)="getCoachGroupList()">
+                <i nz-icon nzType="sync" nzTheme="outline"></i>
+            </span>
+        </div>
+        <div class="form-group">
+            <label class="label">价格:</label>
+            <div>
+                <nz-input-number style="width: 200px;" [nzPlaceHolder]="'价格'" [(ngModel)]="params.price" [nzMin]="0" [nzStep]="1">
+                </nz-input-number>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"></label>
+            <div style="flex: 1;">
+                <nz-table #basicTable [nzData]="[]" nzSize="small" [nzFrontPagination]="false"
+                    [nzShowPagination]="false">
+                    <thead>
+                        <tr>
+                            <th nzShowCheckbox nzWidth="60px"></th>
+                            <th>卡名</th>
+                            <th>结算</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let data of basicTable.data">
+                            <td nzShowCheckbox [(nzChecked)]="data.checked"></td>
+                            <td>{{data.name}}</td>
+                            <td>{{data.age}}</td>
+                        </tr>
+                    </tbody>
+                </nz-table>
+            </div>
+        </div>
+    </div>
+</ny-modal>

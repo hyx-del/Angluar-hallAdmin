@@ -1,0 +1,30 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.form-group {
+    .label {
+        width: auto;
+    }
+}
+
+.business {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+
+    ::ng-deep .ant-tabs {
+        flex: 1;
+
+        .ant-tabs-top-content {
+            height: calc(100% - 60px);
+
+            .ant-tabs-tabpane {
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+        }
+    }
+}

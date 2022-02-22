@@ -1,0 +1,189 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input #searchInput [uri]="'hall/member/admin-hall/member/list'" [pageSize]="50" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template nyColumn="birthday"  let-item>
+        {{ item.birthday }}
+    </ng-template> 
+    <!-- <ng-template nyColumn label="操作" width="100px" let-item>
+        <a (click)="getDetail(item)">详情</a> -->
+        <!-- <nz-divider nzType="vertical"></nz-divider>
+        <a (click)="remove(item)">删除</a> -->
+    <!-- </ng-template> -->
+</ny-table>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="editorVisible" (onClose)="cancelMemberEditor()">
+    <ny-header>
+        <h2>创建会员</h2>
+        <p style="flex: 1"></p>
+        <button nz-button nzType="default" (click)="cancelMemberEditor()" style="margin-right: 16px;">取消</button>
+        <button nz-button nzType="primary" (click)="saveMember()">保存</button>
+    </ny-header>
+    <div nyForm="form" (onInit)="onFormInit()" (onChange)="onFormChange($event)">
+        <div class="form-group">
+            <label class="label"><em>*</em>手机号:</label>
+            <div>
+                <input nz-input placeholder="手机号" nyName="contact" errorStyle="float" />
+            </div>
+        </div>
+        
+        <div class="form-group flex-center">
+            <label class="label"><em>*</em>类型:</label>
+            <div>
+                <nz-radio-group nyName="type">
+                    <label nz-radio [nzValue]="1">个人</label>
+                    <label nz-radio [nzValue]="2">企业</label>
+                </nz-radio-group>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>姓名:</label>
+            <div>
+                <input nz-input placeholder="姓名" nyName="name" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">微信号:</label>
+            <div>
+                <input nz-input placeholder="微信号" nyName="wechat_id" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">性别:</label>
+            <div>
+                <nz-radio-group nyName="gender">
+                    <label nz-radio [nzValue]="1">男</label>
+                    <label nz-radio [nzValue]="2">女</label>
+                </nz-radio-group>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">照片:</label>
+            <div>
+                <crop-image [aspectRatio]="1" [beforeCrop]="beforeCrop" (onComplete)="setImage($event)">
+                    <nz-upload class="avatar-uploader" nzName="avatar" nzListType="picture-card" [nzShowUploadList]="false">
+                        <ng-container *ngIf="!params.avatar">
+                            <i class="upload-icon" nz-icon [nzType]="isUploadLoading ? 'loading' : 'plus'"></i>
+                            <div class="ant-upload-text">上传图片</div>
+                        </ng-container>
+                        <img *ngIf="params.avatar" [src]="ossPath + params.avatar" class="avatar" />
+                    </nz-upload>
+                </crop-image>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">生日:</label>
+            <div>
+                <nz-date-picker nyName="birthday" [(ngModel)]="params.birthday" errorStyle="float"
+                    style="width: 200px;"></nz-date-picker>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">公司名:</label>
+            <div>
+                <input nz-input placeholder="公司名" nyName="company_name" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">兴趣爱好:</label>
+            <div>
+                <input nz-input placeholder="兴趣爱好" nyName="hobbies" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">婚姻状况:</label>
+            <div>
+                <nz-select nyName="marital_status" errorStyle="float">
+                    <nz-option nzLabel="已婚" [nzValue]="1"></nz-option>
+                    <nz-option nzLabel="离异" [nzValue]="2"></nz-option>
+                    <nz-option nzLabel="未婚" [nzValue]="0"></nz-option>
+                </nz-select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">出行习惯:</label>
+            <div>
+                <nz-select nyName="trip_mode" errorStyle="float">
+                    <nz-option *ngFor="let item of tripMode" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+                </nz-select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">课程需求:</label>
+            <div>
+                <nz-select nyName="course_requirements" errorStyle="float">
+                    <nz-option *ngFor="let item of requirements" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+                </nz-select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">住址:</label>
+            <div>
+                <textarea nz-input placeholder="住址" [(ngModel)]="params.address" nyName="address" errorStyle="float"
+                    [nzAutosize]="{ minRows: 3, maxRows: 6 }" style="width: 300px;resize: none;"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>来源:</label>
+            <nz-select [(ngModel)]="params.source_id" nzShowSearch nyName="source_id" errorStyle="float">
+                <nz-option *ngFor="let item of memberSourceList" [nzLabel]="item.name" [nzValue]="item.id"></nz-option>
+            </nz-select>
+            <span class="unit pointer" (click)="getMemberSourceList()">
+                <i nz-icon nzType="sync" nzTheme="outline"></i>
+            </span>
+        </div>
+        <div class="form-group">
+            <label class="label">销售员:</label>
+            <nz-select [(ngModel)]="params.salesman_id" nzShowSearch nyName="salesman_id"
+                errorStyle="float">
+                <nz-option *ngFor="let salesman of salesmanList" [nzLabel]="salesman.name" [nzValue]="salesman.id"></nz-option>
+            </nz-select>
+            <span class="unit pointer" (click)="getSalesmanList()">
+                <i nz-icon nzType="sync" nzTheme="outline"></i>
+            </span>
+        </div>
+
+        <div class="form-group">
+            <label class="label">教练:</label>
+            <nz-select nzMode="multiple" nzShowSearch nyName="coach_ids" errorStyle="float">
+                <nz-option *ngFor="let coach of coachList" [nzLabel]="coach.name" [nzValue]="coach.id"></nz-option>
+            </nz-select>
+            <span class="unit pointer" (click)="getCoachList()">
+                <i nz-icon nzType="sync" nzTheme="outline"></i>
+            </span>
+        </div>
+
+        <div class="form-group">
+            <label class="label">推荐人:</label>
+            <nz-select [(ngModel)]="params.referrer_id" nyName="referrer_id" errorStyle="float" 
+            [nzShowSearch]="true" [nzServerSearch]="true" (nzOnSearch)="onSearch($event)" 
+            (nzScrollToBottom)="loadMore()">
+                <nz-option *ngFor="let item of referrerMember" [nzLabel]="item.label" [nzValue]="item.id" [nzDisabled]="item.member_status == -1 ? true : false"></nz-option>
+                <nz-option *ngIf="isLoading" nzDisabled nzCustomContent>
+                    <i nz-icon nzType="loading" class="loading-icon"></i> 加载中
+                </nz-option>
+            </nz-select>
+        </div>
+
+    </div>
+</ny-modal>
+
+<shop-member-detail *ngIf="isVisible" [(visible)]="isVisible" [id]="detail.id" [member]="detail"></shop-member-detail>
+
+<nz-modal [(nzVisible)]="updateVisible" nzTitle="批量修改销售" (nzOnCancel)="handleCancelUpdate()" (nzOnOk)="updateSalesman()">
+    <div style="min-height: 120px;">
+        <div class="form-group flex-center">
+            <label class="label">销售:</label>
+            <div>
+                <nz-select [(ngModel)]="salesman_id" nzAllowClear>
+                    <nz-option *ngFor="let item of salesmanList" [nzLabel]="item.name" [nzValue]="item.id" ></nz-option>
+                </nz-select>
+            </div>
+        </div>
+    </div>
+</nz-modal>

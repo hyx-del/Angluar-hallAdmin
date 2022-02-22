@@ -1,0 +1,248 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'hall/admin/list'" [pageSize]="50" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template nyColumn="status" width="120px" let-item let-header="header" let-value="value">
+        {{ value(item, header) }}
+    </ng-template>
+    <ng-template nyColumn="full_address" width="240px" let-item >
+        {{ item.full_address }}
+    </ng-template>
+    <ng-template nyColumn label="操作" width="120px" let-item>
+        <!-- <a (click)="getDetail(item)">编辑</a>
+        <nz-divider nzType="vertical"></nz-divider> -->
+        <a (click)="changeStatus(item)" *ngIf="item.status == 10">开始运营</a>
+        <a (click)="changeStatus(item)" *ngIf="item.status == -20">恢复运营</a>
+        <a (click)="changeStatus(item)" *ngIf="item.status == 20">暂停运营</a>
+    </ng-template>
+</ny-table>
+
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" (onClose)="handleCancel()">
+    <ny-header>
+        <h2>{{ params.id ? "修改" : "添加" }}场馆</h2>
+        <p style="flex: 1"></p>
+        <button nz-button nzType="default" (click)="handleCancel()" style="margin-right: 16px;">取消</button>
+        <button nz-button nzType="primary" (click)="handleOk()">保存</button>
+    </ny-header>
+    <div nyForm="form" (onInit)="onFormInit($event)">
+
+        <div class="form-group">
+            <label class="label"><em>*</em>场馆名称:</label>
+            <div>
+                <input nz-input placeholder="请输入场馆名称" [(ngModel)]="params.name" nyName="name" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">英文名称:</label>
+            <div>
+                <input nz-input placeholder="请输入场馆名称" [(ngModel)]="params.name_en" nyName="name_en"
+                    errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">图片:</label>
+            <!-- <div>
+                <div class="upload-card" *ngIf="images.length < 5">
+                    <div class="upload" (click)="uploadFile()">
+                        <i nz-icon type="plus"></i>
+                        <div class="ant-upload-text">上传图片</div>
+                    </div>
+                </div>
+
+                <div class="upload-card" *ngFor="let image of images">
+                    <div class="upload" >
+                        <img [src]="ossPath + image.url" class="avatar">
+                    </div>
+                </div>
+            </div> -->
+            <div style="display: flex;">
+                <div class="upload-card" *ngFor="let imageUrl of images; let i = index;">
+                    <div class="upload" >
+                        <div class="item-info">
+                            <img [src]="ossPath + imageUrl" class="avatar">
+                            <div class="item-actions">
+                                <i nz-icon nzType="delete" nzTheme="outline" (click)="removeFile(i)"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <nz-upload class="avatar-uploader" nzName="avatar" nzListType="picture-card"
+                    [nzCustomRequest]="uploadImg" [nzShowUploadList]="false" *ngIf="images.length < 5">
+                    <i class="upload-icon" nz-icon [nzType]=" isLoading ? 'loading' : 'plus'"></i>
+                    <div class="ant-upload-text">上传图片</div>
+                </nz-upload>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>联系电话:</label>
+            <div>
+                <input nz-input placeholder="请输入联系电话" [(ngModel)]="params.phone" nyName="phone" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">客服电话:</label>
+            <div>
+                <input nz-input placeholder="请输入客服电话" [(ngModel)]="params.phone_ext" nyName="phone_ext" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">微信:</label>
+            <div>
+                <input nz-input [(ngModel)]="params.we_chat" nyName="we_chat" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">邮箱地址:</label>
+            <input nz-input type="email" email [(ngModel)]="params.email" nyName="email" />
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>地址:</label>
+            <nz-select style="width: 160px;margin-right: 10px;" [(ngModel)]="params.province_id"
+                (ngModelChange)="onChange($event, 'province')">
+                <nz-option *ngFor="let province of provinceList" [nzLabel]="province.name" [nzValue]="province.id">
+                </nz-option>
+            </nz-select>
+            <nz-select style="width: 160px;margin-right: 10px;" [(ngModel)]="params.city_id"
+                (ngModelChange)="onChange($event, 'city')">
+                <nz-option *ngFor="let city of cityList" [nzLabel]="city.name" [nzValue]="city.id"></nz-option>
+            </nz-select>
+            <nz-select style="width: 160px;" [(ngModel)]="params.area_id" (ngModelChange)="onChange($event)">
+                <nz-option *ngFor="let area of areaList" [nzLabel]="area.name" [nzValue]="area.id"></nz-option>
+            </nz-select>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>详细地址:</label>
+            <div style="flex: 1;">
+                <input nz-input style="width: 60%;" [(ngModel)]="params.address" nyName="address" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">英文详细地址:</label>
+            <div style="flex: 1;">
+                <input nz-input style="width: 60%;" [(ngModel)]="params.address_en" nyName="address_en"
+                    errorStyle="float" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">二维码失效时间:</label>
+            <div>
+                <nz-input-number [(ngModel)]="params.qrcode_expire_time" nyName="qrcode_expire_time" [nzMin]="1" style="width: 200px;"></nz-input-number>
+            </div>
+            <span class="unit">分钟</span>
+        </div>
+        
+        <div class="form-group">
+            <label class="label">营业时间:</label>
+            <div style="flex: 1;">
+                <span>
+                    <nz-time-picker nzFormat="HH:mm" [nzPlaceHolder]="'营业开始时间'" nyName="start_time" errorStyle="float">
+                    </nz-time-picker>
+                </span>
+                <span class="ml8">
+                    <nz-time-picker nzFormat="HH:mm" [nzPlaceHolder]="'营业结束时间'" nyName="end_time" errorStyle="float">
+                    </nz-time-picker>
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">营业时间说明:</label>
+            <div style="flex: 1;">
+                <textarea nz-input placeholder="营业时间说明" [(ngModel)]="params.open_time_intro"
+                    [nzAutosize]="{ minRows: 2, maxRows: 4 }" style="width: 60%;" nyName="open_time_intro"></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">营业数据上传:</label>
+            <div style="flex: 1;line-height: 32px;">
+                <nz-switch [(ngModel)]="dataUpload" nzCheckedChildren="开" nzUnCheckedChildren="关" (ngModelChange)="pushOrderChange()"></nz-switch>
+
+                <span *ngIf="dataUpload">
+                    <span class="ml8 mr8">选择服务</span>
+              
+                    <nz-select nyName="order_push_service" errorStyle="float" style="width: 200px;">
+                        <nz-option *ngFor="let item of pushAddressList" [nzLabel]="item.label" [nzValue]="item.value">
+                        </nz-option>
+                    </nz-select>
+                </span>
+            </div>
+        </div>
+
+        <div *ngIf="dataUpload" nyGroup="order_push_option">
+            <div class="form-group">
+                <label class="label"><em>*</em>商场编号:</label>
+                <div>
+                    <input nz-input nyName="mallid" errorStyle="float" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="label"><em>*</em>推送地址:</label>
+                <div>
+                    <input nz-input nyName="push_url" errorStyle="float" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="label"><em>*</em>交易店铺号:</label>
+                <div>
+                    <input nz-input nyName="storecode" errorStyle="float" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="label"><em>*</em>许可协议号:</label>
+                <div>
+                    <input nz-input nyName="licence_key" errorStyle="float" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="label"><em>*</em>用户账号:</label>
+                <div>
+                    <input nz-input nyName="username" errorStyle="float" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="label"><em>*</em>用户密码:</label>
+                <div>
+                    <input nz-input nyName="password" [type]="isShowPwd ? 'text' : 'password'" errorStyle="float" />
+                </div>
+                <span class="unit" style="cursor: pointer;" (click)="toggleShowPwd()">
+                    <i nz-icon [nzType]="isShowPwd ? 'eye-invisible' : 'eye'" nzTheme="outline"></i>
+                </span>
+            </div>
+            <div class="form-group">
+                <label class="label"><em>*</em>交易货号:</label>
+                <div>
+                    <input nz-input nyName="itemcode" errorStyle="float" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="label"><em>*</em>收银机号:</label>
+                <div>
+                    <input nz-input nyName="tillid" errorStyle="float" />
+                </div>
+            </div>
+        </div>
+        
+
+
+        <div class="form-group">
+            <label class="label">会馆经纬度:</label>
+            <div>
+                <input type="text" nz-input [(ngModel)]="params.longitude_latitude" nyName="longitude_latitude"
+                    errorStyle="float" />
+            </div>
+            <span class="unit"><a href="http://api.map.baidu.com/lbsapi/getpoint/index.html" target="_blank">经纬度获取工具</a></span>
+        </div>
+        <div class="form-group">
+            <label class="label">场馆描述:</label>
+            <div style="flex: 1;">
+                <textarea nz-input placeholder="描述" [(ngModel)]="params.description"
+                    [nzAutosize]="{ minRows: 3, maxRows: 6 }" style="width: 60%;" nyName="description"></textarea>
+            </div>
+        </div>
+    </div>
+</ny-modal>

@@ -1,0 +1,39 @@
+<div class="score">
+    <content-header [buttonGroups]="buttons" [collection]="collection">
+        <ny-search-input [uri]="'hall/admin-city/coach/score-statistics'" [pageSize]="50" (collection)="setCollection($event)">
+        </ny-search-input>
+    </content-header>
+
+    <nz-table #basicTable [nzData]="collection.data" [nzShowPagination]="false" [nzFrontPagination]="false" [nzSize]="'middle'"
+        [nzBordered]="true" [nzLoading]="isLoading">
+        <thead>
+            <tr>
+                <th rowspan="2">姓名</th>
+                <th rowspan="2">手机号</th>
+                <th rowspan="2">评分总次数</th>
+                <th colspan="5">评分次数</th>
+                <th rowspan="2">平均分</th>
+            </tr>
+            <tr>
+                <th>5分</th>
+                <th>4分</th>
+                <th>3分</th>
+                <th>2分</th>
+                <th>1分</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let data of collection.data">
+                <td>{{ data.name }}</td>
+                <td>{{ data.mobile }}</td>
+                <td>{{ data.comment_times }}</td>
+                <td>{{ data.score5 }}</td>
+                <td>{{ data.score4 }}</td>
+                <td>{{ data.score3 }}</td>
+                <td>{{ data.score2 }}</td>
+                <td>{{ data.score1 }}</td>
+                <td>{{ data.avg_score }}</td>
+            </tr>
+        </tbody>
+    </nz-table>
+</div>

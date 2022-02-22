@@ -1,0 +1,70 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.search-box {
+    display: flex;
+}
+.form-group {
+    .info-item {
+        margin-right: 16px;
+        line-height: 32px;
+    }
+}
+
+.coupon-import {
+    height: 100%;
+    td.error {
+        background-color: rgba(#FF0000, 0.2);
+    }
+}
+
+.send-success-box {
+    text-align: center;
+    padding-top: 40px;
+    .success-icon {
+        width: 72px;
+        height: 72px;
+        background: #52c41a;
+        text-align: center;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        i {
+            font-size: 32px;
+            color: white;
+        }
+    }
+    .success-title {
+        font-size: 24px;
+        font-weight: 500;
+        text-align: center;
+        color: rgba(0,0,0,0.85);
+        line-height: 32px;
+        margin-top: 24px;
+    }
+    .success-info {
+        width: 556px;
+        background: rgba(245,245,245,0.50);
+        border-radius: 2px;
+        padding: 24px 0;
+        padding-left: 110px;
+        margin: 0 auto;
+        margin-top: 40px;
+        text-align: left;
+        p {
+            margin-bottom: 16px;
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+    .btns {
+        margin-top: 24px;
+        text-align: center;
+    }
+}

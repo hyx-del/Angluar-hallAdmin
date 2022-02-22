@@ -1,0 +1,171 @@
+<div style="display: flex;">
+    <button nz-button nzType="primary" (click)="showModal()" style="margin-right: 8px;">发布音频</button>
+    <content-header [collection]="collection" style="flex: 1;">
+        <ny-search-input #searchInput uri="mix/video/admin/audio/list" [pageSize]="20" (collection)="setCollection($event)">
+        </ny-search-input>
+    </content-header>
+</div>
+
+<ny-table [collection]="collection" showIndex="true">
+    <ng-template nyColumn="category_name" width="240px" let-item>
+        {{ item.category_name }}
+    </ng-template>
+    <ng-template nyColumn="title" width="180px" let-item>
+        <a (click)="showDetail(item)">{{ item.title }}</a>
+    </ng-template>
+    
+    <ng-template nyColumn label="操作" width="120px" let-item>
+        <a (click)="enableVideo(item)" *ngIf="!item.status">上线</a>
+        <a (click)="disabledVideo(item)" *ngIf="item.status">下线</a>
+        <nz-divider nzType="vertical"></nz-divider>
+        <a (click)="remove(item)">删除</a>
+    </ng-template>
+</ny-table>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" [autoClose]="true" (onClose)="cancel()">
+    <ny-header>
+        <h2>{{ params.id ? '音频信息' : '发布音频' }}</h2>
+        <p style="flex: 1"></p>
+        <button nz-button nzType="default" (click)="cancel()" style="margin-right: 16px;">取消</button>
+        <button nz-button nzType="primary" (click)="save()">保存</button>
+    </ny-header>
+    <div nyForm="form" (onInit)="onFormInit($event)">
+        <div class="form-group">
+            <label class="label"><em>*</em>选择音频:</label>
+            <div style="flex: 1;">
+                <div class="video-wrap" >
+                    <div *ngIf="!currentVideo.id" class="icon-wrap" (click)="showVideoModal()">
+                        <i nz-icon nzType="folder-add" nzTheme="outline" ></i>
+                        <p class="desc">从音频库选择</p>
+                    </div>
+                    <div class="video-info" *ngIf="currentVideo.id">
+                        <div class="cover-box">
+                            <div class="cover">
+                                <img [src]="currentVideo.cover + '?x-oss-process=image/crop,w_540,h_304,g_center'" alt="">
+                                <div class="mask">
+                                    <span class="mask-text" (click)="showPreviewModal()">预览</span>
+                                </div>
+                            </div>
+                            <span class="swap" nz-tooltip nzTitle="替换音频" (click)="showVideoModal()">
+                                <i nz-icon nzType="swap" nzTheme="outline"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label"><em>*</em>音频标题:</label>
+            <div>
+                <input nz-input placeholder="输入音频标题" nyName="title" errorStyle="float" style="width: 300px" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">分类:</label>
+            <div style="padding-top: 5px;flex: 1;">
+                <div *ngFor="let category of categoryList">
+                    <span class="mr16">{{ category.name }}:</span>
+                    <label *ngFor="let child of category.children" [ngClass]="{ 'red': !!child.is_internal }" nz-checkbox
+                        [(ngModel)]="child.checked">{{ child.name }}</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="label">权重:</label>
+            <nz-input-number [nzMin]="0" [nzStep]="1" style="width:110px;" nyName="priority" errorStyle="float">
+            </nz-input-number>
+        </div>
+
+        <div class="form-group" >
+            <label class="label">音频内容:</label>
+            <div class="control-input" style="flex: 1; max-width: 600px;">
+                <div class="editor-wrap">
+                    <ueditor [(ngModel)]="videoHtmlContent" [ossBucket]="videoBucket"></ueditor>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">角标文字:</label>
+            <div>
+                <input nz-input placeholder="输入角标文字" nyName="designer" errorStyle="float" />
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="label">发布时间:</label>
+            <div>
+                <nz-date-picker [(ngModel)]="params.created_at" nyName="created_at" style="width: 200px;" [nzShowTime]="true"></nz-date-picker>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">浏览次数:</label>
+            <div>
+                <nz-input-number [nzMin]="0" [nzStep]="1" style="width:110px;" nyName="play_count" errorStyle="float">
+                </nz-input-number>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">点赞人数:</label>
+            <div>
+                <nz-input-number [nzMin]="0" [nzStep]="1" style="width:110px;" nyName="praise_count" errorStyle="float">
+                </nz-input-number>
+            </div>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">首页显示:</label>
+            <div>
+                <label nz-checkbox [(ngModel)]="params.is_show_front">勾选后，音频将在首页显示</label>
+            </div>
+        </div>
+
+    </div>
+</ny-modal>
+
+
+<nz-modal [(nzVisible)]="videoVisible" nzTitle="选择音频" (nzOnCancel)="cancelVideoSelect()"
+ (nzOnOk)="confirmVideoSelect()" [nzMaskClosable]="false" [nzWidth]="964">
+ <div>
+
+    <content-header [collection]="videoCollection">
+        <ny-search-input #searchInput uri="mix/video/admin/audio-data/list" [pageSize]="20" (collection)="setVideoCollection($event)">
+        </ny-search-input>
+    </content-header>
+    <div style="height: 390px; overflow: auto;">
+        <ul class="video-list clearfix">
+            <li class="cell" *ngFor="let video of videoList; let index = index;"
+             [ngClass]="{'checked': video.id == selectVideo.id}">
+                <div class="cell-box" (click)="checkVideo(video)">
+                    <div class="thumbnail-outer">
+                        <div class="thumbnail">
+                            <img [src]="video.cover + '?x-oss-process=image/crop,w_540,h_304,g_center'" alt="">
+                        </div>
+                        <!-- <div class="date">00:00:10</div> -->
+                    </div>
+                    <div class="detail">
+                        <p class="date">{{ video.created_at }}</p>
+                        <p class="title">{{ video.title }}</p>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="previewVisible" nzTitle="预览音频" (nzOnCancel)="cancelPreviewVideo()"
+    [nzFooter]="null" [nzMaskClosable]="false" [nzWidth]="964">
+    <div class="player-container-inner">
+        <div *ngIf="previewVisible" style="border: 1px solid #e8e8e8;border-radius: 4px;">
+            <audio id="previewAudio" controls >
+                <source *ngFor="let item of sources" [src]="item.src" type="audio/mp3">
+            </audio>
+        </div>
+    </div>
+
+</nz-modal>

@@ -1,0 +1,25 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.detail-head {
+    padding: 16px;
+    background: #f8f8f8;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+.signAt{
+    display: flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    >p{
+        flex: 9;
+        -ms-flex: 9;
+    }
+    .cause{
+        flex: 2;
+        -ms-flex: 2;
+    }
+}

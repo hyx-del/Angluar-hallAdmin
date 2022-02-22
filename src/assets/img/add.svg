@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>add</title>
+    <g id="页面1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="排课-周课表" transform="translate(-279.000000, -276.000000)">
+            <g id="编组-5" transform="translate(247.000000, 260.000000)">
+                <g id="一周时间" transform="translate(32.000000, 14.000000)">
+                    <g id="时间">
+                        <g id="add" transform="translate(0.000000, 2.000000)">
+                            <circle id="椭圆形" fill="#1890FF" cx="8" cy="8" r="8"></circle>
+                            <path d="M8,3.5 C8.24545989,3.5 8.44960837,3.67687516 8.49194433,3.91012437 L8.5,4 L8.5,7.5 L12,7.5 C12.2761424,7.5 12.5,7.72385763 12.5,8 C12.5,8.24545989 12.3231248,8.44960837 12.0898756,8.49194433 L12,8.5 L8.5,8.5 L8.5,12 C8.5,12.2761424 8.27614237,12.5 8,12.5 C7.75454011,12.5 7.55039163,12.3231248 7.50805567,12.0898756 L7.5,12 L7.5,8.5 L4,8.5 C3.72385763,8.5 3.5,8.27614237 3.5,8 C3.5,7.75454011 3.67687516,7.55039163 3.91012437,7.50805567 L4,7.5 L7.5,7.5 L7.5,4 C7.5,3.72385763 7.72385763,3.5 8,3.5 Z" id="形状结合" fill="#FFFFFF" fill-rule="nonzero"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

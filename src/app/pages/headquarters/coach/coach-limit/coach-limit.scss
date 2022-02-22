@@ -1,0 +1,31 @@
+.limit-title {
+    font-weight: bold;
+    padding-left: 8px;
+    margin-bottom: 16px;
+}
+.group-item {
+    margin-bottom: 8px;
+    .title {
+        background-color: #efefef;
+        padding: 8px;
+        font-weight: 600;
+    }
+    .select {
+        display: inline-block;
+        margin-left: 80px;
+        color: #38f;
+        cursor: pointer;
+        font-weight: normal;
+    }
+    .content {
+        padding: 8px;
+        position: relative;
+    }
+
+    ::ng-deep .ant-checkbox-wrapper + .ant-checkbox-wrapper {
+        margin-left: 0;
+    }
+    ::ng-deep .ant-checkbox-wrapper {
+        margin-right: 8px;
+    }
+}

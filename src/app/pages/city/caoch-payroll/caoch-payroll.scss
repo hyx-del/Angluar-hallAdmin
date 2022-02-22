@@ -1,0 +1,26 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: auto;
+}
+.table-box {
+    tr > td {
+        word-break: break-all;
+    }
+}
+.pagination {
+    display: block;
+    margin-top: 8px;
+}
+.search-box {
+    display: flex;
+}
+.group {
+    display: flex;
+    .label {
+        display: inline-block;
+        line-height: 32px;
+        margin-right: 8px;
+    }
+}

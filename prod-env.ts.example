@@ -1,0 +1,20 @@
+module.exports = {
+    clientId : 2,
+    clientSecret: 'ny8qOsRycE6HWgZXZYzVcl4DGQnLaEJy6OsFzlsW',
+    
+    baseUrl: 'https://api.fineyoga.com',
+    tokenApi: 'https://api.fineyoga.com/staff/oauth/token',
+    userApi: 'https://api.fineyoga.com/staff/info',
+
+    ossBucket: 'admin',
+    
+    buckets: {
+        admin: 'admin',
+        video: 'video',
+    },
+    
+    aliyunUserId: '290969971646573700',
+    env: "prod",
+
+    imageMaxSize: 5, // M
+};

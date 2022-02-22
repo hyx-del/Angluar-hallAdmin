@@ -1,0 +1,129 @@
+<ng-container *ngFor="let item of dataList;">
+
+    <div style="margin-bottom: 8px;" *ngIf="item.type == ruleType.default">
+        <button nz-button nzType="primary" (click)="showModal(ruleType.default)">添加销售提成规则</button>
+    </div>
+
+    <div style="margin-bottom: 8px; margin-top: 8px;" *ngIf="item.type == ruleType.shop">
+        <button nz-button nzType="primary" (click)="showModal(ruleType.shop)">添加店长提成规则</button>
+    </div>
+
+    <div style="margin-bottom: 8px; margin-top: 8px;" *ngIf="item.type == ruleType.team">
+        <button nz-button nzType="primary" (click)="showModal(ruleType.team)">添加店长团队提成规则</button>
+    </div>
+
+    <nz-collapse *ngIf="item.list && item.list.length">
+        <nz-collapse-panel *ngFor="let rules of item.list" [nzHeader]="rules.name" [nzActive]="rules.active"
+            [nzExtra]="extraTpl">
+            <div style="padding: 0px;" *ngIf="item.type == ruleType.default">
+                <div class="rule__item" *ngFor="let item of rules.commission_rule">
+                    <span>业绩： {{ item.performance_start }}~{{ item.performance_end ? item.performance_end : "不限" }}</span>
+                    <span>试用期提成：{{ item.probation }}%</span>
+                    <span>正式提成：{{ item.official }}%</span>
+                </div>
+            </div>
+
+            <div style="padding: 0px;" *ngIf="item.type == ruleType.shop || item.type == ruleType.team">
+                <div class="rule__item" *ngFor="let item of rules.commission_rule">
+                    <span>业绩： {{ item.performance_start }}~{{ item.performance_end ? item.performance_end : "不限" }}</span>
+                    <span>提成：{{ item.rate }}%</span>
+                </div>
+            </div>
+
+            <ng-template #extraTpl>
+                <ng-container *ngIf="item.type == ruleType.default || item.type == ruleType.shop">
+                    <span style="padding: 0 8px; color: #1890ff;" *ngIf="rules.is_default">默认规则</span>
+                    <span style="padding: 0 8px; color: #1890ff;" *ngIf="!rules.is_default" (click)="setDefaultRule($event, rules)">设为默认</span>
+                </ng-container>
+
+                <span (click)="showDetail($event, rules)" style="padding: 0 8px;">
+                    <i nz-icon nzType="edit" nzTheme="outline"></i>
+                </span>
+                <span (click)="remove($event, rules)" style="padding: 0 8px;">
+                    <i nz-icon nzType="delete"></i>
+                </span>
+            </ng-template>
+        </nz-collapse-panel>
+    </nz-collapse>
+
+    <p *ngIf="!item.list || !item.list.length" style="padding: 0 16px;margin-bottom: 8px;">暂无规则</p>
+
+</ng-container>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" (onClose)="closeModal()">
+    <ny-header>
+        <h2>规则设置</h2>
+        <p style="flex: 1"></p>
+        <button nz-button nzType="default" (click)="closeModal()" style="margin-right: 16px;">取消</button>
+        <button nz-button nzType="primary" (click)="saveRules()">保存</button>
+    </ny-header>
+    <div class="form-group">
+        <label class="label" style="width: auto;">规则名称：</label>
+        <input type="text" nz-input [(ngModel)]="params.name">
+    </div>
+
+    <div class="form-group">
+        <label class="label" style="width: auto; opacity: 0;">默认规则：</label>
+        <label nz-checkbox [(ngModel)]="params.isDefault">默认规则</label>
+    </div>
+    
+    <div class="table">
+        <div class="thead">
+            <div class="cell">业绩开始金额</div>
+            <div class="cell flex3">业绩结束金额</div>
+            
+            <ng-container *ngIf="addRuleType == ruleType.default">
+                <div class="cell">试用期提成比例</div>
+                <div class="cell">正式提成比例</div>
+            </ng-container>
+
+            <ng-container *ngIf="addRuleType != ruleType.default">
+                <div class="cell">提成比例</div>
+            </ng-container>
+
+            <div class="cell flex1">操作</div>
+        </div>
+        <div class="tbody">
+            <div class="row" *ngFor="let item of rules; let index = index;first as isFirst; last as isLast ">
+                <div class="cell">
+                    <nz-input-number [(ngModel)]="item.performance_start" [nzMin]="0" [nzDisabled]="!isFirst"></nz-input-number>
+                    <span class="unit">元</span>
+                </div>
+                <div class="cell flex3">
+                    <nz-input-number [(ngModel)]="item.performance_end" [nzMin]="item.performance_start ? item.performance_start + 1 : 0" [nzDisabled]="item.checked"
+                        (ngModelChange)="endMoneyChange($event, index)"></nz-input-number>
+                    <span class="unit" style="margin-right: 8px;">元</span>
+                    <label *ngIf="isLast" nz-checkbox [(ngModel)]="item.checked"
+                        (ngModelChange)="checkedChange($event, index)">无限</label>
+                </div>
+
+                <ng-container *ngIf="addRuleType == ruleType.default">
+                    <div class="cell">
+                        <nz-input-number [(ngModel)]="item.probation" [nzMin]="0" [nzPrecision]="2"></nz-input-number>
+                        <span class="unit">%</span>
+                    </div>
+                    <div class="cell">
+                        <nz-input-number [(ngModel)]="item.official" [nzMin]="0" [nzPrecision]="2"></nz-input-number>
+                        <span class="unit">%</span>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="addRuleType == ruleType.shop || addRuleType == ruleType.team">
+                    <div class="cell">
+                        <nz-input-number [(ngModel)]="item.rate" [nzMin]="0" [nzPrecision]="2"></nz-input-number>
+                        <span class="unit">%</span>
+                    </div>
+                </ng-container>
+
+                <div class="cell flex1">
+                    <button nz-button *ngIf="isFirst" (click)="addRules()">
+                        <i nz-icon nzType="plus" nzTheme="outline"></i>
+                    </button>
+                    <button nz-button *ngIf="!isFirst" (click)="removeRules(index)">
+                        <i nz-icon nzType="minus" nzTheme="outline"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ny-modal>

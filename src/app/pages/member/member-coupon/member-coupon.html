@@ -1,0 +1,146 @@
+<div class="search-box">
+    <button nz-button nzType="primary" (click)="showSendCouponModal()" style="margin-right: 8px;">发券</button>
+    <nz-dropdown [nzTrigger]="'click'">
+        <button nz-button nz-dropdown style="margin-right: 8px;">
+            <span>批量发券</span>
+            <i nz-icon type="down"></i>
+        </button>
+        <ul nz-menu>
+            <li nz-menu-item (click)="downloadTemplate()">
+                <a>下载模板</a>
+            </li>
+            <li nz-menu-item (click)="importData()">
+                <a>导入Excel</a>
+            </li>
+        </ul>
+    </nz-dropdown>
+
+    <content-header [collection]="collection" style="flex: 1;" [buttonGroups]="buttons">
+        <ny-search-input [uri]="'member/admin/coupon/member-coupon/list'" [pageSize]="50" (collection)="setCollection($event)">
+        </ny-search-input>
+    </content-header>
+</div>
+
+<div style="overflow-x: auto;flex: 1; display: flex; flex-direction: column;">
+    <div style="min-width: 1600px; flex: 1; display: flex; flex-direction: column;">
+        <ny-table [collection]="collection">
+            <ng-template nyColumn label="操作" width="100px" let-item>
+                <ng-container  *ngIf="item.member_coupon_status === 0 && item.used != 3">
+                    <a (click)="invalidCoupon(item)">作废</a>
+                    <nz-divider nzType="vertical"></nz-divider>
+                    <a (click)="dispose(item)">核销</a>
+                </ng-container>
+            </ng-template>
+        </ny-table>
+    </div>
+</div>
+
+<nz-modal nzTitle="发券" [(nzVisible)]="sendVisible" (nzOnCancel)="closeSendCoupon()" 
+[nzMaskClosable]="false" [nzMask]="true" [nzWidth]="620" [nzFooter]="null" nyForm="form" >
+    <div class="form-group">
+        <label class="label"><em>*</em>优惠券：</label>
+        <nz-select [(ngModel)]="sendParams.coupon_id" [nzShowSearch]="true" style="width: 200px" errorStyle="float" nyName="coupon_id">
+            <nz-option *ngFor="let coupon of allCouponList" [nzLabel]="coupon.name" [nzValue]="coupon.id"></nz-option>
+        </nz-select>
+    </div>
+    <div class="form-group">
+        <label class="label"><em>*</em>搜索会员：</label>
+        <div>
+            <nz-select [(ngModel)]="sendParams.member_id" style="width: 200px" nzAllowClear (ngModelChange)="selectMemberChange()"
+            nzShowSearch [nzServerSearch]="true" (nzOnSearch)="onSearch($event)" (nzScrollToBottom)="loadMore()" errorStyle="float" nyName="member_ids">
+                <ng-container *ngFor="let member of allMemberList">
+                    <nz-option [nzLabel]="member.name" [nzValue]="member.id"></nz-option>
+                </ng-container>
+                <nz-option *ngIf="isLoading" nzDisabled nzCustomContent>
+                    <i nz-icon nzType="loading" class="loading-icon"></i> 加载中
+                </nz-option>
+            </nz-select>
+        </div>
+        <button nz-button (click)="addMember()" style="margin-left: 8px;">添加</button>
+    </div>
+    <div class="form-group" *ngIf="selectMemberList.length">
+        <label class="label"></label>
+        <div>
+            <ng-container *ngFor="let member of selectMemberList; let index = index;">
+                <nz-tag nzMode="closeable" (nzOnClose)="removeAddMember(index)">{{ member.name }}</nz-tag>
+            </ng-container>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label"><em>*</em>发券数量：</label>
+        <div>
+            <nz-input-number [(ngModel)]="sendParams.amount" nyName="amount" [nzMin]="1" [nzStep]="1"></nz-input-number>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="label">适用场馆：</label>
+        <nz-select [(ngModel)]="sendParams.hall_id" style="width: 200px" [nzShowSearch]="true" errorStyle="float" nyName="hall_id">
+            <nz-option *ngFor="let shop of shopList" [nzLabel]="shop.name" [nzValue]="shop.id"></nz-option>
+        </nz-select>
+    </div>
+    <div class="form-group">
+        <label class="label"></label>
+        <button nz-button nzType="primary" (click)="confirmSendCoupon()" [nzLoading]="isSubmitLoading">确定发放</button>
+    </div>
+</nz-modal>
+
+
+<ny-modal appendTo="nz-content" [isFull]="true" [autoClose]="true" [(visible)]="importVisible" (onClose)="cancelImport()">
+    <ny-header>
+        <h2>批量发券</h2>
+        <p style="flex: 1"></p>
+    </ny-header>
+    <div class="coupon-import" *ngIf="!isSuccess">
+        <div class="form-group" style="margin: 0;">
+            <label class="label">文件名：</label>
+            <span style="line-height: 32px;color: #1890ff;">{{ fileName }}</span>
+
+            <span class="info-item" style="margin-left: 16px;" *ngIf="importMemberCoupon">发送成功：{{ importMemberCoupon.success }}</span>
+            <span class="info-item" *ngIf="importMemberCoupon">发送失败：{{ importMemberCoupon.false }}</span>
+
+            <button *ngIf="!importMemberCoupon" nz-button nzType="default" (click)="importData()" style="margin-left: 8px;">选择</button>
+
+            <button *ngIf="errorData" nz-button nzType="default" 
+            (click)="exportErrorData()" style="margin-left: 8px;">导出错误数据</button>
+        </div>
+    
+        <nz-table #basicTable [nzData]="errorData || importOriginData" [nzShowPagination]="true" [nzPaginationPosition]="'top'" [(nzPageIndex)]="pageIndex"
+        [nzPageSize]="pageSize" [nzSize]="'small'" [nzScroll]="{ y: '400px' }">
+            <thead>
+                <tr>
+                    <th nzWidth="100px">#</th>
+                    <th *ngFor="let item of tableHeaders" [nzWidth]="'18%'">{{ item.name }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of basicTable.data; let i = index">
+                    <td>{{ (pageIndex - 1) * pageSize + i + 1}}</td>
+                    <td *ngFor="let header of tableHeaders; let hIndex = index;" [class.error]="errorData && errorData[i].err_data[header.bind]">
+                        {{ item[header.bind] }}
+                    </td>
+                </tr>
+            </tbody>
+        </nz-table>
+        <div style="margin-top: 8px;display: flex;justify-content: flex-end;">
+            <button nz-button nzType="primary" style="margin-left: 8px;" [nzLoading]="isSubmit" (click)="submit()">提交</button>
+        </div>
+    </div>
+    <div class="send-success-box" *ngIf="isSuccess">
+        <div class="success-icon">
+            <i nz-icon nzType="check" nzTheme="outline"></i>
+        </div>
+        <h3 class="success-title">批量发券成功</h3>
+        <div class="success-info" *ngIf="importMemberCoupon">
+            <p>导入模板：{{ fileName }}</p>
+            <p>发放成功：{{ importMemberCoupon.success }}</p>
+            <p>重复取消：{{ importMemberCoupon.repeat_cancel }}</p>
+            <p>发放失败：{{ importMemberCoupon.false || 0 }}</p>
+        </div>
+        <div class="btns">
+            <button nz-button nzType="primary" (click)="afreshImport()">再发一批</button>
+            <button nz-button nzType="default" style="margin-left: 8px;" (click)="closeImportModal()">完成</button>
+        </div>
+    </div>
+</ny-modal>

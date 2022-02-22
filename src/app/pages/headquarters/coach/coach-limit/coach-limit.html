@@ -1,0 +1,16 @@
+<div class="" style="display: flex;margin-bottom: 8px;">
+    <div class="form-group">
+        <label class="label">月总课时限制：</label>
+        <input nz-input style="width: 120px;" [(ngModel)]="courseLimit" />
+    </div>
+    <button nz-button nzType="primary" style="margin-left: 8px;" (click)="saveCourseLimit()">保存</button>
+    <button nz-button nzType="danger" style="margin-left: 8px;" (click)="removeSetting()" >删除设置</button>
+</div>
+<div class="limit-title">限制课程范围</div>
+<div class="group-item" *ngFor="let item of courseData">
+    <div class="title">{{ item.title }}<span class="select" (click)="selectAllCourse(item)">全选</span></div>
+    <div class="content">
+        <label nz-checkbox *ngFor="let child of item.children"
+            [(ngModel)]="child.checked">{{ child.name }}</label>
+    </div>
+</div>

@@ -1,0 +1,89 @@
+:host {
+    line-height: initial;
+}
+
+:host .ueditor-textarea {
+    display: none;
+}
+
+.video-list {
+    list-style: none;
+    margin-bottom: 0;
+    margin-left: -8px;
+    .cell {
+        float: left;
+        width: 25%;
+        padding: 0 8px;
+        margin-bottom: 12px;
+        &-box {
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+        &.checked {
+            .cell-box {
+                border: 2px solid #3388ff;
+            }
+        }
+        .thumbnail-outer {
+            width: 100%;
+            padding-top: 56%;
+            background-color: #f1f1f1;
+            position: relative;
+        }
+        .thumbnail {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            img {
+                width: 100%;
+                height: 100%;
+            }
+        }
+        .detail {
+            padding: 12px 0;
+            p {
+                margin: 0;
+            }
+            .date {
+                font-size: 14px;
+                color: rgba(#000000, 0.45);
+                line-height: 1;
+            }
+            .title {
+                margin-top: 6px;
+                font-size: 14px;
+                color: rgba(#000000, 0.85);
+                line-height: 20px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .handle {
+                margin-top: 12px;
+            }
+        }
+    }
+}
+.vcontrol-group {
+    display: flex;
+    max-width: 500px;
+    margin: 0 auto;
+    margin-bottom: 16px;
+    .label {
+        line-height: 32px;
+        min-width: 56px;
+        margin-right: 16px;
+        display: inline-block;
+    }
+    .input-wrap {
+        flex: 1;
+        display: flex;
+    }
+    .unit {
+        line-height: 32px;
+        margin-left: 8px;
+        display: inline-block;
+    }
+}

@@ -1,0 +1,44 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.info-title {
+    display: inline-block;
+    width: 120px;
+    margin-right: 8px;
+    line-height: 32px;
+    text-align: right;
+}
+
+.upload-card {
+    border: 1px dashed #d9d9d9;
+    width: 104px;
+    height: 104px;
+    border-radius: 4px;
+    background-color: #fafafa;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+    vertical-align: top;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    display: table;
+    &:hover {
+        border-color: #1890ff;
+    }
+    .upload {
+        width: 100%;
+        height: 100%;
+        display: table-cell;
+        text-align: center;
+        vertical-align: middle;
+        padding: 8px;
+        line-height: 20px;
+    }
+    
+    img {
+        width: 88px;
+    }
+}

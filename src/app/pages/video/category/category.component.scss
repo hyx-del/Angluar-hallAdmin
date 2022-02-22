@@ -1,0 +1,94 @@
+:host {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+
+    ::ng-deep .ant-table-small > .ant-table-content > .ant-table-body {
+        margin: 0;
+    }
+
+    ::ng-deep .ant-table-small > .ant-table-content > .ant-table-body > table > .ant-table-thead > tr > th {
+        background: #fafafa;
+    }
+}
+.avatar {
+    width: 88px;
+    height: 88px;
+}
+.eye {
+    cursor: pointer;
+    padding: 0 8px;
+}
+.share-link-modal {
+    .form-group {
+        .label {
+            width: 130px;
+        }
+    }
+}
+
+.setting-row {
+    display: flex;
+    height: 100%;
+    .left {
+        width: 320px;
+        min-width: 280px;
+        padding: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,.15);
+        display: flex;
+        flex-direction: column;
+        .scroll-wrap {
+            flex: 1;
+            overflow: auto;
+        }
+        .link-item {
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            display: flex;
+            &.active {
+                background: #f1f1f1;
+            }
+            .info {
+                flex: 1;
+                overflow: hidden;
+            }
+            .name {
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+            .handle-btn {
+                color: #38f;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            .copy-text {
+                // line-height: 32px;
+            }
+        }
+    }
+    .right {
+        padding: 8px 0;
+        flex: 1;
+        margin-left: 24px;
+        display: flex;
+        flex-direction: column;
+        .add {
+            color: #38f;
+            cursor: pointer;
+            margin-left: 16px;
+        }
+        .remove {
+            color: #f44;
+            margin-left: 16px;
+            cursor: pointer;
+        }
+    }
+}

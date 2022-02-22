@@ -1,0 +1,66 @@
+<div style="display: flex;">
+    <button nz-button style="margin-right: 8px;" (click)="refresh()">刷新</button>
+    <content-header [buttonGroups]="buttons"  [collection]="collection" style="flex: 1;">
+        <ny-search-input [uri]="'hall/admin-hall/suggestions'" [pageSize]="50" (collection)="setCollection($event)">
+        </ny-search-input>
+    </content-header>
+</div>
+
+
+<ny-table [collection]="collection">
+    <ng-template nyColumn label="操作" width="100px" let-item>
+        <a (click)="getDetail(item)">回复</a>
+    </ng-template>
+</ny-table>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" (onClose)="closeModal()">
+    <ny-header>
+        <h2>建议回复</h2>
+        <p style="flex: 1"></p>
+    </ny-header>
+    <div *ngIf="isVisible">
+        <div style="padding: 0 24px; padding-bottom: 8px; border-bottom: 1px solid #ccc;">
+            <div class="comment-item">
+                <span>会馆：</span>
+                <span class="comment-item_content">{{ detail.hall_name }}</span>
+            </div>
+            <div class="comment-item">
+                <span>会员：</span>
+                <span class="comment-item_content">{{ detail.member_name || ''}}</span>
+            </div>
+            <div class="comment-item">
+                <span>建议内容：</span>
+                <span class="comment-item_content">{{ detail.content }}</span>
+            </div>
+            <div class="comment-item">
+                <span>时间：</span>
+                <span class="comment-item_content">{{ detail.comment_at }}</span>
+            </div>
+        </div>
+        <div style="padding: 0 24px; padding-top: 24px;">
+            <div class="reply" *ngIf="detail.reply_content">
+                <div class="reply-item">
+                    <div class="comment-item">
+                        <span>回复人：</span>
+                        <span>{{ detail.reply_by }}</span>
+                    </div>
+                    <div class="comment-item">
+                        <span>回复时间：</span>
+                        <span>{{ detail.reply_at || '' }}</span>
+                    </div>
+                    <div class="comment-item">
+                        <span>回复内容：</span>
+                        <span>{{ detail.reply_content }}</span>
+                    </div>
+                </div>
+            </div>
+            <div style="max-width: 500px;">
+                <textarea nz-input placeholder="回复内容" [(ngModel)]="message"
+                    [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+            </div>
+            <div style="margin-top: 16px;">
+                <button nz-button nzType="primary" (click)="replySuggest()">{{ detail.reply_content ? '修改回复' : "回复" }}</button>
+            </div>
+        </div>
+    </div>
+</ny-modal>

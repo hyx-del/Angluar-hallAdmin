@@ -1,0 +1,11 @@
+<content-header [collection]="collection">
+    <ny-search-input #searchInput uri="mix/video/admin/member/expenses-record" [pageSize]="20"
+        (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection">
+    <ng-template nyColumn="title" width="240px" let-item>
+        {{ item.title }}
+    </ng-template>
+</ny-table>

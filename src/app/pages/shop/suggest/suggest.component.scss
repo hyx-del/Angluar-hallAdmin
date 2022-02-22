@@ -1,0 +1,10 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.comment-item {
+    display: flex;
+    margin-bottom: 8px;
+    overflow: hidden;
+}

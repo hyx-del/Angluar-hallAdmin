@@ -1,0 +1,67 @@
+<content-header [collection]="collection">
+    <ny-search-input #searchInput uri="mix/video/admin/comment/list" [pageSize]="20"
+        (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection">
+    <ng-template nyColumn="video_title" width="240px" let-item >
+        {{ item.video_title }}
+    </ng-template>
+    <ng-template nyColumn label="操作" width="120px" let-item>
+        <a *ngIf="item.is_hidden" (click)="showComment(item)">显示</a>
+        <a *ngIf="!item.is_hidden" (click)="hideComment(item)">隐藏</a>
+    </ng-template>
+</ny-table>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" [autoClose]="true" (onClose)="hideModal()">
+    <ny-header>
+        <h2>留言回复</h2>
+        <p style="flex: 1"></p>
+    </ny-header>
+    <div *ngIf="isVisible">
+        <div style="padding: 0 24px; padding-bottom: 8px; border-bottom: 1px solid #ccc;">
+            <div class="comment-item">
+                <span>视频：</span>
+                <span class="comment-item_content">{{ comment.video_name }}</span>
+            </div>
+            <div class="comment-item">
+                <span>会员：</span>
+                <span class="comment-item_content">{{ comment.member_name }}</span>
+            </div>
+            <div class="comment-item">
+                <span>时间：</span>
+                <span class="comment-item_content">{{ comment.created_at }}</span>
+            </div>
+            <div class="comment-item">
+                <span>留言：</span>
+                <span class="comment-item_content">{{ comment.content }}</span>
+            </div>
+        </div>
+        <div style="padding: 0 24px; padding-top: 24px;">
+            <div class="reply" *ngIf="comment.replies">
+                <div class="reply-item" *ngFor="let reply of comment.replies">
+                    <div class="comment-item">
+                        <span>回复人：</span>
+                        <span>{{ reply.replier_name }}</span>
+                    </div>
+                    <div class="comment-item">
+                        <span>时间：</span>
+                        <span>{{ reply.updated_at }}</span>
+                    </div>
+                    <div class="comment-item">
+                        <span>回复内容：</span>
+                        <span>{{ reply.content }}</span>
+                    </div>
+                </div>
+            </div>
+            <div style="max-width: 500px;">
+                <textarea nz-input placeholder="回复内容" [(ngModel)]="message"
+                    [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+            </div>
+            <div style="margin-top: 16px;" >
+            <button nz-button nzType="primary" (click)="submit()">{{ comment.replies ? '修改回复' : "回复" }}</button>
+            </div>
+        </div>
+    </div>
+</ny-modal>

@@ -1,0 +1,11 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.score {
+    flex: 1;
+    display: flex;
+    overflow: auto;
+    flex-direction: column;
+}

@@ -1,0 +1,21 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'hall/member/admin/source/list'" [pageSize]="50" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template nyColumn label="操作" width="120px" let-item>
+        <!-- <a (click)="edit(item)">编辑</a>
+        <nz-divider nzType="vertical"></nz-divider> -->
+        <a (click)="remove(item)">删除</a>
+    </ng-template>
+</ny-table>
+
+<nz-modal [(nzVisible)]="isVisible" nzTitle="添加来源" (nzOnCancel)="closeModal()" (nzOnOk)="saveSource()" [nzMaskClosable]="false">
+    <div class="form-group" nyForm="form" (onInit)="onFormInit($event)">
+        <label class="label"><em>*</em>来源名称:</label>
+        <div>
+            <input nz-input placeholder="来源名称" nyName="name" errorStyle="float" />
+        </div>
+    </div>
+</nz-modal>

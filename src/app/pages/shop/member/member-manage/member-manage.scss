@@ -1,0 +1,23 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.form-group {
+    input, nz-select {
+        width: 200px;
+    }
+    .contral-input {
+        flex: 1;
+    }
+}
+
+.flex-end {
+    display: flex;
+    justify-content: flex-end;
+}
+.avatar {
+    width: 100px;
+    height: 100px;
+}

@@ -1,0 +1,67 @@
+<textarea [id]="id" class="ueditor-textarea"></textarea>
+<div *ngIf="loading" class="loading" [innerHTML]="loadingTip"></div>
+
+
+<nz-modal [(nzVisible)]="isVideoVisible" nzTitle="选择视频" [nzFooter]="modalFooter"
+ (nzOnCancel)="closeVideoModal()" (nzOnOk)="confirmSelectVideo()"
+    [nzWidth]="800">
+    <div style="height: 500px;">
+        <nz-tabset [(nzSelectedIndex)]="tabIndex">
+            <nz-tab nzTitle="视频库">
+                <div *ngIf="isVideoVisible">
+                    <content-header [collection]="videoCollection">
+                        <ny-search-input #searchInput uri="mix/video/admin/data/list" [pageSize]="20"
+                            (collection)="setVideoCollection($event)">
+                        </ny-search-input>
+                    </content-header>
+                    <div style="height: 390px; overflow: auto;">
+                        <ul class="video-list clearfix">
+                            <li class="cell" *ngFor="let video of videoList; let index = index;"
+                                [ngClass]="{'checked': video.checked }">
+                                <div class="cell-box" (click)="checkVideo(index)">
+                                    <div class="thumbnail-outer">
+                                        <div class="thumbnail">
+                                            <img [src]="video.cover" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="detail">
+                                        <p class="date">{{ video.created_at }}</p>
+                                        <p class="title">{{ video.title }}</p>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nz-tab>
+            <nz-tab nzTitle="视频链接">
+                <div class="vcontrol-group">
+                    <label class="label">视频地址</label>
+                    <div class="input-wrap">
+                        <input nz-input [(ngModel)]="videoLink" />
+                    </div>
+                    <!-- <button nz-button nzType="default" (click)="confirmSetLink()" style="margin-left: 16px;">确定</button> -->
+                </div>
+                <div class="vcontrol-group">
+                    <label class="label">宽度</label>
+                    <div>
+                        <nz-input-number [nzMin]="0" [(ngModel)]="videoLinkParams.width" style="width: 200px;"></nz-input-number>
+                    </div>
+                    <span class="unit">px</span>
+                </div>
+                <div class="vcontrol-group">
+                    <label class="label">高度</label>
+                    <div>
+                        <nz-input-number [nzMin]="0" [(ngModel)]="videoLinkParams.height" style="width: 200px;"></nz-input-number>
+                    </div>
+                    <span class="unit">px</span>
+                </div>
+            </nz-tab>
+        </nz-tabset>
+    </div>
+    <ng-template #modalFooter>
+        <button nz-button nzType="default" (click)="closeVideoModal()">取消</button>
+        <button nz-button nzType="primary" *ngIf="tabIndex == 0" (click)="confirmSelectVideo()" >确定</button>
+        <button nz-button nzType="primary" *ngIf="tabIndex == 1" (click)="confirmSetLink()" >确定</button>
+    </ng-template>
+</nz-modal>

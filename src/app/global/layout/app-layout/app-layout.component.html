@@ -1,0 +1,138 @@
+<nz-header class="header" [ngStyle]="{'background-color': config.env == 'test' ? '#0747a6' : '' }">
+    <div class="topbar">
+        <div class="logo">
+            <a [routerLink]="'/'" *ngIf="config.env == 'test'">
+                <img src="../../../assets/img/nav-test-logo.svg" style="width: 150px;" alt="">
+            </a>
+            <a [routerLink]="'/'" *ngIf="config.env != 'test'">
+                <img src="../../../assets/img/nav-logo.svg" style="width: 75px;" alt="">
+            </a>
+        </div>
+
+        <div class="topbar-center">
+            <ng-container *ngFor="let item of menu.list; let last = last">
+                <div class="menu-group">
+                    <a class="title" (click)="menu.navigate(item)" [class.title-sub]="item.level" [class.active]="item.checked && item.level" [class.disabled]="item.disabled">{{item.label}}</a>
+
+                    <ng-container *ngIf="item.dropdown">
+                        <div class="dropdown-menu">
+                            <nz-dropdown [nzTrigger]="'click'">
+                                <a nz-dropdown>{{ item.dropdown.selected?.name }} <i nz-icon type="down"></i> </a>
+                                <ul nz-menu class="vertical-menu">
+                                    <li nz-menu-item *ngFor="let option of item.dropdown.options" [nzSelected]="option.checked" (click)="checkOption(item, option)">{{ option.name }}</li>
+                                </ul>
+                            </nz-dropdown>
+                        </div>
+                    </ng-container>
+                    <ng-container *ngIf="item.level == 0 && item.children">
+                        <nz-divider class="line" nzType="vertical"></nz-divider>
+                        <ul nz-menu nzTheme="dark" nzMode="horizontal" class="header-menu">
+                            <li nz-menu-item *ngFor="let child of item.children;" [nzSelected]="child.checked">
+                                <a (click)="menu.navigate(child)">{{child.label}}</a>
+                            </li>
+                        </ul>
+                    </ng-container>
+                </div>
+                <nz-divider *ngIf="!last" class="line" nzType="vertical"></nz-divider>
+            </ng-container>
+        </div>
+
+        <div class="topbar-right">
+            <div class="qrcode-wrapper" (click)="showQrcodeModal()">
+                <i nz-icon nzType="qrcode" nzTheme="outline"></i>
+                <span class="ml8">签到</span>
+            </div>
+            <div class="user-wrapper">
+                <nz-dropdown [nzTrigger]="'click'" [nzPlacement]="'bottomRight'">
+                    <a nz-dropdown>
+                        <div class="user-image"></div>
+                    </a>
+                    <ul nz-menu style="width:170px;" class="user-menu">
+                        <li nz-menu-item role="menuitem">
+                            <a>
+                                <i nz-icon nzType="user" nzTheme="outline"></i>
+                                <span style="margin-left: 8px;">{{ user.name }}</span>
+                            </a>
+                        </li>
+                        <li nz-menu-item role="menuitem">
+                            <a (click)="changePasswordVisible = true">
+                                <i nz-icon nzType="edit" nzTheme="outline"></i>
+                                <span style="margin-left: 8px;">修改密码</span>
+                            </a>
+                        </li>
+                        <li class="ant-dropdown-menu-item-divider"></li>
+                        <li nz-menu-item role="menuitem">
+                            <a (click)="loginOut()">
+                                <i nz-icon nzType="poweroff" nzTheme="outline"></i>
+                                <span style="margin-left: 8px;">退出</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nz-dropdown>
+            </div>
+        </div>
+    </div>
+</nz-header>
+
+<nz-layout>
+    <nz-sider [nzWidth]="200" nzTheme="light" nzCollapsible [(nzCollapsed)]="collapsed">
+        <ul style="height: 100%" nz-menu nzTheme="light" [nzMode]="'inline'" [nzInlineCollapsed]="collapsed">
+            <ng-container *ngFor="let item of menu.childList">
+                <li nz-submenu *ngIf="item.children" [(nzOpen)]="item.checked">
+                        <span title>
+                            <i nz-icon [nzType]="item.icon"></i><span class="nav-text">{{item.label}}</span>
+                        </span>
+                    <ul>
+                        <li nz-menu-item *ngFor="let child of item.children" routerLinkActive="ant-menu-item-selected">
+                            <a [routerLink]="child.routerLink">
+                                <span class="nav-text">{{child.label}}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li nz-menu-item *ngIf="!item.children" routerLinkActive="ant-menu-item-selected">
+                    <a [routerLink]="item.routerLink">
+                        <i nz-icon [nzType]="item.icon"></i><span class="nav-text">{{item.label}}</span>
+                    </a>
+                </li>
+            </ng-container>
+        </ul>
+    </nz-sider>
+
+    <nz-layout>
+        <page-tab></page-tab>
+        <nz-content [ngClass]="{'bg-white': !component.bgTransparent, 'content-box': !component.hiddenContentMargin }">
+            <router-outlet></router-outlet>
+        </nz-content>
+    </nz-layout>
+</nz-layout>
+
+<div *ngIf="uploadTasks().length" class="bottom-progress" nz-popover nzTitle="文件列表" [nzContent]="bottomProgressTemplate" nzPlacement="topLeft">
+    <div class="bar" [style.width.%]="progress()"></div>
+</div>
+
+<ng-template #bottomProgressTemplate>
+    <div class="upload-item" *ngFor="let task of uploadTasks()">
+        <div class="title">{{task.fileName()}}</div>
+        <nz-progress [nzPercent]="task.loaded()*100" nzSize="small" [nzFormat]="progressFormat" [nzStatus]="progressStatus(task)"></nz-progress>
+    </div>
+</ng-template>
+
+<app-qrcode-modal [(isVisible)]="isVisible"></app-qrcode-modal>
+
+<nz-modal nzTitle="修改密码" [(nzVisible)]="changePasswordVisible" (nzOnCancel)="cancelPasswordVisible()" (nzOnOk)="changePassword()">
+    <div nyForm="form" (onInit)="subForm()">
+        <div class="form-group">
+            <label class="label">旧密码：</label>
+            <div><input type="password" nz-input nyName="old_password" errorStyle="float"/></div>
+        </div>
+        <div class="form-group">
+            <label class="label">新密码：</label>
+            <div><input type="password" nz-input nyName="password" errorStyle="float"/></div>
+        </div>
+        <div class="form-group">
+            <label class="label">确认密码：</label>
+            <div><input type="password" nz-input nyName="password_confirmation" errorStyle="float"/></div>
+        </div>
+    </div>
+</nz-modal>

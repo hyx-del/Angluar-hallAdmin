@@ -1,0 +1,80 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.ctr {
+    border: 1px solid #f0f2f5;
+    margin-bottom: 8px;
+}
+
+.control-group {
+    display: flex;
+    margin: 4px;
+
+    & > label {
+        width: 4.8em;
+    }
+
+    input, textarea {
+        width: 100%;
+    }
+}
+
+.group-header {
+    background-color: #f0f2f5;
+    font-weight: bold;
+    padding: 4px 8px;
+    position: relative;
+}
+
+.group-container {
+    .group-header {
+        margin-top: 8px;
+    }
+
+    .group-container {
+        margin-top: 8px;
+    }
+
+    .group-items {
+        display: flex;
+        margin: 8px;
+
+        .items-header {
+            width: 128px;
+            font-weight: 600;
+        }
+
+        .items-container {
+            flex: 1;
+            border-left: 2px solid orange;
+            padding-left: 8px;
+        }
+
+        .item {
+            width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: sub;
+            margin: 4px 8px 4px 0;
+        }
+    }
+}
+
+.role-item {
+    padding: 2px 0 2px 4px;
+    background-color: #d5f4da;
+    border-radius: 2px;
+    border-right: 8px solid #5dd8f2;
+    font-weight: 600;
+    user-select: none;
+    margin: 4px;
+}
+
+.editing {
+    background-color: coral;
+}
+

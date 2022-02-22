@@ -1,0 +1,254 @@
+
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'member/admin/coupon/list'" [pageSize]="50" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection">
+    <ng-template nyColumn label="操作" width="180px" let-item>
+        <!-- <a (click)="getCouponDetail(item)">详情</a>
+        <nz-divider nzType="vertical"></nz-divider> -->
+        <a (click)="changeStatus(item)" *ngIf="item.status">下线</a>
+        <a (click)="changeStatus(item)" *ngIf="!item.status">上线</a>
+        <nz-divider nzType="vertical"></nz-divider>
+        <a (click)="deleteCoupon(item)">删除</a>
+    </ng-template>
+</ny-table>
+
+
+<nz-modal [nzTitle]="isCreate ? '添加优惠券' : '修改优惠券'" nyForm="form" (onInit)="formInit($event)" [(nzVisible)]="visible"
+    (nzOnCancel)="cancel()" (nzOnOk)="submit()" [nzFooter]="null" [nzMaskClosable]="false" [nzWidth]="800" (onChange)="channelChange($event)">
+    <div class="form-group">
+        <label class="label"><em>*</em>名称：</label>
+        <div>
+            <input nz-input type="text" nyName="name" errorStyle="float">
+        </div>
+    </div>
+    <div class="form-group flex-center">
+        <label class="label">类型：</label>
+        <div>
+            <nz-select nyName="type" style="width: 200px">
+                <nz-option *ngFor="let item of couponTypes" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+            </nz-select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label"><em>*</em>获取渠道：</label>
+        <div>
+            <nz-select  nyName="access_channel" errorStyle="float" style="width: 200px" [nzDisabled]="!isCreate">
+                <nz-option *ngFor="let item of channels" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+            </nz-select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label">使用限制：</label>
+        <div style="padding-top: 5px;">
+            <nz-checkbox-group [(ngModel)]="useLimitOptions"></nz-checkbox-group>
+            <div>
+                <input nz-input nyName="use_limit" hidden />
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label"><em>*</em>优惠金额：</label>
+        <div>
+            <nz-input-number class="input-number" nyName="discount" errorStyle="float" [nzMin]="0" [nzPrecision]="0"></nz-input-number>
+        </div>
+        <span class="unit">元</span>
+    </div>
+    <div class="form-group" *ngIf="isBuy">
+        <label class="label"><em>*</em>价格：</label>
+        <div>
+            <nz-input-number class="input-number" nyName="price" errorStyle="float" [nzMin]="0" [nzPrecision]="2"></nz-input-number>
+        </div>
+        <span class="unit">元</span>
+    </div>
+    <div class="form-group" *ngIf="isBuy">
+        <label class="label"><em>*</em>购买时间：</label>
+        <div>
+            <nz-range-picker [(ngModel)]="buyTime" nzShowTime></nz-range-picker>
+            <input nz-input  nyName="sell_end_at" hidden />
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label"><em>*</em>有效天数：</label>
+        <div>
+            <nz-input-number class="input-number" nyName="effective_days" errorStyle="float" [nzMin]="0"></nz-input-number>
+        </div>
+        <div style="color: #999;" class="unit">有效天数和生效时间只用填写一个</div>
+    </div>
+    <div class="form-group">
+        <label class="label">生效时间：</label>
+        <div>
+            <nz-date-picker nyName="effective_time" errorStyle="float" nzShowTime></nz-date-picker>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label">过期时间：</label>
+        <div>
+            <nz-date-picker nyName="expiration_time" errorStyle="float" nzShowTime></nz-date-picker>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label">数量：</label>
+        <div>
+            <nz-input-number class="input-number" nyName="amount" errorStyle="float" [nzMin]="0"></nz-input-number>
+        </div>
+    </div>
+    <div class="form-group" *ngIf="isBuy">
+        <label class="label">限购数量：</label>
+        <div>
+            <nz-input-number class="input-number" nyName="purchase_limit" errorStyle="float" [nzMin]="0"></nz-input-number>
+        </div>
+    </div>
+    <div class="form-group" *ngIf="form && form.body.access_channel == 3">
+        <label class="label">限兑数量：</label>
+        <div>
+            <nz-input-number class="input-number" nyName="purchase_limit" errorStyle="float" [nzMin]="0"></nz-input-number>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label">备注：</label>
+        <div>
+            <textarea nz-input [nzAutosize]="{ minRows: 2, maxRows: 6 }" style="resize: none;width: 200px;"
+            nyName="remark" errorStyle="float"></textarea>
+        </div>
+    </div>
+    <div class="form-group" *ngIf="isCreate">
+        <label class="label"></label>
+        <div>
+            <button nz-button nzType="primary" (click)="submit()">确定</button>
+        </div>
+    </div>
+
+    <div *ngIf="!isCreate">
+        <div class="form-group">
+            <label class="label"></label>
+            <div>
+                <button nz-button nzType="primary" (click)="submit()" style="margin-right: 16px;">保存</button>
+                <button nz-button nzType="primary" (click)="showGenerateModal()" *ngIf="currentCoupon.access_channel == 3">生成兑换码</button>
+                <button nz-button nzType="primary" (click)="showPasscodeModal()" *ngIf="currentCoupon.access_channel == 3" 
+                style="margin-left: 16px;">生成口令码</button>
+            </div>
+        </div>
+
+        <div *ngIf="currentCoupon.access_channel == 3" style="margin-bottom: 16px;">
+            <nz-table [nzData]="passcodeList" [nzSize]="'small'" [nzShowPagination]="false"
+                [nzFrontPagination]="false">
+                <thead>
+                    <tr>
+                        <th>口令码</th>
+                        <th>已兑数量</th>
+                        <th>可兑券数量</th>
+                        <th nzWidth="180px">备注</th>
+                        <th nzWidth="170px">创建时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let data of passcodeList">
+                        <td>{{ data.redeem_code }}</td>
+                        <td>{{ data.redeemed_amount }}</td>
+                        <td>{{ data.exchangeable_amount }}</td>
+                        <td>{{ data.notes }}</td>
+                        <td>{{ data.created_at }}</td>
+                    </tr>
+                </tbody>
+            </nz-table>
+        </div>
+
+        <div *ngIf="currentCoupon.access_channel == 3">
+            <nz-table #basicTable [nzData]="redeemCodeList" [nzSize]="'small'" [nzShowPagination]="false"
+                [nzFrontPagination]="false">
+                <thead>
+                    <tr>
+                        <th>批号</th>
+                        <th>兑换码数量</th>
+                        <th>已兑数量</th>
+                        <th>每个兑换码可兑券数量</th>
+                        <th>备注</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let data of redeemCodeList">
+                        <td>{{ data.batch_number }}</td>
+                        <td>{{ data.amount }}</td>
+                        <td>{{ data.redeemed_amount }}</td>
+                        <td>{{ data.code_exchangeable_amount }}</td>
+                        <td>{{ data.notes }}</td>
+                        <td>{{ data.date }}</td>
+                        <td>
+                            <a (click)="redeemCodeDetail(data)">详情</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </nz-table>
+        </div>
+    </div>
+
+</nz-modal>
+
+<nz-modal nzTitle="生成兑换码" [(nzVisible)]="generateVisible" (nzOnCancel)="cancelGenerate()" (nzOnOk)="confirmGenerate(1)"
+    [nzMaskClosable]="false" [nzMask]="false" [nzWidth]="620">
+    <div class="form-group">
+        <label class="label" style="width: 160px;">生成数量：</label>
+        <div>
+            <nz-input-number class="input-number" [(ngModel)]="generateParams.amount" [nzMin]="0"></nz-input-number>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label" style="width: 160px;">每个兑换码可兑券数量：</label>
+        <div>
+            <nz-input-number class="input-number" [(ngModel)]="generateParams.code_exchangeable_amount" [nzMin]="1"></nz-input-number>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="label" style="width: 160px;">备注：</label>
+        <div>
+            <textarea nz-input [(ngModel)]="generateParams.notes" [nzAutosize]="{ minRows: 2, maxRows: 6 }"
+                style="resize: none;width: 200px;"></textarea>
+        </div>
+    </div>
+</nz-modal>
+
+<nz-modal nzTitle="生成口令码" [(nzVisible)]="generatePasscodeVisible" (nzOnCancel)="cancelGenerate()" (nzOnOk)="confirmGenerate(2)"
+    [nzMaskClosable]="false" [nzMask]="false" [nzWidth]="620">
+    <div class="form-group">
+        <label class="label" style="width: 160px;"><em>*</em>口令码</label>
+        <div>
+            <input nz-input [(ngModel)]="generateParams.passcode" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label" style="width: 160px;"><em>*</em>可兑数量</label>
+        <div>
+            <nz-input-number class="input-number" [(ngModel)]="generateParams.code_exchangeable_amount" [nzMin]="0"></nz-input-number>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="label" style="width: 160px;">备注：</label>
+        <div>
+            <textarea nz-input [(ngModel)]="generateParams.notes" [nzAutosize]="{ minRows: 2, maxRows: 6 }"
+                style="resize: none;width: 200px;"></textarea>
+        </div>
+    </div>
+</nz-modal>
+
+<nz-modal nzTitle="兑换码详情" [(nzVisible)]="codeDetailVisible" (nzOnCancel)="closeCodeDetail()" [nzFooter]="null"
+    [nzMaskClosable]="false" [nzMask]="false" [nzWidth]="800">
+    <div class="code-wrap" *ngIf="codeDetailVisible">
+        <content-header [collection]="codeCollection">
+            <ny-search-input [uri]="'member/admin/coupon/redeem-code/list?batch_id=' + currentRedeemCode.id" [pageSize]="50" (collection)="setCodeCollection($event)">
+            </ny-search-input>
+        </content-header>
+        <ny-table [collection]="codeCollection"></ny-table>
+    </div>
+</nz-modal>

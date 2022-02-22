@@ -1,0 +1,86 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'hall/course/admin-hall/course/list'" [pageSize]="50" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <!-- <ng-template nyColumn label="操作" width="150px" let-item>
+        <a (click)="edit(item)">详情</a>
+        <nz-divider nzType="vertical"></nz-divider>
+        <a (click)="remove(item)">删除</a>
+    </ng-template> -->
+</ny-table>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" (onClose)="close()">
+    <ny-header>
+        <h2>课程详情</h2>
+        <p style="flex: 1"></p>
+        <!-- <button nz-button nzType="default" (click)="close()" style="margin-right: 16px;">取消</button>
+        <button nz-button nzType="primary" (click)="save()">保存</button> -->
+    </ny-header>
+    <div nyForm="form" (onInit)="onFormInit($event)">
+        <div class="form-group">
+            <label class="label"><em>*</em>课程类型:</label>
+            <div>
+                <nz-select style="width: 200px;" [nzDisabled]="disabled" nyName="type" [nzPlaceHolder]="'课程类型'"
+                    errorStyle="float">
+                    <nz-option *ngFor="let type of courseTypes" [nzLabel]="type.label" [nzValue]="type.value">
+                    </nz-option>
+                </nz-select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>名称:</label>
+            <div>
+                <input nz-input placeholder="名称" nyName="name" errorStyle="float" [disabled]="disabled" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">英文名:</label>
+            <div>
+                <input nz-input placeholder="英文名" nyName="name_en" errorStyle="float" [disabled]="disabled" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>图片:</label>
+            <div>
+                <nz-upload class="avatar-uploader" [nzDisabled]="true" nzName="avatar" nzListType="picture-card" [nzShowUploadList]="false"
+                    [nzCustomRequest]="uploadImg">
+                    <img *ngIf="params.picture" [src]="ossPath + params.picture" class="avatar" />
+                </nz-upload>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>时长:</label>
+            <div>
+                <nz-input-number [nzMin]="1" [nzStep]="1" style="width:110px;" nyName="duration" errorStyle="float"
+                    [nzDisabled]="disabled">
+                </nz-input-number>
+            </div>
+            <span class="unit">分</span>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>可约人数:</label>
+            <div>
+                <nz-input-number [nzMin]="1" [nzStep]="1" style="width:110px;" nyName="max_number" errorStyle="float"
+                    [nzDisabled]="disabled">
+                </nz-input-number>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>最少上课人数:</label>
+            <div>
+                <nz-input-number [(ngModel)]="params.min_number" [nzMin]="1" [nzStep]="1" style="width:110px;"
+                    nyName="min_number" errorStyle="float" [nzDisabled]="disabled">
+                </nz-input-number>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">课程介绍:</label>
+            <div>
+                <textarea nz-input placeholder="课程介绍" nyName="introduction" [nzAutosize]="{ minRows: 3, maxRows: 6 }"
+                    style="width: 300px;" [disabled]="disabled"></textarea>
+            </div>
+        </div>
+    </div>
+</ny-modal>

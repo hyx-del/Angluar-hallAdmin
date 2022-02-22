@@ -1,0 +1,127 @@
+:host {
+    display: inline-block;
+    position: relative;
+    border-radius: 4px;
+    min-height: 32px;
+    min-width: 120px;
+    padding: 2px;
+    border: 1px solid #d9d9d9;
+
+    & > .disabled > span {
+        color: rgba(0, 0, 0, .25);
+    }
+}
+
+:host(.focus) {
+    border-color: #40a9ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.label {
+    display: inline-block;
+    border: 1px solid #cccccc;
+    padding: 2px;
+    margin: 2px;
+    border-radius: 2px;
+    font-size: 12px;
+    white-space: nowrap;
+    user-select: none;
+
+    & > i {
+        cursor: pointer;
+        margin-left: 4px;
+    }
+}
+
+input {
+    display: inline-block;
+    outline: none;
+    border: 0 none;
+    padding: 0 4px;
+}
+
+.dropdown-area {
+    position: absolute;
+    background-color: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.175);
+    left: 0;
+    top: calc(100% + 4px);
+    display: flex;
+    z-index: 10;
+}
+
+.role-group {
+    min-width: 120px;
+    overflow-y: auto;
+
+    .title {
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .item {
+        position: relative;
+        padding: 4px 24px 4px 8px;
+        white-space: nowrap;
+        cursor: pointer;
+        user-select: none;
+
+        &:not(.title) {
+            transition: all 240ms;
+
+            & > i {
+                position: absolute;
+                right: 8px;
+                top: 8px;
+                transition: all 180ms;
+            }
+
+            &:not(.disabled):hover {
+                background-color: #e6f7ff;
+            }
+        }
+    }
+
+    .sub-items {
+        padding-left: 16px;
+        overflow: hidden;
+
+        & > .item::before {
+            display: block;
+            content: '';
+            position: absolute;
+            width: 8px;
+            top: -50%;
+            left: -8px;
+            bottom: 50%;
+            border-left: 1px solid #808080;
+            border-bottom: 1px solid #808080;
+        }
+    }
+
+    .disabled {
+        color: rgba(0, 0, 0, .25);
+        cursor: not-allowed;
+    }
+
+    .checked {
+        background-color: #e6f7ff;
+    }
+
+    .expand > i {
+        transform: rotate(90deg);
+    }
+
+    &:not(:first-child) {
+        border-left: 1px solid #d9d9d9;
+    }
+}
+
+.loading {
+    height: 32px;
+    min-width: 120px;
+    line-height: 32px;
+    text-align: center;
+}

@@ -1,0 +1,92 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'hall/admin-hall/comments'" [pageSize]="50" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection">
+    <ng-template nyColumn label="操作" width="100px" let-item>
+        <a (click)="getCommentDetail(item)">回复</a>
+    </ng-template>
+</ny-table>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" (onClose)="closeModal()">
+    <ny-header>
+        <h2>评价回复</h2>
+        <p style="flex: 1"></p>
+    </ny-header>
+    <div *ngIf="isVisible">
+        <div style="padding: 0 24px; padding-bottom: 8px; border-bottom: 1px solid #ccc;">
+            <div class="comment-item">
+                <span>会馆：</span>
+                <span class="comment-item_content">{{ commentDetail.hall_name }}</span>
+            </div>
+            <div class="comment-item">
+                <span>课程：</span>
+                <span class="comment-item_content">{{ commentDetail.course_name || ''}}</span>
+            </div>
+            <div class="comment-item">
+                <span>教练：</span>
+                <span class="comment-item_content">{{ commentDetail.coach_name }}</span>
+            </div>
+            <div class="comment-item">
+                <span>教练手机号：</span>
+                <span class="comment-item_content">{{ commentDetail.coach_mobile }}</span>
+            </div>
+            <div class="comment-item">
+                <span>时间：</span>
+                <span class="comment-item_content">{{ commentDetail.course_time }}</span>
+            </div>
+        </div>
+        <div style="padding: 16px 24px; padding-bottom: 8px; border-bottom: 1px solid #ccc;">
+            <div class="comment-item">
+                <span>教练评分：</span>
+                <span class="comment-item_content">{{ commentDetail.coach_score }}</span>
+            </div>
+            <div class="comment-item" style="padding-left: 70px;" *ngIf="commentDetail.comment_tags.length">
+                <div class="tag-item" *ngFor="let tag of commentDetail.comment_tags">{{ tag }}</div>
+            </div>
+            <div class="comment-item">
+                <span>留言：</span>
+                <span class="comment-item_content">{{ commentDetail.content }}</span>
+            </div>
+            <div class="comment-item">
+                <span>会员：</span>
+                <span class="comment-item_content">{{ commentDetail.member_name }}</span>
+            </div>
+            <div class="comment-item">
+                <span>会员手机号：</span>
+                <span class="comment-item_content">{{ commentDetail.member_contact }}</span>
+            </div>
+            <div class="comment-item">
+                <span>时间：</span>
+                <span class="comment-item_content">{{ commentDetail.comment_at }}</span>
+            </div>
+        </div>
+
+        <div style="padding: 0 24px; padding-top: 24px;">
+            <div class="reply" *ngIf="commentDetail.reply_content">
+                <div class="reply-item">
+                    <div class="comment-item">
+                        <span>回复人：</span>
+                        <span>{{ commentDetail.reply_by }}</span>
+                    </div>
+                    <div class="comment-item">
+                        <span>回复时间：</span>
+                        <span>{{ commentDetail.reply_at || '' }}</span>
+                    </div>
+                    <div class="comment-item">
+                        <span>回复内容：</span>
+                        <span>{{ commentDetail.reply_content }}</span>
+                    </div>
+                </div>
+            </div>
+            <div style="max-width: 500px;">
+                <textarea nz-input placeholder="回复内容" [(ngModel)]="message"
+                    [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+            </div>
+            <div style="margin-top: 16px;">
+                <button nz-button nzType="primary" (click)="replyComment()">{{ commentDetail.reply_content ? '修改回复' : "回复" }}</button>
+            </div>
+        </div>
+    </div>
+</ny-modal>

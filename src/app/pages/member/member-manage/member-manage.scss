@@ -1,0 +1,68 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.user-info{
+    width: 100%;
+    padding: 16px;
+    display: flex;
+    background: #F8F8F8;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    .head{
+        width: 80px;
+        height: 80px;
+        margin-right: 24px;
+    }
+    .info{
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        .name {
+            font-size: 18px;
+        }
+    }
+}
+.avatar {
+    width: 100px;
+    height: 100px;
+}
+.form-group {
+    input, nz-select {
+        width: 200px;
+    }
+}
+.flex-center {
+    align-items: center;
+}
+
+.group-item {
+    margin-bottom: 8px;
+    .head {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px;
+        background-color: #efefef;
+    }
+
+    .title {
+        font-weight: 600;
+    }
+    
+    .content {
+        padding: 8px;
+        position: relative;
+    }
+}
+
+
+.form-group {
+    input, nz-select {
+        width: 200px;
+    }
+    .contral-input {
+        flex: 1;
+    }
+}

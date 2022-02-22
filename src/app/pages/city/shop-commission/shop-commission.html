@@ -1,0 +1,49 @@
+<div class="setting-row">
+    <div class="left">
+        <div class="shop-item" *ngFor="let shop of shopList; let i = index;"
+            [ngClass]="{'active': shop.id == currentShop.id}" (click)="tapHandle(i)">
+            {{ shop.name }}
+        </div>
+    </div>
+    <div class="right">
+        <h3 class="rule-title">销售提成设置</h3>
+
+        <nz-radio-group [(ngModel)]="ruleId">
+            <div *ngFor="let rules of rulesList">
+                <label nz-radio  [nzValue]="rules.id">{{ rules.name }}</label>
+                <div style="padding: 16px;">
+                    <div class="rule__item" *ngFor="let item of rules.commission_rule">
+                        <span>业绩： {{ item.performance_start }}~{{ item.performance_end ? item.performance_end : "不限" }}</span>
+                        <span>试用期提成：{{ item.probation }}%</span>
+                        <span>正式提成：{{ item.official }}%</span>
+                    </div>
+                </div>
+            </div>
+        </nz-radio-group>
+        <div *ngIf="isLoadingRules && !rulesList.length" style="margin-bottom: 16px;">暂无提成规则，请先设置</div>
+        <div *ngIf="rulesList.length">   
+            <button nz-button nzType="primary" (click)="saveSetting(ruleType.default)">保存</button>
+        </div>
+
+        <h3 class="rule-title" style="margin-top: 16px;">店长提成设置</h3>
+        <nz-radio-group [(ngModel)]="shopRuleId">
+            <div *ngFor="let rules of shopRulesList">
+                <label nz-radio  [nzValue]="rules.id">{{ rules.name }}</label>
+                <div style="padding: 16px;">
+                    <div class="rule__item" *ngFor="let item of rules.commission_rule">
+                        <span>业绩： {{ item.performance_start }}~{{ item.performance_end ? item.performance_end : "不限" }}</span>
+                        <span>提成：{{ item.rate }}%</span>
+                    </div>
+                </div>
+            </div>
+        </nz-radio-group>
+        <div *ngIf="isLoadingRules && !shopRulesList.length" style="margin-bottom: 16px;">暂无提成规则，请先设置</div>
+        <div *ngIf="shopRulesList.length">   
+            <button nz-button nzType="primary" (click)="saveSetting(ruleType.shop)">保存</button>
+        </div>
+
+    </div>
+</div>
+
+
+

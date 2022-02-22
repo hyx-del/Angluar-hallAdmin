@@ -1,0 +1,1253 @@
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="cardVisible" (onClose)="cancelCard()">
+    <ny-header>
+        <h2>课程卡详情</h2>
+        <p style="flex: 1"></p>
+    </ny-header>
+    <div class="modal-content" *ngIf="cardVisible">
+        <nz-tabset>
+            <nz-tab nzTitle="基本信息">
+                <div class="form-group flex-center mb0">
+                    <label class="label">卡名:</label>
+                    <span>{{ detail?.courseCard.name }}</span>
+                </div>
+                <div class="form-group flex-center mb0">
+                    <label class="label">卡号:</label>
+                    <span>{{ detail.card_no }}</span>
+                </div>
+                <div class="form-group flex-center mb0">
+                    <label class="label">类型:</label>
+                    <span *ngIf="detail?.courseCard.type == 1">次卡</span>
+                    <span *ngIf="detail?.courseCard.type == 2">期限卡</span>
+                </div>
+                <div class="form-group flex-center mb0">
+                    <label class="label">通用类型:</label>
+                    <span *ngIf="detail?.courseCard.general_type == 1">全国通</span>
+                    <span *ngIf="detail?.courseCard.general_type == 2">城市通</span>
+                    <span *ngIf="detail?.courseCard.general_type == 3">单店</span>
+                    <span *ngIf="detail?.courseCard.general_type == 4">通店</span>
+                </div>
+                <div class="form-group flex-center mb0">
+                    <label class="label">会员:</label>
+                    <span>{{ detail.member_name }}</span>
+                </div>
+                <div class="form-group flex-center mb0">
+                    <label class="label">销售会籍:</label>
+                    <span>{{ detail.salesman_name }}</span>
+                    <button style="margin-left: 15px" nzType="primary" nz-button nzSize="small"
+                        (click)="amendeMbership()">修改会籍</button>
+                </div>
+                <div class="form-group flex-center mb0">
+                    <label class="label">状态:</label>
+                    <span *ngIf="detail.status == 10">正常</span>
+                    <span *ngIf="detail.status == -10">停卡</span>
+                    <span *ngIf="detail.status == 20">已转卡</span>
+                    <span *ngIf="detail.status == -20">关卡</span>
+                    <span *ngIf="detail.status == -30">请假</span>
+                    <span *ngIf="detail.status == 30">已转卡</span>
+                    <span *ngIf="detail.status == -50">已退卡</span>
+                </div>
+                <div class="form-group flex-center mb0">
+                    <label class="label">余额:</label>
+                    <span>{{ detail.balance || '0' }}</span>
+                    <span *ngIf="detail.courseCard.type == 1">次</span>
+                    <span *ngIf="detail.courseCard.type == 2">天</span>
+                </div>
+                <div class="form-group flex-center mb0">
+                    <label class="label">原价:</label>
+                    <span>{{ detail.price }}</span>
+                </div>
+                <div class="form-group flex-center mb0">
+                    <label class="label">单价:</label>
+                    <span>{{ detail.unit_price }}</span>
+                    <!-- <button style="margin-left: 15px" nzType="primary" nz-button nzSize="small"
+                        (click)="pricemodify()" [disabled]='detail.status !== 10'>单价修改</button> -->
+                </div>
+
+                <div class="form-group flex-center mb0">
+                    <label class="label">剩余价值:</label>
+                    <span>{{ detail.surplus_value }}</span>
+                </div>
+                
+                <div class="form-group flex-center mb0">
+                    <label class="label">有效期:</label>
+                    <span>{{ detail.start_date }} - {{ detail.end_date }}</span>
+                </div>
+                <div class="form-group flex-center mb0">
+                    <label class="label">咨询方式:</label>
+                    <span>{{ detail.consult_mode || '无' }}</span>
+                </div>
+                <div class="form-group flex-center mb0">
+                    <label class="label">赠品:</label>
+                    <span>{{ detail.gift || '无'}}</span>
+                </div>
+                <div class="form-group flex-center mb0">
+                    <label class="label">开卡人:</label>
+                    <span>{{ detail.operator_name }}</span>
+                </div>
+                
+                <div class="form-group flex-center mb0">
+                    <label class="label">备注:</label>
+                    <span>{{ detail.remark || '无'}}</span>
+                </div>
+
+                <div class="form-group">
+                    <div class="label" style="min-width: 120px;"><em>*</em>附件:</div>
+                    <div style="display: flex;flex-wrap: wrap;max-width: 700px;">
+                        <div class="upload-card" *ngFor="let imageUrl of (detail.appendixes || []); let i = index;">
+                            <div class="upload">
+                                <div class="item-info">
+                                    <img [src]="ossPath + imageUrl" alt="" class="avatar">
+                                    <div class="item-actions">
+                                        <i nz-icon nzType="eye" nzTheme="outline" (click)="lookOver(i)"></i>
+                                        <i nz-icon nzType="delete" nzTheme="outline" (click)="removEappendixes(i)"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <nz-upload class="avatar-uploader" nzName='avatar' nzListType="picture-card" [nzShowUploadList]="false"
+                        [nzCustomRequest]="detailUploadImg" *ngIf="detail.appendixes ? (detail.appendixes.length < 9) : true">
+                            <i class="upload-icon" nz-icon [nzType]="isUploadLoading ? 'loading' : 'plus'"></i>
+                            <div class="ant-upload-text">上传图片</div>
+                        </nz-upload>
+                    </div>
+                    
+                    <div style='display: flex;align-items: center;'>
+                        <button style="margin-left: 15px" nzType="primary" nz-button nzSize="small"
+                        (click)="fileUpload()">附件上传</button>
+                    </div>
+                </div>
+
+                <div  class="form-group" [class.flex-center]="!detail.contract">
+                    <label class="label">合同:</label>
+                    <div *ngIf="!detail.contract">
+                        无
+                    </div>
+                    <div *ngIf="detail?.contract?.contract_type == 1 || detail?.contract?.contract_type == 2">
+                        <div>
+                            <span>{{ detail.contract.contract_type == 1 ? '电子合同' : '纸质合同' }}</span>
+                            <span class="unit" *ngIf="detail?.contract?.contract_id">合同Id：{{ detail?.contract?.contract_id }}</span>
+                            <a class="unit" target="_blank" *ngIf="detail?.contract?.view_url" [href]="detail?.contract?.view_url">预览合同</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="padding-left: 60px;padding-top: 24px;">
+                    <div class="sub-title"><strong>多会员关联设置</strong></div>
+                    <button nz-button nzType="primary" style="margin-bottom: 8px;"
+                        (click)="showBindModal()">添加会员绑定</button>
+                    <p>可绑定人数{{ memberMaxBind }}人，已绑{{ memberNum }}人，还可绑定{{ memberMaxBind - memberNum }}人</p>
+                    <nz-table [nzData]="memberBindList" [nzShowPagination]="false" [nzFrontPagination]="false"
+                        [nzSize]="'small'">
+                        <thead>
+                            <tr>
+                                <th>会员姓名</th>
+                                <th>手机号</th>
+                                <th>绑定时间</th>
+                                <th>解绑时间</th>
+                                <th>绑定状态</th>
+                                <th>累计扣除次数</th>
+                                <th>分配次数</th>
+                                <th>剩余可用次数</th>
+                                <th nzWidth="200px">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let data of memberBindList">
+                                <td>{{ data.member_name }}</td>
+                                <td>{{ data.member_contact }}</td>
+                                <td>{{ data.created_at }}</td>
+                                <td>{{data.deleted_at}}</td>
+                                <td>
+                                    <a *ngIf="data.deleted_at == null">已绑定</a>
+                                    <a *ngIf="data.deleted_at !== null">已解绑</a>
+                                </td>
+                                <!-- 主卡 member_id相等 master data.deleted_at有值代表解绑-->
+                                <td>{{ data.used_times || 0 }}</td>
+                                <td>{{ data.allocations_times  }}</td>
+                                <td>{{ data.available_times  }}</td>
+                                <td>
+                                    <a *ngIf="detail.member_id !== data.member_id && !data.master && data.deleted_at == null"
+                                        (click)="unBindMember(data)">解绑</a>
+                                    <a *ngIf="detail.member_id !== data.member_id && !data.master && data.deleted_at == null"
+                                        (click)="setMaster(data)" style="margin-left: 10px">设为主卡人</a>
+                                    <!-- 次卡才显示 -->
+                                    <a *ngIf="courseCardType == 1 && data.deleted_at == null" style="margin-left: 10px" (click)="showSetNumberModal(data)">次数分配</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </nz-table>
+                </div>
+                <div class="card-setting">
+                    <div class="sub-title"><strong>联卡券设置</strong></div>
+                    <div class="row" *ngIf="!detail.coupon_id">
+                        <span class="label">未设置</span>
+                        <a style="margin-bottom: 8px;" *ngIf="courseCardType == 1"
+                            (click)="showCreateCouponModal()">创建</a>
+                    </div>
+                    <div class="row" *ngIf="detail.coupon_id">
+                        <span class="label">{{ couponDetail.name || '已设置' }}</span>
+                        <a style="margin-right: 16px;" (click)="showCouponDetail()">详情</a>
+                        <button nz-button nzType="primary" (click)="showGenerateModal()">生成兑换码</button>
+                    </div>
+                    <nz-table #basicTable [nzData]="redeemCodeList" [nzSize]="'small'" [nzShowPagination]="false"
+                        [nzFrontPagination]="false" *ngIf="detail.coupon_id">
+                        <thead>
+                            <tr>
+                                <th>批号</th>
+                                <th>数量</th>
+                                <th>备注</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let data of redeemCodeList">
+                                <td>{{ data.batch_number }}</td>
+                                <td>{{ data.amount }}</td>
+                                <td>{{ data.notes }}</td>
+                                <td>{{ data.date }}</td>
+                                <td>
+                                    <a (click)="redeemCodeDetail(data)">详情</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </nz-table>
+                </div>
+            </nz-tab>
+
+            <!------------------------------------- 操作 ------------------------------------------>
+            <nz-tab nzTitle="操作">
+                <!--------------------------------- 请假记录 --------------------------------------->
+                <div class="handle-group">
+                    <div class="handle-group__head">
+                        <div class="title">请假记录</div>
+                        <button nz-button nzType="primary" (click)="showLeaveModal()">请假</button>
+                    </div>
+                    <div class="handle-group__content">
+                        <nz-table [nzData]="handleLog.leave" [nzShowPagination]="false" [nzFrontPagination]="false"
+                            [nzSize]="'small'">
+                            <thead>
+                                <tr>
+                                    <th>开始时间</th>
+                                    <th>结束时间</th>
+                                    <th>天数</th>
+                                    <th>事由</th>
+                                    <th>备注</th>
+                                    <th>创建时间</th>
+                                    <th>修改时间</th>
+                                    <th>操作人</th>
+                                    <th nzWidth="100px">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let data of handleLog.leave">
+                                    <td>{{data.start_date}}</td>
+                                    <td>{{data.end_date}}</td>
+                                    <td>{{ data.days }}</td>
+                                    <td>{{ data.reason }}</td>
+                                    <td>{{ data.remark }}</td>
+                                    <td>{{ data.created_at }}</td>
+                                    <td>{{ data.updated_at }}</td>
+                                    <td>{{ data.operator_name }}</td>
+                                    <td>
+                                        <a *ngIf="data.status == 10" (click)="cancelLeave(data)">销假</a>
+                                        <a *ngIf="data.status == 20">已销假</a>
+                                        <a *ngIf="data.status == 11">已结束</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </nz-table>
+                    </div>
+                </div>
+                <!--------------------------------- 转卡记录 --------------------------------------->
+                <div class="handle-group">
+                    <div class="handle-group__head">
+                        <div class="title">转卡记录</div>
+                        <button nz-button nzType="primary" (click)="showTransformModal()">转卡</button>
+                    </div>
+                    <div class="handle-group__content">
+                        <nz-table [nzData]="handleLog.transform" [nzShowPagination]="false" [nzFrontPagination]="false"
+                            [nzSize]="'small'" [nzScroll]="{ x: '1500px', y: '240px' }">
+                            <thead>
+                                <tr>
+                                    <th nzWidth="100px">类型</th>
+                                    <th nzWidth="160px">课程卡名</th>
+                                    <th nzWidth="100px">场馆</th>
+                                    <th nzWidth="100px">会员</th>
+                                    <th nzWidth="100px">剩余价值</th>
+                                    <th nzWidth="100px">转卡后价值</th>
+                                    <th nzWidth="100px">转卡补差</th>
+                                    <th nzWidth="100px">费率</th>
+                                    <th nzWidth="100px">手续费</th>
+                                    <th nzWidth="120px">调整转卡补差</th>
+                                    <th nzWidth="180px">时间</th>
+                                    <th nzWidth="100px">状态</th>
+                                    <th nzWidth="100px">操作人</th>
+                                    <th nzWidth="160px" nzRight="0px">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let data of handleLog.transform">
+                                    <td nzWidth="100px">{{ data.type == 1 ? '转入' : '转出' }}</td>
+                                    <td nzWidth="160px"><a
+                                            (click)="showEarlierEmployLog(data)">{{ data.course_card_name }}</a></td>
+                                    <td nzWidth="100px">{{ data.hall_name }}</td>
+                                    <td nzWidth="100px">{{ data.member_name }}</td>
+                                    <td nzWidth="100px">{{ data.surplus_value || ''}}</td>
+                                    <td nzWidth="100px">{{ data.actual_price || '' }}</td>
+                                    <td nzWidth="100px">{{ data.differences_of_price || '' }}</td>
+                                    <td nzWidth="100px">{{ data.rate || '' }}</td>
+                                    <td nzWidth="100px">{{ data.commission || '' }}</td>
+                                    <td nzWidth="120px">{{ data.adjust_shortfall || '/' }}</td>
+                                    <td nzWidth="180px">{{ data.created_at }}</td>
+                                    <td nzWidth="100px">
+                                        <span *ngIf="data.status == 0">待审核</span>
+                                        <span *ngIf="data.status == 1">已通过</span>
+                                        <span *ngIf="data.status == -1">未通过</span>
+                                        <span *ngIf="data.status == 2">已付款</span>
+                                        <span *ngIf="data.status == -2">已取消</span>
+                                    </td>
+                                    <td nzWidth="100px">{{ data.operator_name }}</td>
+                                    <td nzWidth="160px" nzRight="0px">
+                                        <a (click)="transformDetail(data, true)">详情</a>
+                                        <ng-container *ngIf="data.status == 1 || !data.status">
+                                            <nz-divider nzType="vertical"></nz-divider>
+                                            <a *ngIf="data.status == 1" (click)="transformDetail(data, false)">去支付</a>
+                                            <nz-divider *ngIf="data.status == 1" nzType="vertical"></nz-divider>
+                                            <a *ngIf="!data.status || data.status == 1"
+                                                (click)="cancelTransform(data)">取消</a>
+                                        </ng-container>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </nz-table>
+                    </div>
+                </div>
+                <!--------------------------------- 余额调整记录 ----------------------------------->
+                <div class="handle-group">
+                    <div class="handle-group__head">
+                        <div class="title">余额调整记录</div>
+                        <button nz-button nzType="primary" (click)="showAdjustModal()">调整</button>
+                    </div>
+                    <div class="handle-group__content">
+                        <nz-table [nzData]="handleLog.adjust" [nzShowPagination]="false" [nzFrontPagination]="false"
+                            [nzSize]="'small'">
+                            <thead>
+                                <tr>
+                                    <th>调整次数/天数</th>
+                                    <th>金额</th>
+                                    <th>调整时间</th>
+                                    <th>备注</th>
+                                    <th>操作人</th>
+                                    <th nzWidth="100px">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let data of handleLog.adjust">
+                                    <td>{{ data.amount }}</td>
+                                    <td>{{ data.pay_money }}</td>
+                                    <td>{{ data.created_at }}</td>
+                                    <td>{{ data.remark }}</td>
+                                    <td>{{ data.operator_name }}</td>
+                                    <td>
+                                        <a (click)="adjustDetailModal(data)">详情</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </nz-table>
+                    </div>
+                </div>
+
+                <div class="handle-group">
+                    <div class="handle-group__head">
+                        <div class="title">剩余价值调整记录</div>
+                        <button nz-button nzType="primary" (click)="showSurplusModal()">调整</button>
+                    </div>
+                    <div class="handle-group__content">
+                        <nz-table [nzData]="handleLog.surplusValueAdjust" [nzShowPagination]="false" [nzFrontPagination]="false"
+                            [nzSize]="'small'">
+                            <thead>
+                                <tr>
+                                    <th>调整前</th>
+                                    <th>调整后</th>
+                                    <th>调整原因</th>
+                                    <th>状态</th>
+                                    <th>操作人</th>
+                                    <th nzWidth="180px">操作时间</th>
+                                    <th nzWidth="100px">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let data of handleLog.surplusValueAdjust">
+                                    <td>{{ data.original_surplus_value }}</td>
+                                    <td>{{ data.adjust_surplus_value }}</td>
+                                    <td>{{ data.remark }}</td>
+                                    <td>
+                                        <span *ngIf="data.status == 0">审批中</span>
+                                        <span *ngIf="data.status == 1">完成</span>
+                                        <span *ngIf="data.status == -1">已取消</span>
+                                        <span *ngIf="data.status == -2">未通过</span>
+                                    </td>
+                                    <td>{{ data.operator_name }}</td>
+                                    <td>{{ data.created_at }}</td>
+                                    <td>
+                                        <a *ngIf="data.status == 0" (click)="cancelSurplusAdjust(data)">取消</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </nz-table>
+                    </div>
+                </div>
+
+                <!--------------------------------- 有效期调整记录 ---------------------------------->
+                <div class="handle-group">
+                    <div class="handle-group__head">
+                        <div class="title">有效期调整记录</div>
+                        <!-- 关闭期限卡调整有效期功能 次卡才可以调整 -->
+                        <button nz-button nzType="primary" (click)="showValidModal()" *ngIf="courseCardType == 1">调整</button>
+                    </div>
+                    <div class="handle-group__content">
+                        <nz-table [nzData]="handleLog.validateAdjusts" [nzShowPagination]="false"
+                            [nzFrontPagination]="false" [nzSize]="'small'">
+                            <thead>
+                                <tr>
+                                    <th>调整前</th>
+                                    <th>调整后</th>
+                                    <th>备注</th>
+                                    <th>操作人</th>
+                                    <th>操作时间</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let data of handleLog.validateAdjusts">
+                                    <td>
+                                        <span>{{ data.start_date_before }}</span>
+                                        <span style="margin: 0 4px;">-</span>
+                                        <span>{{ data.end_date_before }}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{ data.start_date_after }}</span>
+                                        <span style="margin: 0 4px;">-</span>
+                                        <span>{{ data.end_date_after }}</span>
+                                    </td>
+                                    <td>{{ data.remark }}</td>
+                                    <td>{{ data.operator_name }}</td>
+                                    <td>{{ data.created_at }}</td>
+                                </tr>
+                            </tbody>
+                        </nz-table>
+                    </div>
+                </div>
+
+                <!--------------------------------- 停卡记录 ---------------------------------------->
+                <div class="handle-group">
+                    <div class="handle-group__head">
+                        <div class="title">停卡记录</div>
+                        <button nz-button nzType="primary"
+                            (click)="showStopCartModal()" [disabled]="detail.status != -10">{{ detail.status == -10 ? '恢复' : '停卡' }}</button>
+                    </div>
+                    <div class="handle-group__content">
+                        <nz-table [nzData]="handleLog.stop" [nzShowPagination]="false" [nzFrontPagination]="false"
+                            [nzSize]="'small'">
+                            <thead>
+                                <tr>
+                                    <th>时间</th>
+                                    <th>备注</th>
+                                    <th>操作类型</th>
+                                    <th>操作人</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let data of handleLog.stop">
+                                    <td>{{ data.created_at }}</td>
+                                    <td>{{ data.remark }}</td>
+                                    <td>
+                                        <!-- <span *ngIf="data.type == 10">停卡</span>
+                                        <span *ngIf="data.type == 20">恢复</span> -->
+                                        <span *ngIf="data.type == -10">停卡</span>
+                                        <span *ngIf="data.type == 10">恢复</span>
+                                    </td>
+                                    <td>{{ data.operator_name }}</td>
+                                </tr>
+                            </tbody>
+                        </nz-table>
+                    </div>
+                </div>
+
+                <!--------------------------------- 退卡记录 ---------------------------------------->
+                <div class="handle-group">
+                    <div class="handle-group__head">
+                        <div class="title">退卡记录</div>
+                        <button nz-button nzType="primary" (click)="retreatCard()" [disabled]="disabledVisible">退卡</button>
+                    </div>
+                    <div class="handle-group__content">
+                        <nz-table [nzData]="handleLog.refund" [nzShowPagination]="false" [nzFrontPagination]="false"
+                            [nzSize]="'small'" nzBordered [nzScroll]="{ x: '1500px', y: '240px' }">
+                            <thead>
+                                <tr>
+                                    <th nzWidth="160px">课程卡名</th>
+                                    <th nzWidth="100px">场馆</th>
+                                    <th nzWidth="100px">会员</th>
+                                    <th nzWidth="100px">费率</th>
+                                    <th nzWidth="100px">手续费</th>
+                                    <th nzWidth="180px">时间</th>
+                                    <th nzWidth="100px">状态</th>
+                                    <th nzWidth="100px">操作人</th>
+                                    <th nzWidth="100px">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let data of handleLog.refund">
+                                    <td nzWidth="160px">{{ data.card_name }}</td>
+                                    <td nzWidth="100px">{{ data.hall_name }}</td>
+                                    <td nzWidth="100px">{{ data.member_name }}</td>
+                                    <td nzWidth="100px">{{ data.rate || '' }}</td>
+                                    <td nzWidth="100px">{{ data.commission || '' }}</td>
+                                    <td nzWidth="180px">{{ data.created_at }}</td>
+                                    <td nzWidth="100px">
+                                        <span *ngIf="data.status == 0">待审核</span>
+                                        <span *ngIf="data.status == 10">已通过</span>
+                                        <span *ngIf="data.status == -10">未通过</span>
+                                        <span *ngIf="data.status == 20">已付款</span>
+                                        <span *ngIf="data.status == -20">已取消</span>
+                                    </td>
+                                    <td nzWidth="100px">{{ data.operator_name }}</td>
+                                    <td nzWidth="160px" nzRight="0px">
+                                        <a (click)="transformDetail(data, true,'retreatCard')">详情</a>
+                                        <ng-container *ngIf="data.status == 10 || !data.status">
+                                            <nz-divider nzType="vertical"></nz-divider>
+                                            <a *ngIf="data.status == 10" (click)="transformDetail(data, false,'retreatCard')">去支付</a>
+                                            <nz-divider *ngIf="data.status == 10" nzType="vertical"></nz-divider>
+                                            <a *ngIf="!data.status || data.status == 10"
+                                                (click)="cancelTransform(data,'retreatCard')">取消</a>
+                                        </ng-container>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </nz-table>
+                    </div>
+                </div>
+            </nz-tab>
+
+            <!------------------------------------- 使用记录 -------------------------------------- -->
+            <nz-tab nzTitle="使用记录">
+                <div style="height: 100%; display: flex;flex-direction: column;">
+                    <content-header [collection]="useLogsCollection">
+                        <ny-search-input [uri]="'hall/member/admin-hall/member-course-card/employ-log?id=' + detail.id"
+                            [pageSize]="50" (collection)="setUseLogsCollection($event)">
+                        </ny-search-input>
+                    </content-header>
+                    <ny-table [collection]="useLogsCollection"></ny-table>
+                </div>
+            </nz-tab>
+
+            <!------------------------------------- 转会记录 -------------------------------------- -->
+            <nz-tab nzTitle="转会记录">
+                <div style="height: 100%; display: flex;flex-direction: column;">
+                    <content-header [collection]="TansferCollection">
+                        <ny-search-input
+                            [uri]="'hall/member/admin-hall/member-course-card/salesman-change-records?id=' + detail.id"
+                            [pageSize]="50" (collection)="setTansferCollection($event)">
+                        </ny-search-input>
+                    </content-header>
+                    <ny-table [collection]="TansferCollection"></ny-table>
+                </div>
+            </nz-tab>
+
+            <!------------------------------------- 单价调整记录 -------------------------------------- -->
+            <nz-tab nzTitle='单价调整记录'>
+                <div style="height: 100%; display: flex; flex-direction: column;">
+                    <content-header [collection]='priceAdjust'>
+                        <ny-search-input [uri]="'hall/member/admin-hall/member-course-card/unit-price-change/log?member_course_card_id=' + detail.id"
+                                         [pageSize]="50" (collection)='setPriceAdjustCollection($event)'></ny-search-input> 
+                    </content-header>
+                    <ny-table [collection]="priceAdjust">
+                        <ng-template nyColumn label='操作' let-item>
+                            <a (click)='cancelPriceAdjust(item)' *ngIf='item.status == 0'>取消</a>
+                        </ng-template>
+                    </ny-table>
+                </div>
+            </nz-tab>
+        </nz-tabset>
+    </div>
+</ny-modal>
+
+<!---------------------- 请假modal --------------------------->
+<nz-modal [(nzVisible)]="leaveVisible" nzTitle="请假" (nzOnCancel)="leaveVisible = false" (nzOnOk)="confirmLeave()"
+    [nzWidth]="700">
+    <div class="form-group">
+        <label class="label"><em>*</em>请假事由:</label>
+        <div>
+            <input nz-input [(ngModel)]="leaveParams.reason" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label"><em>*</em>请假时间:</label>
+        <div>
+            <nz-date-picker [(ngModel)]="leaveParams.start_date"></nz-date-picker>
+            <span style="margin: 0 8px;">至</span>
+            <nz-date-picker [(ngModel)]="leaveParams.end_date"></nz-date-picker>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label">备注:</label>
+        <div>
+            <textarea nz-input style="width: 200px;" [(ngModel)]="leaveParams.remark"
+                [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+        </div>
+    </div>
+</nz-modal>
+
+<!---------------------- 添加会员绑定modal --------------------------->
+<nz-modal [(nzVisible)]="bindVisible" nzTitle="添加会员绑定" (nzOnCancel)="bindVisible = false" [nzMaskClosable]="false"
+    [nzWidth]="700" [nzFooter]="null">
+    <div class="member-modal-wrapper">
+        <!-- <div style="display: flex; margin-bottom: 8px;">
+            <content-header [collection]="memberCollection">
+                <ny-search-input [uri]="'hall/member/admin-hall/member/list'" [pageSize]="50" (collection)="setMemberCollection($event)">
+                </ny-search-input>
+            </content-header>
+        </div> -->
+        <div style="display: flex;margin-bottom: 8px;">
+            <input style="width: 180px;" nz-input placeholder="手机号" [(ngModel)]="memberKeyword" />
+            <button nz-button nzType="primary" (click)="searchMemberByAll()" style="margin-left: 8px;">搜索</button>
+            <!-- <nz-pagination [(nzPageIndex)]="memberPageIndex" [nzTotal]="memberTotal" (nzPageIndexChange)="searchMemberByAll()"></nz-pagination> -->
+        </div>
+        <nz-table [nzData]="allMemberList" [nzPageSize]="20" [nzLoading]="isMemberLoading" [nzShowPagination]="true"
+            [nzFrontPagination]="false" [nzSize]="'small'" [(nzPageIndex)]="memberPageIndex" [nzTotal]="memberTotal"
+            (nzPageIndexChange)="memberPageIndexChange()">
+            <thead>
+                <tr>
+                    <th>会员姓名</th>
+                    <th>手机号</th>
+                    <th nzWidth="150px">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of allMemberList">
+                    <td>{{ data.name }}</td>
+                    <td>{{ data.contact }}</td>
+                    <td>
+                        <a (click)="bindMember(data)">绑定</a>
+                    </td>
+                </tr>
+            </tbody>
+        </nz-table>
+    </div>
+</nz-modal>
+
+
+<!-- 绑定会员分配次数 -->
+<nz-modal [(nzVisible)]="setNumberVisible" nzTitle="次数分配" (nzOnCancel)="closeSetNumber()" [nzMaskClosable]="false"
+     (nzOnOk)="confirmSetNumber()">
+    <div class="form-group" >
+        <label class="label">次数:</label>
+        <div>
+            <nz-input-number [(ngModel)]="setNumberValue" [nzMin]="0" style="width: 200px;"></nz-input-number>
+        </div>
+    </div>
+</nz-modal>
+
+<!---------------------- 恢复、停卡modal --------------------------->
+<nz-modal [(nzVisible)]="stopCardVisible" [nzTitle]="detail.status == -10 ? '恢复' : '停卡'" (nzOnCancel)="cancelStopCart()"
+    (nzOnOk)="changeCardStatus()" [nzWidth]="520">
+    <div nyForm="recoverForm" (onInit)="onFormInit($event)">
+        <div class="form-group" *ngIf="detail.status == -10">
+            <label class="label"><em>*</em>恢复后到期日期:</label>
+            <div>
+                <nz-date-picker (ngModelChange)="DateonChange($event)" nyName="to_end_date" errorStyle="float"></nz-date-picker>
+                <span style="color: #e62a10;margin-left:10px;font-size: 0.75em;" *ngIf="isShowReminder">请确认到期日期是否正确</span>       
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">备注:</label>
+            <div>
+                <textarea nz-input style="width: 240px; resize: none;" [(ngModel)]="stopCardRemark"
+                    [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+            </div>
+        </div>
+    </div>  
+</nz-modal>
+
+<!---------------------- 余额调整modal --------------------------->
+<nz-modal [(nzVisible)]="adjustVisible" nzTitle="余额调整" (nzOnCancel)="closeAdjustModal()" (nzOnOk)="adjust()"
+    [nzWidth]="680" [nzMaskClosable]="false" [nzFooter]="adjustParams.id ? null : adjustModalFooter">
+    <div class="form-group flex-center">
+        <label class="label">会员:</label>
+        <div>
+            <input nz-input [value]="detail.member_name" disabled />
+        </div>
+    </div>
+    <div class="form-group flex-center">
+        <label class="label">课程卡:</label>
+        <div>
+            <input nz-input [value]="detail.courseCard.name" disabled />
+        </div>
+    </div>
+    <div class="form-group flex-center" *ngIf="!adjustParams.id">
+        <label class="label">余额:</label>
+        <div>
+            <input nz-input disabled [value]="detail.balance" />
+        </div>
+        <span class="unit">{{ courseCardType == 1 ? '次' : '天' }}</span>
+    </div>
+    <div class="form-group flex-center" *ngIf="!adjustParams.id">
+        <label class="label">剩余价值:</label>
+        <div>
+            <input nz-input disabled [value]="detail.surplus_value" />
+        </div>
+        <span class="unit">元</span>
+    </div>
+    <div class="form-group">
+        <label class="label"><em>*</em>调整数量:</label>
+        <div>
+            <nz-radio-group [(ngModel)]="adjustType" (ngModelChange)="adjustTypeChange()" [nzDisabled]="adjustParams.id">
+                <label nz-radio-button [nzValue]="1">加</label>
+                <label nz-radio-button [nzValue]="0">减</label>
+            </nz-radio-group>
+            <div style="margin-top: 8px;">
+                <nz-input-number [(ngModel)]="adjustParams.amount" (ngModelChange)="asjustAmountChange()" [nzMin]="0"
+                    style="width: 200px;" [nzDisabled]="adjustParams.id"></nz-input-number>
+                <span class="unit">{{ courseCardType == 1 ? '次' : '天' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label"><em>*</em>支付金额:</label>
+        <nz-input-number [(ngModel)]="adjustParams.pay_money" style="width: 200px;" [nzDisabled]="adjustParams.id"></nz-input-number>
+        <span class="unit">元</span>
+    </div>
+
+    <div class="form-group">
+        <label class="label">支付类型:</label>
+        <nz-radio-group [(ngModel)]="paymentMode" [nzDisabled]="adjustParams.id">
+            <label nz-radio-button [nzValue]="'one'">单一支付</label>
+            <label nz-radio-button [nzValue]="'multiple'">组合支付</label>
+        </nz-radio-group>
+
+        <app-payment-dialog *ngIf="adjustParams.id" [tag]="'adjust'" [paymentList]="paymentOptions"
+         [params]="adjustParams" (onChange)="refreshAdjustDetail($event)"></app-payment-dialog>
+
+        <app-payment-update-log *ngIf="adjustParams.id" [orderId]="adjustParams.id" [tag]="'adjust'" ></app-payment-update-log>
+    </div>
+
+    <div *ngIf="paymentMode == 'one'">
+        <div class="form-group">
+            <label class="label"><em>*</em>支付方式:</label>
+            <nz-select [(ngModel)]="adjustPayment.mode" style="width: 200px;" [nzDisabled]="adjustParams.id">
+                <nz-option *ngFor="let payment of paymentOptions" [nzLabel]="payment.name" [nzValue]="payment.id">
+                </nz-option>
+            </nz-select>
+            <span class="unit pointer" (click)="getMemberPaymentList(true)">
+                <i nz-icon nzType="sync" nzTheme="outline"></i>
+            </span>
+        </div>
+
+        <div class="form-group">
+            <label class="label">交易号:</label>
+            <nz-input-number [(ngModel)]="adjustPayment.trade_no" [nzMin]="0" style="width: 200px;"  [nzDisabled]="adjustParams.id"></nz-input-number>
+        </div>
+    </div>
+    <div *ngIf="paymentMode == 'multiple' ">
+        <div class="pay-info" *ngFor="let item of multiplePaymentMode; let index = index;">
+            <span class="mr8 label"><em style="color: red;margin-right: 5px;">*</em>支付方式:</span>
+            <nz-select [(ngModel)]="item.mode" style="width: 120px;" [nzDisabled]="adjustParams.id">
+                <nz-option *ngFor="let payment of paymentOptions" [nzLabel]="payment.name" [nzValue]="payment.id">
+                </nz-option>
+            </nz-select>
+            <span class="mr8 ml8">支付金额:</span>
+            <nz-input-number [nzStep]="1" [(ngModel)]="item.amount" [nzPrecision]="2" [nzDisabled]="adjustParams.id"></nz-input-number>
+            <span class="mr8 ml8">交易号:</span>
+            <nz-input-number [nzMin]="1" [nzStep]="1" [(ngModel)]="item.trade_no" [nzDisabled]="adjustParams.id"></nz-input-number>
+
+            <span class="ml8 mr8 add" (click)="addPaymentMode()" *ngIf="!adjustParams.id">
+                <i nz-icon nzType="plus-circle" nzTheme="outline"></i>
+            </span>
+            <span class="ml8 remove" *ngIf="index > 0 && !adjustParams.id" (click)="removePaymentMode(index)">
+                <i nz-icon nzType="delete" nzTheme="outline"></i>
+            </span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label">备注:</label>
+        <div>
+            <textarea nz-input style="width: 200px;" [(ngModel)]="adjustParams.remark"
+                [nzAutosize]="{ minRows: 2, maxRows: 6 }" [disabled]="adjustParams.id"></textarea>
+        </div>
+    </div>
+
+    <ng-template #adjustModalFooter>
+        <button nz-button nzType="default" (click)="closeAdjustModal()">取消</button>
+        <button nz-button nzType="primary" (click)="adjust()" style="margin-left: 8px;">确定</button>
+    </ng-template>
+</nz-modal>
+
+<!---------------------- 有效期调整modal --------------------------->
+<nz-modal [(nzVisible)]="validVisible" nzTitle="有效期调整" (nzOnCancel)="closeValidModal()" (nzOnOk)="saveValid()"
+    [nzWidth]="620" [nzMaskClosable]="false">
+    <div class="form-group flex-center">
+        <label class="label">原有效期:</label>
+        <div>
+            <span>{{ detail.start_date }} - {{ detail.end_date }}</span>
+        </div>
+    </div>
+    <div class="form-group flex-center">
+        <label class="label">原有效天数:</label>
+        <div>
+            <span>{{ effectiveDays }}天</span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label"><em>*</em>修改有效期:</label>
+        <div>
+            <nz-range-picker [(ngModel)]="validDateRange" (ngModelChange)="validDateChange()"></nz-range-picker>
+        </div>
+    </div>
+    <div class="form-group flex-center" *ngIf="validDateRange.length">
+        <label class="label">修改后有效期:</label>
+        <div>
+            <span>{{ afterEffectiveDays }}天</span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label">备注:</label>
+        <div>
+            <textarea nz-input style="width: 240px; resize: none;" [(ngModel)]="validParams.remark"
+                [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+        </div>
+    </div>
+</nz-modal>
+
+<!---------------------- 课程详情modal --------------------------->
+<nz-modal [(nzVisible)]="logCourseVisible" nzTitle="课程详情" (nzOnCancel)="closeLogModal()" [nzWidth]="620"
+    [nzMaskClosable]="false" [nzFooter]="null">
+    <div style="display: flex;">
+        <div class="form-group flex-center">
+            <label class="label">课程名称:</label>
+            <div>{{ logDetail.course_name }}</div>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">教练:</label>
+            <div>{{ logDetail.coach_name }}</div>
+        </div>
+    </div>
+    <div style="display: flex;">
+        <div class="form-group flex-center">
+            <label class="label">时间:</label>
+            <div>{{ logDetail.detail.date + " " + logDetail.detail.start_time + "-" + logDetail.detail.end_time}}</div>
+        </div>
+    </div>
+</nz-modal>
+
+<!---------------------- 转卡modal --------------------------->
+<app-turn-card [detail]="detail" [courseCardType]="courseCardType" #turnCard (refresh)="refreshCarInfo()" (adjustEvent)="showSurplusModal()"></app-turn-card>
+
+<!---------------------- 使用记录modal --------------------------->
+<nz-modal nzTitle="使用记录" [(nzVisible)]="earlierEmployLogVisible" (nzOnCancel)="closeEarlierLog()" [nzWidth]="800"
+    [nzMaskClosable]="false">
+    <nz-table [nzData]="earlierEmployLogData" [nzShowPagination]="false" [nzFrontPagination]="false" [nzSize]="'small'">
+        <thead>
+            <tr>
+                <th>场馆</th>
+                <th>课程名称</th>
+                <th>状态</th>
+                <th>数量（变化）</th>
+                <th>剩余次数/天数</th>
+                <th>类型</th>
+                <th>备注</th>
+                <th>操作人</th>
+                <th>时间</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let data of earlierEmployLogData">
+                <td>{{ data.hall_name }}</td>
+                <td>{{ data.course_name }}</td>
+                <td>{{ data.course_status }}</td>
+                <td>{{ data.amount }}</td>
+                <td>{{ data.balance }}</td>
+                <td>{{ data.type }}</td>
+                <td>{{ data.remark }}</td>
+                <td>{{ data.operator_name }}</td>
+                <td>{{ data.created_at }}</td>
+            </tr>
+        </tbody>
+    </nz-table>
+</nz-modal>
+
+<!---------------------- 设为主卡人modal --------------------------->
+<nz-modal [(nzVisible)]="setIsVisible" nzTitle="提示" (nzOnCancel)="setHandleCancel()" (nzOnOk)="setAndleOk()">
+    <p>确定要将此会员设为主卡人?</p>
+</nz-modal>
+
+<!---------------------- 解绑此会员modal --------------------------->
+<nz-modal [(nzVisible)]="unbindIsVisible" nzTitle="提示" (nzOnCancel)="unbindHandleCancel()" (nzOnOk)="unbindAndleOk()">
+    <p>确定要将解绑此会员?</p>
+</nz-modal>
+
+<!---------------------- 修改会籍modal --------------------------->
+<nz-modal [(nzVisible)]="amendIsVisible" nzTitle="修改会籍" (nzOnCancel)="amendHandleCancel()" (nzOnOk)="amendAndleOk()">
+    <div class="form-group">
+        <label class="label"><em>*</em>销售：</label>
+        <div>
+            <nz-select style="width: 300px" [(ngModel)]="selectDate">
+                <nz-option *ngFor="let salesman of salesmanList" [nzLabel]="salesman.name" [nzValue]="salesman.id">
+                </nz-option>
+            </nz-select>
+        </div>
+    </div>
+</nz-modal>
+
+<!---------------------- 联卡券详情、添加联卡券modal --------------------------->
+<nz-modal [nzTitle]="detail.coupon_id ? '联卡券详情' : '添加联卡券'" nyForm="couponForm" (onInit)="couponFormInit($event)"
+    [(nzVisible)]="couponVisible" (nzOnCancel)="cancelCreateCoupon()" [nzFooter]="null" [nzMaskClosable]="false"
+    [nzWidth]="620">
+    <div class="form-group">
+        <label class="label">名称：</label>
+        <div>
+            <input nz-input type="text" nyName="name" errorStyle="float">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label">获取渠道：</label>
+        <div>
+            <nz-select nyName="access_channel" errorStyle="float" style="width: 200px">
+                <nz-option *ngFor="let item of channels" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+            </nz-select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label">使用限制：</label>
+        <div style="padding-top: 5px;">
+            <!-- <nz-checkbox-group [(ngModel)]="useLimitOptions"></nz-checkbox-group> -->
+            <nz-radio-group nyName="use_limit">
+                <label nz-radio *ngFor="let item of useLimitOptions" [nzValue]="item.value">{{ item.label }}</label>
+            </nz-radio-group>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label">有效天数：</label>
+        <div>
+            <nz-input-number class="input-number" nyName="effective_days" errorStyle="float" [nzMin]="0">
+            </nz-input-number>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label">数量：</label>
+        <div>
+            <nz-input-number class="input-number" nyName="amount" errorStyle="float" [nzMin]="0"></nz-input-number>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label"></label>
+        <div *ngIf="!detail.coupon_id">
+            <button nz-button nzType="primary" (click)="saveCoupon()">确定</button>
+        </div>
+        <div *ngIf="detail.coupon_id">
+            <button nz-button nzType="primary" (click)="saveCoupon()" style="margin-right: 16px;">保存</button>
+        </div>
+    </div>
+
+</nz-modal>
+
+<!---------------------- 生成兑换码modal --------------------------->
+<nz-modal nzTitle="生成兑换码" [(nzVisible)]="generateVisible" (nzOnCancel)="cancelGenerate()" (nzOnOk)="confirmGenerate()"
+    [nzMaskClosable]="false" [nzMask]="false">
+    <div class="form-group">
+        <label class="label">生成数量：</label>
+        <div>
+            <nz-input-number class="input-number" [(ngModel)]="generateParams.amount" [nzMin]="0"></nz-input-number>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label">备注：</label>
+        <div>
+            <textarea nz-input [(ngModel)]="generateParams.notes" [nzAutosize]="{ minRows: 2, maxRows: 6 }"
+                style="resize: none;width: 200px;"></textarea>
+        </div>
+    </div>
+</nz-modal>
+
+<!---------------------- 兑换码详情modal --------------------------->
+<nz-modal nzTitle="兑换码详情" [(nzVisible)]="codeDetailVisible" (nzOnCancel)="closeCodeDetail()" [nzFooter]="null"
+    [nzMaskClosable]="false" [nzMask]="false" [nzWidth]="800">
+    <div class="code-wrap" *ngIf="codeDetailVisible">
+        <content-header [collection]="codeCollection">
+            <ny-search-input [uri]="'member/admin/coupon/redeem-code/list?batch_id=' + currentRedeemCode.id"
+                [pageSize]="50" (collection)="setCodeCollection($event)">
+            </ny-search-input>
+        </content-header>
+        <ny-table [collection]="codeCollection"></ny-table>
+    </div>
+</nz-modal>
+
+<!---------------------- 退卡---------------------------->
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="retreatCardVisible" (onClose)="cancelRetreatCard()"
+    nyForm="form">
+    <ny-header>
+        <h2>退卡</h2>
+        <p style="flex:1"></p>
+    </ny-header>
+    <div>
+        <!-------------------------- 原卡信息 ---------------------------->
+        <div class="info-title">原卡信息</div>
+        <div class="form-group flex-center">
+            <label class="label">卡类:</label>
+            <input nz-input [value]="detail.courseCard.name" disabled />
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">绑定会员:</label>
+            <div>
+                <input nz-input [value]="detail.member_name" disabled />
+            </div>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">原卡余额:</label>
+            <div>
+                <input nz-input [value]="retreatCardParams.balance || detail.balance" disabled />
+            </div>
+            <span class="unit">{{ courseCardType == 1 ? '次' : '天' }}</span>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">原价:</label>
+            <div>
+                <input nz-input disabled [value]="detail.price" />
+            </div>
+            <span class="unit">元</span>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">剩余价值:</label>
+            <div>
+                <input nz-input disabled [value]="retreatCardParams.surplus_price || detail.surplus_value" />
+            </div>
+            <span class="unit">元</span>
+        </div>
+
+        <!---------------------------- 退卡信息 ------------------------>
+        <div class="info-title">退卡信息</div>
+
+        <div class="row-flex-end">
+            <button nz-button nzType="primary" (click)="retreatCardPly()"
+                [disabled]="retreatCardParams.id">提交申请</button>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">课程卡剩余价值:</label>
+            <div>
+                <nz-input-number [(ngModel)]="retreatCardParams.refund_price" [nzMin]="0"
+                    [nzStep]="1" style="width: 200px;" [disabled]="retreatCardParams.id" (ngModelChange)="retreatCardPriceChange()"></nz-input-number>
+            </div>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">费率:</label>
+            <div>
+                <nz-input-number [(ngModel)]="retreatCardParams.rate" [nzMin]="0" [nzStep]="0.1" style="width: 200px;"
+                    errorStyle="float" nyName="rate" [disabled]="retreatCardParams.id"
+                    (ngModelChange)="retreatCardRateChange()"></nz-input-number>
+            </div>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">手续费:</label>
+            <div>
+                <nz-input-number [(ngModel)]="retreatCardParams.commission" [nzMin]="0" [nzStep]="1"
+                    style="width: 200px;" (nzBlur)="commisSionBlur()" errorStyle="float" nyName="commission"
+                    [disabled]="retreatCardParams.id" (ngModelChange)="retreatCardCommissionChange()" [nzPrecision]="2">
+                </nz-input-number>
+            </div>
+        </div>
+
+       
+
+        <div class="form-group flex-center">
+            <label class="label">实际退款金额:</label>
+            <span style="color: red;">{{retreatCardParams.pay_money}}</span>
+            <span class="ml8">元</span>
+        </div>
+
+        <div class="form-group">
+            <label class="label" style="min-width: 120px;">附件:</label>
+            <div style="display: flex;flex-wrap: wrap;max-width: 700px;">
+                <div class="upload-card" *ngFor="let imageUrl of imageList; let i = index;">
+                    <div class="upload">
+                        <div *ngIf="retreatCardParams.id">
+                            <img [src]="ossPath+imageUrl" class="avatar">
+                        </div>
+                        <div class="item-info" *ngIf="!retreatCardParams.id">
+                            <img [src]="ossPath + imageUrl" class="avatar">
+                            <div class="item-actions">
+                                <i nz-icon nzType="delete" nzTheme="outline" (click)="removeFile(i)"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <nz-upload class="avatar-uploader" nzListType="picture-card" [nzCustomRequest]="uploadImg"
+                    nzName="avatar" [nzShowUploadList]="false" *ngIf="imageList.length < 9 && !retreatCardParams.id">
+                    <i class="upload-icon" nz-icon [nzType]="isUploadLoading ? 'loading' : 'plus'"></i>
+                    <div class="ant-upload-text">上传图片</div>
+                </nz-upload>
+            </div>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">退卡日期:</label>
+            <nz-date-picker [(ngModel)]="retreatCardParams.date" (ngModelChange)="onChangeDate($event)"
+                [disabled]="true">
+            </nz-date-picker>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">备注:</label>
+            <div style="width: 400px;">
+                <textarea rows="4" nz-input [(ngModel)]="retreatCardParams.remark"
+                    [disabled]="retreatCardParams.id"></textarea>
+            </div>
+        </div>
+        <!---------------------------- 支付信息 ---------------------------->
+        <!-- 退卡金额为0 不需要支付 -->
+        <div *ngIf="hasRefundMoney">
+            <div class="info-title">支付信息</div>
+            <div class="row-flex-end">
+                <button nz-button nzType="primary" (click)="transformCardPayment()"
+                    [disabled]="isShowDetail">确认支付</button>
+            </div>
+
+            <div class="form-group">
+                <label class="label">支付类型:</label>
+                <nz-radio-group [(ngModel)]="paymentMethod" [nzDisabled]="isShowDetail">
+                    <label nz-radio-button [nzValue]="'one'">单一支付</label>
+                    <label nz-radio-button [nzValue]="'multiple'">组合支付</label>
+                </nz-radio-group>
+
+                <!-- status = 20 已经支付-->
+                <app-payment-dialog *ngIf="isShowDetail && retreatCardParams.status == 20" [tag]="'refund'" [paymentList]="paymentOptions"
+                [params]="retreatCardParams"></app-payment-dialog>
+
+                <app-payment-update-log *ngIf="isShowDetail && retreatCardParams.status == 20"
+                [orderId]="retreatCardParams.id" [tag]="'refund'"></app-payment-update-log>
+            </div>
+
+            <div *ngIf="paymentMethod == 'one'">
+                <div class="form-group">
+                    <label class="label">支付方式:</label>
+                    <nz-select [(ngModel)]="params.payment_id" style="width: 200px;" [nzDisabled]="isShowDetail">
+                        <nz-option *ngFor="let payment of paymentOptions" [nzLabel]="payment.name" [nzValue]="payment.id">
+                        </nz-option>
+                    </nz-select>
+                    <span class="unit pointer" *ngIf="!isShowDetail" (click)="getMemberPaymentList(true)">
+                        <i nz-icon nzType="sync" nzTheme="outline"></i>
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">交易号:</label>
+                    <!-- <input nz-input [(ngModel)]="params.payment_no" /> -->
+                    <nz-input-number [(ngModel)]="params.trade_no" [nzMin]="0" style="width: 200px;"
+                        [nzDisabled]="isShowDetail"></nz-input-number>
+                </div>
+            </div>
+            <div *ngIf="paymentMethod == 'multiple' ">
+                <div class="pay-info" *ngFor="let item of payInfo; let index = index;">
+                    <span class="mr8 label">支付方式:</span>
+                    <nz-select [(ngModel)]="item.mode" style="width: 120px;" [nzDisabled]="isShowDetail">
+                        <nz-option *ngFor="let payment of paymentOptions" [nzLabel]="payment.name" [nzValue]="payment.id">
+                        </nz-option>
+                    </nz-select>
+                    <span class="mr8 ml8">退款金额:</span>
+                    <nz-input-number [nzStep]="1" [(ngModel)]="item.amount" [nzPrecision]="2" [nzDisabled]="isShowDetail">
+                    </nz-input-number>
+                    <span class="mr8 ml8">交易号:</span>
+                    <nz-input-number [nzMin]="1" [nzStep]="1" [(ngModel)]="item.trade_no" [nzDisabled]="isShowDetail">
+                    </nz-input-number>
+
+                    <span class="ml8 mr8 add" *ngIf="!isShowDetail" (click)="addPayInfo()">
+                        <i nz-icon nzType="plus-circle" nzTheme="outline"></i>
+                    </span>
+                    <span class="ml8 remove" *ngIf="index > 0 && !isShowDetail" (click)="removePayInfo(index)">
+                        <i nz-icon nzType="delete" nzTheme="outline"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="!hasRefundMoney && !isShowDetail">
+            <div class="form-group">
+                <label class="label"></label>
+                <button nz-button nzType="primary" (click)="transformCardPayment()">确认退卡</button>
+            </div>
+        </div>
+
+    </div>
+</ny-modal>
+
+<!----------------------- 单价修改modal------------------------------->
+<nz-modal nzTitle='修改单价' [(nzVisible)]='priceModifyModalVisible' (nzOnCancel)='cancelPriceModifyModal()' (nzOnOk)="priceModifyModalOK()">
+    <div nyForm='priceForm' (onInit)='priceFormInt()' (onChange)='priceModifyCount($event)'>
+        <div class="form-group">
+            <label class="label"><em>*</em>单价:</label>
+            <div>
+                <nz-input-number nyName='unit_price' errorStyle="float" [nzMin]='0' style="width: 200px;" [nzPrecision]='3'></nz-input-number>
+            </div>
+        </div>
+    
+        <div class="form-group">
+            <label class="label">余额:</label>
+            <div>
+                <nz-input-number nyName='balance' errorStyle="float" [nzMin]='0' style="width: 200px;" [nzDisabled]='true'></nz-input-number>
+            </div>
+        </div>
+    
+        <div class="form-group">
+            <label class="label"><em>*</em>剩余价值:</label>
+            <div>
+                <nz-input-number nyName='surplus_price' errorStyle="float" [nzMin]='0' style="width: 200px;" [nzPrecision]='3'></nz-input-number>
+            </div>
+        </div>
+    </div>
+</nz-modal>
+
+<!--------------------------- 附件查看modal ---------------------------->
+<nz-modal [(nzVisible)]="lookOverIsVisible" [nzTitle]="'附件详情'"
+      [nzFooter]="modalFooter"
+      (nzOnCancel)="cancelLookOverDetailsModal()"
+    >
+    <img [src]="ossPath + LookOverDetailsImg" alt="" style="width: 100%;">
+    <ng-template #modalFooter>
+        <button nz-button nzType="primary" (click)='cancelLookOverDetailsModal()'>关闭</button>
+    </ng-template>
+</nz-modal>    
+
+<nz-modal [(nzVisible)]="surplusVisible" nzTitle="剩余价值调整" (nzOnCancel)="surplusVisible = false" (nzOnOk)="confirmAdjustSurplus()"
+    [nzWidth]="620" [nzMaskClosable]="false">
+    <div class="form-group flex-center">
+        <label class="label">当前剩余价值:</label>
+        <div>
+            <span>{{ detail.surplus_value }}</span>
+        </div>
+    </div>
+    <div class="form-group flex-center">
+        <label class="label">调整后剩余价值:</label>
+        <div>
+            <nz-input-number [(ngModel)]="surplusParams.adjust_surplus_value" [nzMin]="0" [nzStep]="1" style="width: 200px;" [nzPrecision]="2">
+            </nz-input-number>
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="label">调整原因:</label>
+        <div>
+            <textarea nz-input style="width: 240px; resize: none;" [(ngModel)]="surplusParams.remark"
+                [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+        </div>
+    </div>
+</nz-modal>

@@ -1,0 +1,32 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.table-box {
+    overflow: auto;
+    flex: 1;
+    .shop,.currentShop, .outerShop {
+        display: flex;
+        margin-top: 16px;
+        flex-direction: column;
+        h4 {
+            font-weight: bold;
+            font-size: 17px;
+        }
+    }
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    &_item {
+        padding: 12px;
+        cursor: pointer;
+        &.current {
+            color: #1890ff;
+        }
+    }
+}

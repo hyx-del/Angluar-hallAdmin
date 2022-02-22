@@ -1,0 +1,71 @@
+.handle-group {
+    &__head {
+        padding: 8px 16px;
+        background: #f8f8f8;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 4px;
+        .title {
+        }
+    }
+    &__content {
+        padding: 8px;
+    }
+}
+
+.info-title {
+    font-weight: bold;
+    padding: 8px 24px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 24px;
+}
+.pay-info {
+    padding-left: 62px;
+    margin: 8px 0;
+    .add,
+    .remove {
+        font-size: 20px;
+        cursor: pointer;
+    }
+    .add {
+        color: #38f;
+    }
+    .remove {
+        color: #ff4444;
+    }
+}
+.mb0 {
+    margin-bottom: 0;
+}
+.sub-title {
+    margin-bottom: 16px;
+}
+.row-flex-end {
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+.card-setting {
+    padding-left: 60px;
+    padding-top: 24px;
+    .row {
+        display: flex;
+        margin-bottom: 16px;
+        .label {
+            min-width: 120px;
+            margin-right: 16px;
+        }
+    }
+}
+
+.code-wrap {
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+
+    ::ng-deep .control input {
+        width: auto;
+    }
+}

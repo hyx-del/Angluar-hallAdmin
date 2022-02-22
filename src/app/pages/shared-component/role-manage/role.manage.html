@@ -1,0 +1,83 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input uri="staff/rolelist" [pageSize]="50" (collection)="setCollection($event)"></ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection">
+    <ng-template nyColumn label="操作" let-item>
+        <!-- <a (click)="edit(item)">编辑</a> -->
+        <ng-container *ngIf="!isSys(item)">
+            <!-- <nz-divider nzType="vertical"></nz-divider> -->
+            <a (click)="removeRole(item)">删除</a>
+        </ng-container>
+    </ng-template>
+</ny-table>
+
+<ny-modal [(visible)]="editing" [title]="'角色编辑'" appendTo="nz-content" [isFull]="true" (visibleChange)="form.clearErrors()">
+    <div class="ctr" ndForm="formData" (onInit)="formInit($event)">
+        <div class="group-header">
+            <span>基本信息</span>
+        </div>
+        <div>
+            <div class="control-group form-group">
+                <!-- <span class="label" style="width: 10px;margin: 0;"><em>*</em></span> -->
+                <label class="label"><em>*</em>角色名称</label>
+                <div style="flex: 1">
+                    <input nz-input ndName="name">
+                </div>
+            </div>
+            <div class="control-group form-group">
+                <label class="label">角色描述</label>
+                <div style="flex: 1">
+                    <textarea nz-input ndName="description"></textarea>
+                </div>
+            </div>
+            <div class="control-group" *ngIf="!editRole">
+                <label>状态</label>
+                <div style="flex: 1">
+                    <nz-checkbox-group [(ngModel)]="roleStatus"></nz-checkbox-group>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ctr" *ngIf="canExtend">
+        <div class="group-header">
+            <span>角色</span>
+        </div>
+        <div>
+            <label class="role-item" [class.editing]="item.editing" nz-checkbox *ngFor="let item of roleManage?.items" [(nzChecked)]="item.checked" [nzDisabled]="item.disabled" (nzCheckedChange)="roleStateChange(item)">
+                {{item.name}}
+            </label>
+        </div>
+    </div>
+
+    <div class="ctr">
+        <div class="group-header">
+            <label nz-checkbox [(nzChecked)]="permissionGroup.checked" [nzIndeterminate]="permissionGroup.anyChecked" [nzDisabled]="permissionGroup.disabled">权限</label>
+            <span>已选择（{{permissionGroup.checkedCount}}）项；包含子角色（{{permissionGroup.disabledCount}}）项</span>
+        </div>
+        <div>
+            <div class="group-container" *ngFor="let group of permissionGroup.items">
+                <div class="group-header">
+                    <label nz-checkbox [(nzChecked)]="group.checked" [nzIndeterminate]="group.anyChecked" [nzDisabled]="group.disabled">{{group.name}}</label>
+                </div>
+                <div class="group-items" *ngFor="let items of group.items">
+                    <div class="items-header">
+                        <label nz-checkbox class="item" [(nzChecked)]="items.checked" [nzIndeterminate]="items.anyChecked" [nzDisabled]="items.disabled" [title]="items.name">{{items.name}}</label>
+                    </div>
+                    <div class="items-container" *ngIf="items.items">
+                        <label nz-checkbox class="item" *ngFor="let item of items.items" [(nzChecked)]="item.checked" [nzDisabled]="item.disabled" [title]="item.name">{{item.name}}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ny-footer>
+        <button nz-button nzType="primary" (click)="save()">保存</button>
+    </ny-footer>
+</ny-modal>
+
+<nz-modal nzTitle="警告" [(nzVisible)]="confirm.visible" [nzOnOk]="confirm.ok" [nzOnCancel]="confirm.cancel">
+    <p>{{confirm.content}}</p>
+</nz-modal>

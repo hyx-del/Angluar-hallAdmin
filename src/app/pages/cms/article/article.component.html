@@ -1,0 +1,288 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'mix/cms/admin/material/list'" [pageSize]="20" 
+    [fieldOptions]="fieldsOptions" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template nyColumn label="操作" width="120px" let-item>
+        <!-- <a (click)="getDetail(item)">编辑</a>
+        <nz-divider nzType="vertical"></nz-divider> -->
+        <a (click)="delete(item)">删除</a>
+    </ng-template>
+</ny-table>
+
+<ny-modal *ngIf="isVisible" appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" (onClose)="cancel()">
+    <ny-header>
+        <h2 style="margin-bottom: 0;font-size: 20px;">{{ params.id ? '编辑' : '创建' }}素材</h2>
+        <p style="flex: 1"></p>
+        <button nz-button nzType="default" (click)="cancel()">取消</button>
+        <button nz-button nzType="primary" (click)="save()" style="margin-left: 8px;">保存</button>
+    </ny-header>
+    <div nyForm="form" *ngIf="isVisible" (onInit)="onFormInit($event)">
+        <div class="edit-inner">
+            <div class="form-group">
+                <label class="label"><em>*</em>标题:</label>
+                <div>
+                    <input nz-input class="input" style="width: 350px;" nyName="title" [(ngModel)]="params.title"
+                        errorStyle="float" />
+                </div>
+            </div>
+            <div class="form-group">
+                <span class="label"><em>*</em>所属分类:</span>
+                <div>
+                    <nz-tree-select style="width: 350px" [nzNodes]="categoryList" nzShowSearch
+                    [nzDropdownStyle]="{ 'max-height': '300px' }" nzPlaceHolder="分类"
+                     [(ngModel)]="params.category_id" nyName="category_id"  errorStyle="float">
+                    </nz-tree-select>
+                </div>
+            </div>
+            <div class="form-group">
+                <span class="label">标签:</span>
+                <div>
+                    <input nz-input class="input" nyName="label" [(ngModel)]="params.label"
+                        errorStyle="float" />
+                </div>
+            </div>
+            <div class="form-group">
+                <span class="label">作者:</span>
+                <div>
+                    <input nz-input class="input" nyName="author" [(ngModel)]="params.author"
+                        errorStyle="float" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="label">权重:</label>
+                <nz-input-number [nzMin]="0" [nzStep]="1" style="width:110px;" nyName="priority" errorStyle="float">
+                </nz-input-number>
+            </div>
+            <div class="form-group flex-center">
+                <span class="label">类型:</span>
+                <nz-radio-group nyName="type" [(ngModel)]="params.type">
+                    <label nz-radio [nzValue]="1">文章</label>
+                    <label nz-radio [nzValue]="2">海报</label>
+                    <label nz-radio [nzValue]="3">视频</label>
+                </nz-radio-group>
+            </div>
+
+            <div *ngIf="params.type == 1">
+                <div class="form-group">
+                    <span class="label">文章封面:</span>
+                    <div>
+                        <nz-upload class="avatar-uploader" nzName="avatar" nzListType="picture-card" [nzShowUploadList]="false"
+                            nzAction="" [nzCustomRequest]="uploadImg">
+                            <ng-container *ngIf="!params.thumb_media_url">
+                                <i class="upload-icon" nz-icon [nzType]="uploadLoading ? 'loading' : 'plus'"></i>
+                                <div class="ant-upload-text">上传图片</div>
+                            </ng-container>
+                            <img *ngIf="params.thumb_media_url" style="width: 100%;" [src]="ossPath + params.thumb_media_url" class="avatar">
+                        </nz-upload>
+                        <input nyName="thumb_media_url" hidden />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <span class="label">概要:</span>
+                    <div>
+                        <textarea nz-input style="width: 350px;" nyName="summary" errorStyle="float" 
+                        [nzAutosize]="{ minRows: 2, maxRows: 4 }"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group flex-center">
+                    <span class="label">是否打开评论:</span>
+                    <nz-radio-group nyName="need_open_comment" [(ngModel)]="params.need_open_comment">
+                        <label nz-radio [nzValue]="1">是</label>
+                        <label nz-radio [nzValue]="0">否</label>
+                    </nz-radio-group>
+                </div>
+
+                <div class="control-group">
+                    <label class="label"><em style="margin-right: 5px;color: red;">*</em>内容:</label>
+                    <div class="control-input" style="flex: 1; max-width: 600px;">
+                        <div class="editor-wrap">
+                            <ueditor [(ngModel)]="htmlbody"></ueditor>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div  *ngIf="params.type == 2">
+                <div class="control-group">
+                    <label class="label">轮播图:</label>
+                    <div class="galleria">
+                        <ul class="galleria-panel-wraper">
+                            <li *ngFor="let item of showImgList;let index = index;" [class.helper-hidden]="active!=index">
+                                <img *ngIf="item.image" [src]="item.image" />
+                                <span class="tag" *ngIf="item.type == 2">视频</span>
+                            </li>
+                        </ul>
+                        <div class="slider-panel-wraper">
+                            <ul class="slider" #slider id="slider">
+                                <li class="slider-frame" *ngFor="let item of showImgList;let index = index;"
+                                    (click)="onImageClick(item, index)" [class.slider-frame-active]="index == active">
+                                    <img [src]="item.image" />
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="nav-prev" (click)="prev()">
+                            <i nz-icon nzType="left" nzTheme="outline"></i>        
+                        </div>
+                        <div class="nav-next" (click)="next()">
+                            <i nz-icon nzType="right" nzTheme="outline"></i>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="control-group">
+                    <label class="label"></label>
+                    <div>
+                        <div>
+                            <input type="file" #file hidden (change)="fileChange($event)" />
+                            <button nz-button [nzType]="'primary'" (click)="addFile()" style="margin-left: 8px;">
+                                <i class="upload-icon" nz-icon [nzType]="isAdd && uploadLoading ? 'loading' : 'plus'"></i>
+                                <span>添加图片</span>
+                            </button>
+                            <button nz-button [nzType]="'primary'" (click)="showAddVideoModal()" style="margin-left: 8px;">
+                                <span>添加视频</span>
+                            </button>
+                            <button nz-button *ngIf="currentItem.type == 1" (click)="selectedFile()" style="margin-left: 8px;">
+                                <i class="upload-icon" nz-icon [nzType]="!isAdd && uploadLoading ? 'loading' : 'swap'"></i>
+                                <span>替换图片</span>
+                            </button>
+                            <button nz-button *ngIf="currentItem.type == 2" (click)="showAddVideoModal(true)" style="margin-left: 8px;">
+                                <span>替换视频</span>
+                            </button>
+                            <button nz-button (click)="remove()" style="margin-left: 8px;">
+                                <span>移除</span>
+                            </button>
+                        </div>
+                        <!-- <div style="margin-top: 8px;">建议上传图片尺寸为750*375px</div> -->
+            
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="label">{{ currentItem.type == 2 ? '视频' : '图片' }}跳转地址:</label>
+                    <span style="display: inline-block;margin-right: 10px; line-height: 32px;">
+                        <nz-select style="width: 120px;" [(ngModel)]="currentItem.linkType"
+                            (ngModelChange)="selectSourceChange($event)">
+                            <nz-option *ngFor="let item of categorys" [nzLabel]="item.label" [nzValue]="item.value">
+                            </nz-option>
+                        </nz-select>
+                    </span>
+                    <nz-select *ngIf="currentItem.linkType == 10" style="width: 200px;" [(ngModel)]="currentItem.link" nzShowSearch nzAllowClear>
+                        <nz-option *ngFor="let item of articleList" [nzLabel]="item.title" [nzValue]="item.id">
+                        </nz-option>
+                    </nz-select>
+
+                    <input *ngIf="currentItem.linkType == 20 || currentItem.linkType == 30" nz-input [(ngModel)]="currentItem.link" style="width: 200px;" />
+                </div>
+                <div class="control-group">
+                    <label class="label">{{ currentItem.type == 2 ? '视频' : '图片' }}标题:</label>
+                    <input nz-input [(ngModel)]="currentItem.title" style="width: 350px;" />
+                </div>
+                <div class="control-group">
+                    <label class="label">{{ currentItem.type == 2 ? '视频' : '图片' }}描述:</label>
+                    <textarea nz-input style="width: 350px;" [(ngModel)]="currentItem.description"
+                    [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+                </div>
+            </div>
+            <div *ngIf="params.type == 3">
+                <div class="control-group">
+                    <label class="label" >选择视频:</label>
+                    <div style="flex: 1;">
+                        <ul class="video-list clearfix">
+                            <li class="cell" *ngFor="let video of checkVideoList; let index = index;">
+                                <div class="cell-box" style="cursor: inherit;">
+                                    <div class="thumbnail-outer">
+                                        <div class="thumbnail">
+                                            <img [src]="video.cover" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="detail">
+                                        <p class="date">{{ video.created_at }}</p>
+                                        <p class="title">{{ video.title }}</p>
+                                    </div>
+                                    <div class="handle">
+                                        <a (click)="showPreviewModal(video)">预览</a>
+                                        <nz-divider nzType="vertical"></nz-divider>
+                                        <a (click)="removeCheckedVideo(index)">移除</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="cell cell--add">
+                                <div class="cell-box" (click)="showVideoModal()">
+                                    <ng-container *ngIf="!checkVideoList.length">
+                                        <i nz-icon nzType="plus" nzTheme="outline"></i>
+                                        <p>添加视频</p>
+                                    </ng-container>
+                                    <ng-container *ngIf="checkVideoList.length">
+                                        <i nz-icon nzType="swap" nzTheme="outline"></i>
+                                        <p>替换视频</p>
+                                    </ng-container>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <span class="label">概要:</span>
+                    <div>
+                        <textarea nz-input style="width: 350px;" nyName="summary" errorStyle="float" 
+                        [nzAutosize]="{ minRows: 2, maxRows: 4 }"></textarea>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="label">内容:</label>
+                    <div class="control-input" style="flex: 1; max-width: 600px;">
+                        <div class="editor-wrap">
+                            <ueditor [(ngModel)]="videoHtml"></ueditor>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</ny-modal>
+
+
+<nz-modal [(nzVisible)]="videoVisible" nzTitle="选择视频" (nzOnCancel)="cancelVideoSelect()"
+ (nzOnOk)="confirmVideoSelect()" [nzMaskClosable]="false" [nzWidth]="964">
+ <div>
+    <content-header [collection]="videoCollection">
+        <ny-search-input #searchInput uri="mix/cms/admin/video-data/list" [pageSize]="20" (collection)="setVideoCollection($event)">
+        </ny-search-input>
+    </content-header>
+    <div style="height: 390px; overflow: auto;">
+        <ul class="video-list clearfix">
+            <li class="cell" *ngFor="let video of videoList; let index = index;"
+             [ngClass]="{'checked': video.checked }">
+                <div class="cell-box" (click)="checkVideo(index)">
+                    <div class="thumbnail-outer">
+                        <div class="thumbnail">
+                            <img [src]="video.cover" alt="">
+                        </div>
+                        <!-- <div class="date">00:00:10</div> -->
+                    </div>
+                    <div class="detail">
+                        <p class="date">{{ video.created_at }}</p>
+                        <p class="title">{{ video.title }}</p>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="previewVisible" nzTitle="预览视频" (nzOnCancel)="cancelPreviewVideo()"
+    [nzFooter]="null" [nzMaskClosable]="false" [nzWidth]="964">
+    <div class="player-container-outer">
+        <div class="player-container-inner">
+            <div class="player-container">
+                <video id="articlePreviewVideo" playsinline controls></video>
+            </div>
+        </div>
+    </div>
+</nz-modal>

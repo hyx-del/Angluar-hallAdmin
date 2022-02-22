@@ -1,0 +1,59 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.avatar {
+    width: 100px;
+    height: 100px;
+}
+
+.flex-end {
+    display: flex;
+    justify-content: flex-end;
+}
+.user-info {
+    width: 100%;
+    padding: 16px;
+    display: flex;
+    background: #f8f8f8;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    .head {
+        width: 80px;
+        height: 80px;
+        margin-right: 24px;
+        img {
+            width: 100%;
+            height: 100%;
+        }
+    }
+    .info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        .name {
+            font-size: 18px;
+        }
+    }
+}
+.group-item {
+    margin-bottom: 8px;
+    .title {
+        background-color: #efefef;
+        padding: 8px;
+        font-weight: 600;
+    }
+    .select {
+        display: inline-block;
+        margin-left: 80px;
+        color: #38f;
+        cursor: pointer;
+        font-weight: normal;
+    }
+    .content {
+        padding: 8px;
+        position: relative;
+    }
+}

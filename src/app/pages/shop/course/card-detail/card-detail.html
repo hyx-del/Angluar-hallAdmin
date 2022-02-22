@@ -1,0 +1,223 @@
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="visible" (onClose)="closeDetail()">
+    <ny-header>
+        <h2>课程卡详情</h2>
+        <p style="flex: 1"></p>
+    </ny-header>
+    <div class="modal-content">
+        <nz-tabset [(nzSelectedIndex)]="tabIndex" (nzSelectChange)="tabChange()">
+            <nz-tab nzTitle="基本信息">
+                <div class="form-group">
+                    <span class="label">卡名称:</span>
+                    <input nz-input [(ngModel)]="detail.name" [disabled]="disabled" />
+                </div>
+                <div class="form-group flex-center">
+                    <label class="label">类型:</label>
+                    <div>
+                        <nz-radio-group [(ngModel)]="detail.type" [nzDisabled]="disabled">
+                            <label nz-radio [nzValue]="1">次卡</label>
+                            <label nz-radio [nzValue]="2">期限卡</label>
+                        </nz-radio-group>
+                    </div>
+                </div>
+                <div class="form-group flex-center">
+                    <label class="label">可上课类型:</label>
+                    <div>
+                        <nz-radio-group [(ngModel)]="detail.course_type" [nzDisabled]="disabled">
+                            <label nz-radio [nzValue]="1">团课</label>
+                            <label nz-radio [nzValue]="2">私教课</label>
+                        </nz-radio-group>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label">通用类型:</label>
+                    <nz-select style="width: 200px;" nzPlaceHolder="" [(ngModel)]="detail.general_type" [nzDisabled]="disabled">
+                        <nz-option *ngFor="let item of cardUseType" [nzLabel]="item.label" [nzValue]="item.value">
+                        </nz-option>
+                    </nz-select>
+                </div>
+                <div class="form-group">
+                    <label class="label">最大绑定会员数:</label>
+                    <div>
+                        <nz-input-number [nzMin]="1" [nzStep]="1" style="width:110px;" [(ngModel)]="detail.max_bind" [nzDisabled]="disabled">
+                        </nz-input-number>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label">权重:</label>
+                    <div>
+                        <nz-input-number [nzMin]="1" [nzStep]="1" style="width:110px;" [(ngModel)]="detail.weight" [nzDisabled]="disabled">
+                        </nz-input-number>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label">简介:</label>
+                    <div>
+                        <textarea nz-input placeholder="课程卡简介" [(ngModel)]="detail.introduction" [disabled]="disabled"
+                            [nzAutosize]="{ minRows: 3, maxRows: 6 }" style="width: 300px;resize: none;"></textarea>
+                    </div>
+                </div>
+                <div class="form-group" style="margin: 24px 0; font-weight: bold;">
+                    <label class="label">使用限制</label>
+                </div>
+                <div class="form-group">
+                    <label class="label"></label>
+                    <div>
+                        <label nz-checkbox [(ngModel)]="limitChecked.max_companion" [nzDisabled]="disabled"></label>
+                        <span>最大同行人数</span>
+                        <nz-input-number [nzMin]="0" [nzStep]="1" style="width:110px;"
+                            [(ngModel)]="detail.max_companion" errorStyle="float" [nzDisabled]="disabled">
+                        </nz-input-number>
+                        <span class="ml8">人</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label"></label>
+                    <div>
+                        <label nz-checkbox [(ngModel)]="limitChecked.max_order" [nzDisabled]="disabled"></label>
+                        <span>可提前预约</span>
+                        <nz-input-number [nzMin]="1" [nzStep]="1" style="width:110px;" [(ngModel)]="detail.max_order" [nzDisabled]="disabled">
+                        </nz-input-number>
+                        <span class="ml8">节课</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label"></label>
+                    <div>
+                        <label nz-checkbox [(ngModel)]="limitChecked.class_limit" [nzDisabled]="disabled"></label>
+                        <nz-select class="ml8" style="width: 100px;" nzPlaceHolder=""
+                            [(ngModel)]="classLimit.cycle_type" [nzDisabled]="disabled">
+                            <nz-option [nzLabel]="'每天'" [nzValue]="'day'"></nz-option>
+                            <nz-option [nzLabel]="'每周'" [nzValue]="'week'"></nz-option>
+                            <nz-option [nzLabel]="'每月'" [nzValue]="'month'"></nz-option>
+                        </nz-select>
+                        <span class="ml8 mr8">共计可上</span>
+                        <nz-input-number [nzMin]="1" [nzStep]="1" style="width:110px;" [(ngModel)]="classLimit.count" [nzDisabled]="disabled">
+                        </nz-input-number>
+                        <span class="ml8">节课</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label"></label>
+                    <div>
+                        <label nz-checkbox [(ngModel)]="limitChecked.max_purchase" [nzDisabled]="disabled"></label>
+                        <span>每个会员限购</span>
+                        <nz-input-number [nzMin]="1" [nzStep]="1" style="width:110px;" [nzDisabled]="disabled"
+                            [(ngModel)]="detail.max_purchase">
+                        </nz-input-number>
+                        <span class="ml8">张</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label"></label>
+                    <div>
+                        <label nz-checkbox [(ngModel)]="limitChecked.time_limit" [nzDisabled]="disabled"></label>
+                        <span>限制</span>
+                        <nz-select style="width: 100px;" [(ngModel)]="timeLimit.type" [nzDisabled]="disabled">
+                            <nz-option [nzLabel]="'每天'" [nzValue]="'day'"></nz-option>
+                            <nz-option [nzLabel]="'每周'" [nzValue]="'week'"></nz-option>
+                            <nz-option [nzLabel]="'每月'" [nzValue]="'month'"></nz-option>
+                        </nz-select>
+                        <span class="ml8" *ngIf="timeLimit.type == 'day'">
+                            <nz-time-picker nzFormat="HH:mm" [(ngModel)]="timeLimit.start_time" [nzDisabled]="disabled"></nz-time-picker>
+                            <span class="ml8 mr8">到</span>
+                            <nz-time-picker nzFormat="HH:mm" [(ngModel)]="timeLimit.end_time" [nzDisabled]="disabled"></nz-time-picker>
+                            <span class="ml8">使用</span>
+                        </span>
+                        <span class="ml8" *ngIf="timeLimit.type == 'week'">
+                            <nz-select style="width: 100px;margin-right: 8px;" [(ngModel)]="timeLimit.week_day" [nzDisabled]="disabled">
+                                <nz-option *ngFor="let item of weeks; let i = index;" [nzLabel]="item"
+                                    [nzValue]="i + 1">
+                                </nz-option>
+                            </nz-select>
+                            <nz-time-picker nzFormat="HH:mm" [(ngModel)]="timeLimit.start_time" [nzDisabled]="disabled"></nz-time-picker>
+                            <span class="ml8 mr8">到</span>
+                            <nz-time-picker nzFormat="HH:mm" [(ngModel)]="timeLimit.end_time" [nzDisabled]="disabled"></nz-time-picker>
+                            <span class="ml8">使用</span>
+                        </span>
+                        <span class="ml8" *ngIf="timeLimit.type == 'month'">
+                            <nz-select style="width: 100px;margin-right: 8px;" [(ngModel)]="timeLimit.month_day" [nzDisabled]="disabled">
+                                <nz-option *ngFor="let item of monthDays" [nzLabel]="item.name" [nzValue]="item.value">
+                                </nz-option>
+                            </nz-select>
+                            <nz-time-picker nzFormat="HH:mm" [(ngModel)]="timeLimit.start_time" [nzDisabled]="disabled"></nz-time-picker>
+                            <span class="ml8 mr8">到</span>
+                            <nz-time-picker nzFormat="HH:mm" [(ngModel)]="timeLimit.end_time" [nzDisabled]="disabled"></nz-time-picker>
+                            <span class="ml8">使用</span>
+                        </span>
+                    </div>
+                </div>
+            </nz-tab>
+            <nz-tab nzTitle="规格">
+                <!-- <button nz-button nzType="primary" (click)="showSpecsModal()" style="margin-bottom: 8px;"><i nz-icon
+                        nzType="plus"></i>添加规格</button> -->
+                
+                <content-header *ngIf="detail.id && visible" [collection]="specsCollection">
+                    <ny-search-input [uri]="'hall/course/admin/course-card/specs/list?course_card_id=' + detail.id" [pageSize]="50"
+                        (collection)="setSpecsCollection($event)">
+                    </ny-search-input>
+                </content-header>
+
+                <nz-table #basicTable [nzData]="specsCollection.data" [nzSize]="'small'" nzBordered
+                    [nzFrontPagination]="false" [nzShowPagination]="false">
+                    <thead>
+                        <tr>
+                            <th>{{ detail.type == 1 ? '次数' : '天数' }}</th>
+                            <th>价格</th>
+                            <th *ngIf="detail.type == 1">有效期</th>
+                            <th>操作人</th>
+                            <th nzWidth="200px">创建时间</th>
+                            <th nzWidth="200px" *ngIf="!disabled">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let data of specsCollection.data; let i = index;">
+                            <td>{{ data.amount }}</td>
+                            <td>{{ data.price }}</td>
+                            <td *ngIf="detail.type == 1">{{ data.valid_days }}</td>
+                            <td>操作人</td>
+                            <td>{{ data.created_at }}</td>
+                            <td *ngIf="!disabled">
+                                <!-- <a (click)="showPriceConfigModal()">配置场馆价</a>
+                                <nz-divider nzType="vertical"></nz-divider> -->
+                                <a (click)="removeSpecs(data, i)">删除</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </nz-table>
+            </nz-tab>
+            <nz-tab nzTitle="城市/场馆">
+                <div class="hall-setting">
+                    <div class="left-hall">
+                        <div class="tree-wrapper">
+                            <nz-tree [nzData]="hallNodes" [nzCheckable]="generalType == 4" [nzShowIcon]="true"
+                                [nzExpandAll]="true" [nzCheckedKeys]="checkedKeys" [nzSelectedKeys]="selectedKeys" (nzClick)="treeNodeHandle($event)">
+                            </nz-tree>
+                        </div>
+                    </div>
+                    <div class="right-specs">
+                        <nz-card nzType="inner" nzTitle="设置规格价格" *ngIf="currentSelected.isShop || currentSelected.isCity">
+                            <p class="sub-title">选择{{ currentSelected.isCity ? '城市' : '场馆' }}：{{ currentSelected.title }}</p>
+                            <ng-container *ngFor="let specs of specsList">
+                                <nz-divider></nz-divider>
+                                <div class="specs-row">
+                                    <div style="flex: 2;">
+                                        <span class="label">规格：</span>
+                                        <span>{{ specs.amount }}</span>
+                                        <span>{{ detail.type == 1 ? '次' : '天' }}/</span>
+                                        <span>{{ specs.price }}元</span>
+                                    </div>
+                                    <div style="flex: 3;">
+                                        <span class="label">当前价格：</span>
+                                        <nz-input-number [(ngModel)]="specs.current_price" [nzSize]="'small'" [nzMin]="0"
+                                        [nzStep]="1" [nzDisabled]="true"></nz-input-number>
+                                        <span class="ml8">元</span>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </nz-card>
+                    </div>
+                </div>
+            </nz-tab>
+        </nz-tabset>
+    </div>
+</ny-modal>

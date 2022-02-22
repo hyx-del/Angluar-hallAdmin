@@ -1,0 +1,47 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'hall/member/admin-hall/member-course-card/list'" [pageSize]="50"
+        (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template nyColumn label="操作" width="100px" let-item>
+        <a *ngIf="item.disabled" (click)="enableCourseCard(item)">启用</a>
+    </ng-template>
+</ny-table>
+
+
+<member-course-card-detail [(visible)]="isVisible" [member]="detail"></member-course-card-detail>
+
+
+<nz-modal nzTitle="调整有效期" [(nzVisible)]="adjustVisible" (nzOnCancel)="closeAdjust()"
+ (nzOnOk)="adjustValidity()" [nzMask]="false" [nzMaskClosable]="false">
+    <div class="form-group">
+        <label class="label" style="width: 130px;"><em>*</em>有效期延长天数：</label>
+        <nz-input-number [nzMin]="1" [(ngModel)]="adjustParams.days" style="width: 200px;"></nz-input-number>
+    </div>
+    <div class="form-group">
+        <label class="label" style="width: 130px;">延长理由：</label>
+        <div>
+            <textarea nz-input style="width: 200px;" rows="3" [(ngModel)]="adjustParams.remark" ></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label" style="width: 130px;">包含类型：</label>
+        <div style="padding-top: 5px;">
+            <nz-checkbox-group [(ngModel)]="options"></nz-checkbox-group>
+        </div>
+    </div>
+</nz-modal>
+
+<nz-modal nzTitle="调整销售" [(nzVisible)]="marketVisible" (nzOnCancel)="closeMarket()"
+[nzMask]="false" [nzMaskClosable]="false" (nzOnOk)="marketValidityOK()" nyForm="form">
+    <div class="form-group">
+        <label class="label"><em>*</em>销售：</label>
+        <div>
+            <nz-select style="width: 300px" nyName="salesman_id" errorStyle="float">
+                <nz-option *ngFor="let salesman of salesmanList" [nzLabel]="salesman.name" [nzValue]="salesman.id"></nz-option>
+            </nz-select>
+        </div>
+    </div>
+</nz-modal>

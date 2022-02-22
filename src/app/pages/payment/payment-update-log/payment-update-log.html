@@ -1,0 +1,64 @@
+<button nz-button nzType="default" (click)="showLogDialog()" style="margin-left: 16px;">修改记录</button>
+
+<nz-modal nzTitle="修改记录" [(nzVisible)]="isVisible" [nzFooter]="null" 
+[nzWidth]="(tag == 'open_salesman' || tag == 'transform_salesman') ? 800 : 1120" (nzOnCancel)="onCancel()">
+    <div style="height: 450px;" *ngIf="tag == 'open_salesman' || tag == 'transform_salesman'">
+        <nz-table #basicTable [nzData]="[{}]" [nzScroll]="{ y: '390px' }" [nzFrontPagination]="false" [nzShowPagination]="false">
+            <thead>
+                <tr>
+                    <th nzWidth="35%">修改前</th>
+                    <th>修改后</th>
+                    <th nzWidth="100px">操作人</th>
+                    <th nzWidth="200px">操作时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of logList">
+                    <td>{{ data.change_before?.name }}</td>
+                    <td>{{ data.change_after?.name }}</td>
+                    <td>{{ data.operator_name }}</td>
+                    <td>{{ data.updated_at }}</td>
+                </tr>
+            </tbody>
+        </nz-table>
+    </div>
+    <div style="height: 450px;" *ngIf="tag != 'open_salesman' && tag != 'transform_salesman'">
+        <!-- 退卡 和余额调整是没有支付时间的 -->
+        <nz-table #basicTable [nzSize]="'small'" [nzData]="[{}]" [nzScroll]="{ y: '390px' }" [nzFrontPagination]="false" [nzShowPagination]="false">
+            <thead>
+                <tr>
+                    <th [nzWidth]="tdWidth">修改前</th>
+                    <th [nzWidth]="tdWidth">修改后</th>
+                    <th nzWidth="100px">操作人</th>
+                    <th nzWidth="200px">操作时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of logList">
+                    <td class="td-before">
+                        <div *ngIf="data.change_before && data.change_before.payments">
+                            <p class="payment-item" *ngFor="let payment of data.change_before.payments">
+                                <span>支付方式：{{ payment.channel_name }}</span>
+                                <span>{{ tag == "refund" ? '退款金额' : '支付金额' }}：{{ payment.amount }}</span>
+                                <span *ngIf="payment.trade_no">交易号：{{ payment.trade_no }}</span>
+                            </p>
+                            <p *ngIf="data.change_before.payment_time">付款时间：{{ data.change_before.payment_time }}</p>
+                        </div>
+                    </td>
+                    <td class="td-after">
+                        <div *ngIf="data.change_after && data.change_after.payments">
+                            <p class="payment-item" *ngFor="let payment of data.change_after.payments">
+                                <span>支付方式：{{ payment.channel_name }}</span>
+                                <span>{{ tag == "refund" ? '退款金额' : '支付金额' }}：{{ payment.amount }}</span>
+                                <span *ngIf="payment.trade_no">交易号：{{ payment.trade_no }}</span>
+                            </p>
+                            <p *ngIf="data.change_after.payment_time">付款时间：{{ data.change_after.payment_time }}</p>
+                        </div>
+                    </td>
+                    <td>{{ data.operator_name }}</td>
+                    <td>{{ data.updated_at }}</td>
+                </tr>
+            </tbody>
+        </nz-table>
+    </div>
+</nz-modal>

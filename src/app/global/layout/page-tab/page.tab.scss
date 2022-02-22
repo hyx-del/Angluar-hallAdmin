@@ -1,0 +1,62 @@
+:host {
+    display: flex;
+    box-shadow: 0 1px 4px rgba($color: #000000, $alpha: 0.2);
+    border-bottom: 1px solid #EFEFEF;
+    background: white;
+    line-height: 32px;
+    height: 0;
+    overflow: hidden;
+    transition: height 180ms ease-out;
+    z-index: 1;
+}
+
+:host(.show) {
+    height: 32px;
+    overflow: visible;
+}
+
+.tab-ctr {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+
+    & > .tab-item {
+        display: inline-block;
+        cursor: pointer;
+        user-select: none;
+        background: #eeeeee;
+        margin-right: 2px;
+
+        & > span {
+            display: inline-block;
+            text-align: center;
+            min-width: 80px;
+            padding: 0 4px;
+        }
+
+        & > i {
+            margin-right: 4px;
+            border-radius: 50%;
+
+            &:hover {
+                background-color: #dddddd;
+            }
+        }
+    }
+
+    & > .active {
+        background-color: #e6f7ff;
+    }
+
+    & > :hover {
+        background-color: #e6f7ff;
+    }
+}
+
+nz-dropdown {
+    width: 80px;
+    padding: 0 4px;
+    cursor: pointer;
+    background: #eeeeee;
+    margin-left: 2px;
+}

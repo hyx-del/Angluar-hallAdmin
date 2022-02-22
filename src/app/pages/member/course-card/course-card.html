@@ -1,0 +1,15 @@
+<content-header [collection]="collection">
+    <ny-search-input [uri]="'hall/member/admin/member-course-card/list'" [pageSize]="50"
+        (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template nyColumn label="操作" width="120px" let-item>
+        <!-- <a (click)="showDetail(item)">详情</a>
+        <nz-divider *ngIf="item.status == 10" nzType="vertical"></nz-divider> -->
+        <a *ngIf="item.status == 10" (click)="closeCard(item)">关卡</a>
+    </ng-template>
+</ny-table>
+
+<h-member-course-card-detail [(visible)]="isVisible" [member]="detail"></h-member-course-card-detail>

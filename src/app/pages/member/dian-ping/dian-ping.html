@@ -1,0 +1,5 @@
+<content-header [collection]="collection">
+    <ny-complex-search [uri]="'hall/member/admin/query-source/DP-list'" [pageSize]="50" (collection)="setCollection($event)"></ny-complex-search>
+</content-header>  
+
+<ny-table [collection]="collection" [showIndex]="true"></ny-table>

@@ -1,0 +1,84 @@
+<div class="setting-row" *ngIf="courseList.length">
+    <div class="left">
+        <div class="course-item" *ngFor="let course of courseList; let i = index;" [ngClass]="{'active': course.id == currentCourse.id}"
+            (click)="courseTapHandle(i)">
+            {{ course.name }}
+        </div>
+    </div>
+    <div class="right">
+        <div>
+            <div class="area-title">支付配置：</div>
+            <div class="form-group">
+                <label class="label">价格:</label>
+                <div>
+                    <nz-input-number [(ngModel)]="currentCourse.paymentSetting.price" [nzMin]="0" [nzStep]="1"
+                        [nzPrecision]="2" style="width:110px;">
+                    </nz-input-number>
+                </div>
+                <span class="unit">元</span>
+            </div>
+            <div class="form-group">
+                <label class="label">余额价:</label>
+                <div>
+                    <nz-input-number [(ngModel)]="currentCourse.paymentSetting.balance_price" [nzMin]="0"
+                        [nzPrecision]="2" [nzStep]="1" style="width:110px;">
+                    </nz-input-number>
+                </div>
+                <span class="unit">元</span>
+            </div>
+            <div class="form-group">
+                <label class="label"></label>
+                <div>
+                    <button nz-button nzType="primary" (click)="savePaymentSetting()">保存</button>
+                </div>
+            </div>
+        </div>
+        <div nyForm="form" (onInit)="onFormInit($event)">
+            <div class="area-title">课时费配置：</div>
+            <div style=" padding-left: 40px;padding-top: 16px;padding-bottom: 16px;" *ngIf="currentCourse.id" nyGroup="detail">
+                <div *ngFor="let item of currentCourse.rules1;let i = index;" style="margin-bottom: 16px; display: flex; align-items: center;">
+                    <span class="mr8">教练组：</span>
+                    <div>
+                        <nz-select style="width: 150px;" [(ngModel)]="item.coach_group_id" [nzDisabled]="true" [nyName]="i + '.coach_group_id'" errorStyle="float">
+                            <nz-option *ngFor="let group of coachGroup" [nzValue]="group.id" [nzLabel]="group.name"></nz-option>
+                        </nz-select>
+                    </div>
+                    <span class="ml8 mr8">课时费：</span>
+                    <div>
+                        <nz-input-number [(ngModel)]="item.course_fee" [nzMin]="0" [nzStep]="1" [nyName]="i + '.course_fee'" errorStyle="float"></nz-input-number>
+                    </div>
+                    <span class="ml8 mr8">元</span>
+                    <span class="ml8 mr8">人头费：</span>
+                    <div>
+                        <nz-input-number [(ngModel)]="item.unit_price" [nzMin]="0" [nzStep]="1" [nyName]="i + '.unit_price'" errorStyle="float"></nz-input-number>
+                    </div>
+                    <span class="ml8 mr8">元</span>
+                    <!-- <span class="add" (click)="addRules()">添加</span>
+                    <span class="remove" *ngIf="i > 0" (click)="removeRules(i)">删除</span> -->
+                </div>
+            </div>
+            <div style="padding-left: 55px;">
+                <button nz-button nzType="primary" (click)="save()">保存</button>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px;">
+            <div class="area-title">助教课时费配置：</div>
+            <div class="form-group">
+                <label class="label">课时费:</label>
+                <div>
+                    <nz-input-number [(ngModel)]="courseFee" [nzMin]="0" [nzStep]="1"
+                        [nzPrecision]="2" style="width:110px;">
+                    </nz-input-number>
+                </div>
+                <span class="unit">元</span>
+            </div>
+            <div style="padding-left: 55px;">
+                <button nz-button nzType="primary" (click)="saveAssistantCourseFee()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div *ngIf="!courseList.length && isLoading" style="padding: 16px;">
+    暂无课程， 请先创建后再来。
+</div>

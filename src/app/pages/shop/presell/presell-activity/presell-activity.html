@@ -1,0 +1,153 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'presell/admin-hall/activity/list'" [pageSize]="50"
+        (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template nyColumn label="操作" width="200px" let-item>
+        <a *ngIf="item.status" (click)="offline(item)">下线</a>
+        <a *ngIf="!item.status" (click)="online(item)">上线</a>
+        <nz-divider nzType="vertical"></nz-divider>
+        <a (click)="remove(item)">删除</a>
+    </ng-template>
+</ny-table>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" (onClose)="handleCancel()">
+    <ny-header>
+        <h2>{{ params.id ? '修改活动' : '添加活动' }}</h2>
+        <p style="flex: 1"></p>
+        <button nz-button nzType="default" (click)="handleCancel()" style="margin-right: 16px;">取消</button>
+        <button nz-button nzType="primary" (click)="save()">保存</button>
+    </ny-header>
+    <div nyForm="form" (onInit)="onFormInit($event)">
+        <!-- <div class="form-group">
+            <label class="label"><em>*</em>预售项目:</label>
+            <div>
+                <nz-select nyName="project_id" errorStyle="float" style="width: 200px;">
+                    <nz-option *ngFor="let item of presellProjectList" [nzLabel]="item.name" [nzValue]="item.id">
+                    </nz-option>
+                </nz-select>
+            </div>
+            <span class="unit pointer" (click)="getPresellProject()">
+                <i nz-icon nzType="sync" nzTheme="outline"></i>
+            </span>
+        </div> -->
+
+        <div class="form-group">
+            <label class="label"><em>*</em>活动名称:</label>
+            <div>
+                <input type="text" nz-input [(ngModel)]="params.name" nyName="name" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>报名日期:</label>
+            <div>
+                <nz-range-picker [(ngModel)]="dateRange" [nzDisabledDate]="disabledDate" nyName="start_date" errorStyle="float"></nz-range-picker>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>活动地址:</label>
+            <div>
+                <input type="text" nz-input [(ngModel)]="params.active_address" nyName="active_address"
+                    errorStyle="float" style="width: 300px;" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">联系人:</label>
+            <div>
+                <input type="text" nz-input  nyName="contact_person" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">联系电话:</label>
+            <div>
+                <input type="text" nz-input  nyName="contact_number" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">会馆经纬度:</label>
+            <div>
+                <input type="text" nz-input [(ngModel)]="params.latitude_and_longitude" nyName="latitude_and_longitude"
+                    errorStyle="float" />
+            </div>
+            <span class="unit"><a href="http://api.map.baidu.com/lbsapi/getpoint/index.html" target="_blank">经纬度获取工具</a></span>
+        </div>
+
+        <div class="form-group">
+            <label class="label">活动简介:</label>
+            <div>
+                <textarea nz-input placeholder="活动简介" [(ngModel)]="params.introduction" nyName="introduction"
+                    errorStyle="float" [nzAutosize]="{ minRows: 3, maxRows: 6 }"
+                    style="width: 300px;resize: none;"></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">活动图片:</label>
+            <div>
+                <nz-upload class="avatar-uploader" nzName="avatar" nzListType="picture-card"
+                    [nzCustomRequest]="uploadImg" [nzShowUploadList]="false">
+                    <ng-container *ngIf="!params.image">
+                        <i class="upload-icon" nz-icon [nzType]="isUploadLoading ? 'loading' : 'plus'"></i>
+                        <div class="ant-upload-text">上传图片</div>
+                    </ng-container>
+                    <ng-container *ngIf="params.image">
+                        <img [src]="ossPath + params.image" class="avatar">
+                    </ng-container>
+                </nz-upload>
+                <input type="text" nz-input nyName="image" hidden />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>预售金额:</label>
+            <div>
+                <nz-input-number [(ngModel)]="params.preSale_amount" [nzPrecision]="2" nyName="preSale_amount"
+                    errorStyle="float" style="width: 200px;"></nz-input-number>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">优惠券:</label>
+            <div>
+                <nz-select nyName="coupon_id" errorStyle="float" style="width: 200px;">
+                    <nz-option *ngFor="let item of memberCouponList" [nzLabel]="item.name" [nzValue]="item.id">
+                    </nz-option>
+                </nz-select>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="label"><em>*</em>推广奖励金额:</label>
+            <div>
+                <nz-input-number [(ngModel)]="params.bonus" [nzPrecision]="2" nyName="bonus" errorStyle="float"
+                    style="width: 200px;">
+                </nz-input-number>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">活动内容:</label>
+            <div class="control-input" style="flex: 1; max-width: 600px;">
+                <div class="editor-wrap">
+                    <ueditor [(ngModel)]="params.content"></ueditor>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">浏览次数:</label>
+            <div>
+                <nz-input-number [(ngModel)]="params.page_views" [nzMin]="0" [nzPrecision]="0" nyName="page_views"
+                    errorStyle="float" style="width: 200px;">
+                </nz-input-number>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">排序:</label>
+            <div>
+                <nz-input-number [(ngModel)]="params.orders" [nzMin]="0" [nzPrecision]="0" nyName="orders"
+                    errorStyle="float" style="width: 200px;">
+                </nz-input-number>
+            </div>
+            <span class="unit">（数字越大排序越靠前）</span>
+        </div>
+    </div>
+</ny-modal>

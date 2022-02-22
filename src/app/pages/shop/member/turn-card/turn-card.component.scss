@@ -1,0 +1,109 @@
+.info-title {
+    font-weight: bold;
+    padding: 8px 24px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 24px;
+}
+.row-flex-end {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.textStyle {
+    font-weight: bold;
+    color: #000;
+}
+
+.pay-info {
+    margin: 8px 0;
+    .label {
+        width: 120px;
+        text-align: right;
+        display: inline-block;
+    }
+    .add,
+    .remove {
+        font-size: 20px;
+        cursor: pointer;
+    }
+    .add {
+        color: #38f;
+    }
+    .remove {
+        color: #ff4444;
+    }
+}
+
+.upload-card {
+    border: 1px dashed #d9d9d9;
+    width: 104px;
+    height: 104px;
+    border-radius: 4px;
+    background-color: #fafafa;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+    vertical-align: top;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    display: table;
+    &:hover {
+        border-color: #1890ff;
+    }
+    .upload {
+        width: 100%;
+        height: 100%;
+        display: table-cell;
+        text-align: center;
+        vertical-align: middle;
+        padding: 8px;
+        line-height: 20px;
+        &:hover {
+            .item-info {
+                &::before {
+                    opacity: 1;
+                }
+                .item-actions {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+
+    .item-info {
+        position: relative;
+        &::before {
+            position: absolute;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            -webkit-transition: all 0.3s;
+            transition: all 0.3s;
+            content: " ";
+        }
+        .item-actions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            z-index: 10;
+            white-space: nowrap;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: all 0.3s;
+            .anticon-delete,.anticon-eye {
+                width: 16px;
+                margin: 0 4px;
+                color: rgba(255, 255, 255, 0.85);
+                font-size: 16px;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+        }
+    }
+    img {
+        width: 88px;
+        height: 88px;
+    }
+}

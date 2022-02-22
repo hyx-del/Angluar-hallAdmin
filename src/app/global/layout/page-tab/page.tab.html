@@ -1,0 +1,16 @@
+<div class="tab-ctr">
+    <div *ngFor="let item of pageTabs.stash" class="tab-item" [class.active]="item.active" (click)="click(item)">
+        <span>{{item.label}}</span>
+        <i *ngIf="item.deletable" class="close" nz-icon nzType="close" nzTheme="outline" (click)="close(item, $event)"></i>
+    </div>
+</div>
+<nz-dropdown [nzTrigger]="'hover'">
+    <div nz-dropdown>
+        <span>关闭操作</span>
+        <i nz-icon nzType="down" nzTheme="outline"></i>
+    </div>
+    <ul nz-menu style="width:130px;">
+        <li nz-menu-item (click)="closeAll()">关闭全部</li>
+        <li nz-menu-item (click)="closeOthers()">关闭其他页</li>
+    </ul>
+</nz-dropdown>

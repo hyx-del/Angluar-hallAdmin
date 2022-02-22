@@ -1,0 +1,131 @@
+<div class="search-box" style="margin-bottom: 8px;">
+    <div class="group">
+        <label class="label">月份：</label>
+        <nz-month-picker [(ngModel)]="currentDate" (ngModelChange)="onChange()"
+          nzPlaceHolder="选择月份"></nz-month-picker>
+    </div>
+
+    <div class="group" style="margin-left: 8px;">
+        <label class="label">教练：</label>
+        <nz-select style="width: 160px;" [(ngModel)]="currentCoach" nzAllowClear
+        [nzShowSearch]="true" [nzServerSearch]="false"  (ngModelChange)="coachChange()" >
+            <nz-option *ngFor="let item of coachList" [nzLabel]="item.name" [nzValue]="item.id"></nz-option>
+        </nz-select>
+    </div>
+
+    <button nz-button nzType="default" (click)="export()" style="margin-left: 8px;" [nzLoading]="isExport">
+        导出
+    </button>
+    <button nz-button nzType="primary" (click)="confirm()" style="margin-left: 8px;">保存</button>
+
+</div>
+<div *ngIf="viewInit" class="table-box">
+
+<nz-table [nzData]="dataList" [nzScroll]="{'x': '2220px', 'y': height ? height + 'px' : '' }" [nzSize]="'middle'"
+ [nzShowPagination]="false" [nzFrontPagination]="false" >
+    <thead>
+        <tr>
+            <th nzWidth="80px">序号</th>
+            <th nzWidth="100px">教练姓名</th>
+            <th nzWidth="100px">分级</th>
+            <th nzWidth="120px">总课时数量</th>
+            <th nzWidth="120px">系统统计课时费</th>
+            <th nzWidth="100px">课时费</th>
+
+            <th nzWidth="100px">基本薪资</th>
+            <th nzWidth="100px">房补</th>
+            <th nzWidth="100px">奖金</th>
+            <th nzWidth="100px">社保扣除</th>
+
+            <th nzWidth="100px">事假</th>
+            <th nzWidth="100px">病假</th>
+            <th nzWidth="100px">旷工</th>
+            <th nzWidth="100px">罚款</th>
+
+            <!-- <th nzWidth="200px" colspan="2">其他扣款</th> -->
+            <th nzWidth="100px">原因</th>
+            <th nzWidth="100px">其他</th>
+            <th nzWidth="100px">实发总额</th>
+            <th nzWidth="100px">备注</th>
+            <!-- 操作人 -->
+            <th nzWidth="100px">操作人</th>
+            <th nzWidth="180px">最后修改时间</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let data of dataList; let index = index;">
+            <td>{{ index + 1 }}</td>
+            <td>
+                <a (click)="jumpCoachDetail(data)">
+                    {{ data.coach_name }}
+                    <span *ngIf="data.coach_mobile">({{ data.coach_mobile }})</span>
+                </a>
+            </td>
+
+            <td>{{ data.group_name }}</td>
+            <td>
+                <a (click)="jumpCoachCourseFeeDetail(data)">
+                    {{ data.total_course_amount }}
+                </a>
+            </td>
+            <td>
+                {{ data.statistics_course_fee }}
+            </td>
+            <td>
+                <input type="text" nz-input [(ngModel)]="data.actual_course_fee" (ngModelChange)="calcAmount(data)" />
+            </td>
+            <!--基本薪资 -->
+            <td>
+                <input type="text" nz-input [(ngModel)]="data.basic_wage" (ngModelChange)="calcAmount(data)" />
+            </td>
+            <td>
+                <input type="text" nz-input [(ngModel)]="data.house_allowances" (ngModelChange)="calcAmount(data)" />
+            </td>
+            <td>
+                <input type="text" nz-input [(ngModel)]="data.bonus" (ngModelChange)="calcAmount(data)"/>
+            </td>
+            <td>
+                <input type="text" nz-input [(ngModel)]="data.social_insurance" (ngModelChange)="calcAmount(data)"/>
+            </td>
+            <!-- 事假 -->
+            <td>
+                <input type="text" nz-input [(ngModel)]="data.casual_leave" (ngModelChange)="calcAmount(data)"/>
+            </td>
+            <td>
+                <input type="text" nz-input [(ngModel)]="data.medical_leave" (ngModelChange)="calcAmount(data)"/>
+            </td>
+            <td>
+                <input type="text" nz-input [(ngModel)]="data.absenteeism" (ngModelChange)="calcAmount(data)"/>
+            </td>
+            <td>
+                <input type="text" nz-input [(ngModel)]="data.fines" (ngModelChange)="calcAmount(data)" />
+            </td>
+            <!-- 其他扣款 -->
+            <td>
+                <input type="text" nz-input [(ngModel)]="data.extra_reason"  (ngModelChange)="rowChange(data)"/>
+            </td>
+            <td>
+                <input type="text" nz-input [(ngModel)]="data.extra_money" (ngModelChange)="calcAmount(data)"/>
+            </td>
+            
+            <td>
+                {{ data.actual_amount }}
+            </td>
+            <td>
+                <input type="text" nz-input [(ngModel)]="data.remark"  (ngModelChange)="rowChange(data)"/>
+            </td>
+
+            <!-- 操作人 -->
+            <td>
+                {{ data.operator_name }}
+            </td>
+            <td>
+                {{ data.last_update_time }}
+            </td>
+        </tr>
+    </tbody>
+</nz-table>
+<nz-pagination class="pagination" [(nzPageIndex)]="pageIndex" [(nzPageSize)]="pageSize"
+(nzPageIndexChange)="pageIndexChange($event)" [nzTotal]="total"></nz-pagination>
+</div>

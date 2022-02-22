@@ -1,0 +1,10 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.remarkStyle {
+    display: inline-block;
+    width: 300px;
+    word-break: break-word;
+}

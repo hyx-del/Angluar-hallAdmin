@@ -1,0 +1,63 @@
+stages:
+- build-module
+- compile
+- build-image
+
+.compile:
+  image: ${MODULE_IMAGE}
+  script:
+    - cp ${CI_COMMIT_REF_NAME}-env.ts.example env.ts
+    - mkdir -p /root/.ssh
+    - echo "StrictHostKeyChecking no" > /root/.ssh/config
+    - eval `ssh-agent -s`
+    - echo "$SSH_PRIVATE_KEY" | ssh-add -
+    - npm config set registry https://registry.npm.taobao.org
+    - npm config set sass-binary-site http://npm.taobao.org/mirrors/node-sass
+    - tar zxf /node_modules.tar.gz -C ./
+    - npm install
+    - node --max_old_space_size=4096 node_modules/.bin/ng build --prod --build-optimizer=false
+    - tar zxf /uieditor.tar.gz -C ./dist/assets
+    - rsync -e "ssh -p ${SSH_PORT}" -avzP --delete ./dist/ root@${SSH_HOST}:${SSH_PATH}
+    - cp cdtest-env.ts.example env.ts
+    - node --max_old_space_size=4096 node_modules/.bin/ng build --prod --build-optimizer=false
+    - tar zxf /uieditor.tar.gz -C ./dist/assets
+    - rsync -e "ssh -p ${CD_TEST_SSH_PORT}" -avzP --delete ./dist/ root@${CD_TEST_SSH_HOST}:${CD_TEST_SSH_PATH}
+
+test:
+  stage: compile
+  only:
+    - test
+  variables:
+    SSH_PRIVATE_KEY: ${TEST_SSH_PRIVATE_KEY}
+    SSH_HOST: ${TEST_SSH_HOST}
+    SSH_PORT: ${TEST_SSH_PORT}
+    SSH_PATH: ${TEST_SSH_PATH}
+  extends: .compile
+
+prod:
+  stage: build-image
+  image: yilutech/docker-tz:19.03.8
+  only:
+    - prod
+  script:
+    - cp ${CI_COMMIT_REF_NAME}-env.ts.example env.ts
+    - VERSION=`date +%y%m%d%H%M`
+    - docker build -t ${IMAGE_NAME} .
+    - docker tag ${IMAGE_NAME} ${IMAGE_NAME}:${VERSION}
+    - docker login --username=${DOCKER_USER} ${DOCKER_REPO} -p ${DOCKER_PASS}
+    - docker push ${IMAGE_NAME}:latest
+    - docker push ${IMAGE_NAME}:${VERSION}
+    - docker rmi ${IMAGE_NAME} ${IMAGE_NAME}:${VERSION}
+    - for image in `docker images -q -f "dangling=true" -f "label=stage=build"`; do docker rmi $image; done
+
+
+build-module:
+  stage: build-module
+  image: yilutech/docker-tz:19.03.8
+  only:
+    - build-module
+  script:
+    - docker build --no-cache -t ${MODULE_IMAGE} -f Dockerfile-module .
+    - docker login --username=${DOCKER_USER} ${DOCKER_REPO} -p ${DOCKER_PASS}
+    - docker push ${MODULE_IMAGE}
+    - for image in `docker images -q -f "dangling=true" -f "label=stage=build"`; do docker rmi $image; done

@@ -1,0 +1,69 @@
+.member-modal-content {
+    flex-direction: row;
+}
+.user-info {
+    width: 140px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    background: #f8f8f8;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    margin-right: 24px;
+    padding: 24px;
+    .head-avatar {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 24px;
+        img {
+            width: 100%;
+            height: 100%;
+        }
+    }
+    .info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        .name {
+            font-size: 18px;
+        }
+    }
+    .account {
+        margin-top: 24px;
+    }
+    .btn-wrap {
+        margin-top: 24px;
+    }
+    .mb8{
+        margin-bottom: 8px;
+    }
+}
+.avatar {
+    width: 100px;
+    height: 100px;
+}
+.form-group {
+    input,
+    nz-select {
+        width: 200px;
+    }
+    .contral-input {
+        flex: 1;
+    }
+}
+
+.handle-group {
+    &__head {
+        padding: 8px 16px;
+        background: #f8f8f8;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 4px;
+        .title {
+        }
+    }
+    &__content {
+        padding: 8px;
+    }
+}

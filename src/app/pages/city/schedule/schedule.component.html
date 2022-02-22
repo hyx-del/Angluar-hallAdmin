@@ -1,0 +1,15 @@
+<content-header [collection]="collection" [buttonGroups]="buttons">
+    <ny-search-input [uri]="'hall/course/admin-city/course-plan/list'" [pageSize]="50"
+        (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection">
+    <ng-template nyColumn label="操作" width="120px" let-item>
+        <div *ngIf="!item.status">
+            <a (click)="check(item)">审核</a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <a (click)="cancel(item)">取消</a>
+        </div>
+    </ng-template>
+</ny-table>

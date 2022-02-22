@@ -1,0 +1,27 @@
+<div class="label" *ngFor="let item of checkedRoles;let i = index" [class.disabled]="item.disabled">
+    <span>{{item.label}}</span>
+    <i nz-icon nzType="close" nzTheme="outline" (click)="checkRole(item)"></i>
+</div>
+
+<div class="dropdown-area" *ngIf="focus">
+    <div class="role-group" *ngFor="let group of groups;let i=index">
+        <div class="item title">{{group.title}}</div>
+        <ng-container *ngFor="let item of group.items" [ngTemplateOutlet]="ITEM_TPL" [ngTemplateOutletContext]="{$implicit: item, index: i}"></ng-container>
+
+        <div *ngIf="!group.items.length" class="disabled">（空）</div>
+
+    </div>
+    <div *ngIf="loading" class="loading"><i nz-icon nzType="loading" nzTheme="outline"></i></div>
+</div>
+
+<ng-template #ITEM_TPL let-item let-index="index">
+    <div class="item" [class.checked]="item.checked" [class.disabled]="item.disabled" [class.expand]="item.expand" (click)="groups[index].check(item, index)">
+        <span>{{item.name}}</span>
+        <i *ngIf="item.hasSub" nz-icon nzType="right" nzTheme="outline"></i>
+    </div>
+    <div class="sub-items" *ngIf="item.showSub">
+        <div class="item" *ngFor="let role of item.roles" [class.checked]="role.checked" [class.disabled]="role.disabled" (click)="checkRole(role, index)">
+            <span [innerHTML]="role.name"></span>
+        </div>
+    </div>
+</ng-template>

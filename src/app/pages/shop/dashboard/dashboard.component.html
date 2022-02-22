@@ -1,0 +1,292 @@
+<content-header [collection]="collection" [buttonGroups]="buttons">
+    <ny-search-input [uri]="'hall/course/admin-hall/workbench/course-plan'" [pageSize]="50"
+                     (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template nyColumn="has_order" let-item let-header="header" let-value="value">
+        <a (click)="getDetail(item)" style="display: flex;align-items: center; justify-content: space-between;">
+            <span style="margin-right: 8px;">{{ item.has_order }}</span>
+            <span *ngIf="item.has_queue" style="color: #F08336;">排{{ item.has_queue }}</span>
+        </a>
+    </ng-template>
+
+    <ng-template nyColumn label="操作" width="100px" let-item>
+        <a (click)="showConfirmModal(item)">上课确认</a>
+    </ng-template>
+</ny-table>
+
+<!--右边的模态框-->
+<nz-drawer [nzClosable]="false" [nzWrapClassName]="'custom-drawer'" [nzVisible]="visible" nzPlacement="right" nzTitle=""
+    (nzOnClose)="close()" [nzWidth]="800">
+    <div style="margin-bottom: 8px;">
+        <strong>{{ detail.date }} {{ detail.start_time }} - {{ detail.date }} {{ detail.end_time }}</strong>
+        <span style="margin-left: 32px;">
+            <strong>{{ detail.course_name }}</strong>
+        </span>
+        <span>
+            <strong>（{{ detail.id }}）</strong>
+        </span>
+        
+        <span style="margin-left: 32px;">
+            <strong>{{ detail.classroom_name }}</strong>
+        </span>
+    </div>
+    <div style="margin-bottom: 8px;">
+        <strong>教练</strong><span>：</span><strong>{{ detail.coach_name }}</strong>
+        <button nz-button nzType="primary" style="margin-left: 25px" (click)="signIn()" *ngIf="!detail.coach_sign_at">签到
+        </button>
+        <span class="sign-date" *ngIf="detail.coach_sign_at">签到时间： {{ detail.coach_sign_at }}</span>
+        <button nz-button nzType="primary" style="margin-left: 25px" (click)="signOff()"
+                *ngIf="detail.coach_sign_at && !detail.coach_sign_out_at">签出
+        </button>
+        <span class="sign-date" *ngIf="detail.coach_sign_out_at">签出时间： {{ detail.coach_sign_out_at }}</span>
+    </div>
+    <div style="margin-bottom: 8px;" *ngFor="let item of detail.assistant">
+        <strong>助教</strong><span>：</span><strong>{{ item.coach_name }}</strong>
+        <button nz-button nzType="primary" style="margin-left: 25px" (click)="signIn(item.coach_id)" *ngIf="!item.coach_sign_at">签到
+        </button>
+        <span class="sign-date" *ngIf="item.coach_sign_at">签到时间： {{ item.coach_sign_at }}</span>
+        <button nz-button nzType="primary" style="margin-left: 25px" (click)="signOff(item.coach_id)"
+                *ngIf="item.coach_sign_at&&!item.coach_sign_out_at">签出
+        </button>
+        <span class="sign-date" *ngIf="item.coach_sign_out_at">签出时间： {{ item.coach_sign_out_at }}</span>
+    </div>
+    <div style="margin-bottom: 8px;">
+        <strong>预约人数</strong><span>：</span><strong>{{ detail.has_order }}/{{ detail.max_order }}</strong>
+    </div>
+    <div class="flex-end" style="margin-bottom: 16px;">
+        <button nz-button nzType="primary" style="margin-right: 8px;" (click)="showModal()">添加预约</button>
+        <button nz-button nzType="primary" (click)="showQueueUpModal()">添加排队</button>
+    </div>
+    <nz-table [nzSize]="'small'" [nzData]="detail.orderItems" [nzShowPagination]="false" [nzFrontPagination]="false">
+        <thead>
+            <tr>
+                <th nzWidth="60px">排队号</th>
+                <th>会员</th>
+                <th>手机号</th>
+                <th nzWidth="150px">时间</th>
+                <th>状态</th>
+                <th>备注</th>
+                <th nzWidth="170px">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <ng-template ngFor let-data [ngForOf]="detail.orderItems">
+                <tr>
+                    <td>
+                        <span *ngIf="data.queueNumber">{{ data.queueNumber }}</span>
+                    </td>
+                    <td><span class="member-name" (click)="expandChange(data.id)">{{ data.member_name }}</span></td>
+                    <td>{{ data.member_mobile }}</td>
+                    <td>{{ data.queue_at || data.order_at }}</td>
+                    <td>
+                        <span [ngClass]="{'red': data.status == -10 || data.status == -20}">
+                            {{ data.status_name }}
+                        </span>
+                        
+                        <!-- <span *ngIf="data.status == 10">排队中</span>
+                        <span *ngIf="data.status == 20">已预约</span>
+                        <span *ngIf="data.status == -10 || data.status == -20">已取消</span>
+                        <span *ngIf="data.status == 40">已上课</span> -->
+                    </td>
+                    <td>{{ data.remark || '' }}</td>
+                    <td>
+                        <div *ngIf="data.status == 10">
+                            <a (click)="queueCancel(data)">取消排队</a>
+                            <nz-divider nzType="vertical"></nz-divider>
+                            <a (click)="queueToOrder(data)">排队转预约</a>
+                        </div>
+                        <div *ngIf="data.status == 20">
+                            <a (click)="attendClass(data)">上课</a>
+                            <nz-divider nzType="vertical"></nz-divider>
+                            <a (click)="unSign(data)">爽约</a>
+                            <nz-divider nzType="vertical"></nz-divider>
+                            <a (click)="orderCancel(data)">取消预约</a>
+                        </div>
+                        <div *ngIf="data.status == 40">
+                            <a (click)="orderClass(data)">取消上课</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr [nzExpand]="mapOfExpandData[data.id]">
+                    <td colspan="7">
+                        <div class="member-info">
+                            <span class="flex2">会员姓名：<a (click)="memberDetail(data)">{{ data.member_name }}</a></span>
+                            <span class="flex2">订单号：{{ data.course_plan_order_id }}</span>
+                        </div>
+                        <div class="member-info">
+                            <span class="flex2" *ngIf="data.payment_mode_name">支付方式：{{ data.payment_mode_name }}</span>
+                            <span class="flex2" *ngIf="data.course_card_name">支付方式：
+                                    <span (click)="courseCardDetail(data)" class="{{data.is_current_hall?'active':''}}">{{ data.course_card_name }}</span></span>
+                            <span class="flex2" *ngIf="!data.payment_mode_name && !data.course_card_name && data.channel">支付方式：{{ channelMap[data.channel] }}</span>
+                            <span class="flex2">课程卡余额：{{ data.balance || '空'}}</span>
+                        </div>
+                        <div class="member-info">
+                            <span class="flex2">支付合计：{{ data.total_payment }}</span>
+                            <span class="flex2">交易号：{{ data.trade_no || '无' }}</span>
+                        </div>
+                        <div class="member-info">
+                            <span class="flex2">会籍顾问：{{ data.salesman_name || '无' }}</span>
+                            <span class="flex2">卡属门店：{{ data.hall_name || '无' }}</span>
+                        </div>
+                        <div class="member-info">
+                            <span class="flex2">操作人：{{ data.operator_name || data.member_name }}</span>
+                            <span class="flex2">最后操作时间：{{ data.updated_at || ''}}</span>
+                        </div>
+                        <div class="member-info" style="margin: 0;">
+                            <span class="flex2">备注：{{ data.remark || '无' }}</span>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </tbody>
+    </nz-table>
+</nz-drawer>
+
+<nz-modal [(nzVisible)]="isVisible" [nzTitle]="addType == 1 ? '添加预约' : '添加排队' " (nzOnCancel)="handleCancel()"
+          (nzOnOk)="confirmReservation()" [nzWidth]="620" [nzMaskClosable]="false">
+    <div class="form-group">
+        <label class="label"><em>*</em>会员:</label>
+        <nz-select [(ngModel)]="params.member_id" style="width: 200px;" [nzShowSearch]="true" [nzServerSearch]="true"
+                   (nzOnSearch)="onSearch($event)" (nzScrollToBottom)="loadMore()" (ngModelChange)="memberChange()"
+                   [nzPlaceHolder]="'输入手机号搜索'">
+            <ng-container *ngFor="let member of memberList">
+                <nz-option [nzLabel]="member.label" [nzValue]="member.id" [nzDisabled]="member.member_status == -1 ? true : false"></nz-option>
+            </ng-container>
+            <nz-option *ngIf="isLoading" nzDisabled nzCustomContent>
+                <i nz-icon nzType="loading" class="loading-icon"></i> 加载中
+            </nz-option>
+        </nz-select>
+        <span class="unit pointer" (click)="refreshMemberList()">
+            <i nz-icon nzType="sync" nzTheme="outline"></i>
+        </span>
+    </div>
+    <div class="form-group">
+        <label class="label"><em>*</em>课程卡:</label>
+        <nz-select [(ngModel)]="paymentInfo.member_course_card_id" style="width: 200px;"
+                   (ngModelChange)="courseCardChange()">
+            <nz-option nzCustomContent *ngFor="let item of memberCourseCardList" [nzLabel]="item.name"
+                       [nzValue]="item.id">
+                <div>{{ item.name }}</div>
+                <div>{{ item.card_no }}</div>
+            </nz-option>
+        </nz-select>
+    </div>
+
+    <div class="form-group">
+        <label class="label"><em>*</em>{{ addType == 1 ? '预约' : '排队' }}人数:</label>
+        <div>
+            <nz-input-number [nzMin]="0" [nzMax]="maxCompanion" [(ngModel)]="params.amount"
+                             (ngModelChange)="amountChange()" style="width: 200px;"></nz-input-number>
+            <p *ngIf="maxCompanion">可添加{{ maxCompanion }}人同行</p>
+        </div>
+    </div>
+
+    <!-- 次卡 -->
+    <div class="form-group" *ngIf="selectedCourseCard.type == 1">
+        <label class="label">支付次数:</label>
+        <nz-input-number [nzMin]="0" [(ngModel)]="params.total" [nzDisabled]="true"></nz-input-number>
+    </div>
+
+    <div class="form-group">
+        <label class="label">备注:</label>
+        <div>
+            <textarea nz-input style="width: 200px;" [(ngModel)]="params.remark"
+                      [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+        </div>
+    </div>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="confirmVisible" nzTitle="上课确认" (nzOnCancel)="cancenConfirmModal()"
+          (nzOnOk)="confirmHaveClass()" [nzWidth]="840" [nzMaskClosable]="false">
+    <div class="form-group">
+        <label class="label"><em>*</em>上课人数:</label>
+        <div>
+            <nz-input-number [(ngModel)]="currentPlan.amount" [nzMin]="0" style="width: 200px;"
+                             (ngModelChange)="calcCourseFee()"></nz-input-number>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label"><em>*</em>课时费:</label>
+        <div>
+            <nz-input-number [(ngModel)]="currentPlan.course_fee" [nzMin]="0" style="width: 200px;"></nz-input-number>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label"><em>*</em>备注:</label>
+        <div>
+            <textarea nz-input rows="3" [(ngModel)]="currentPlan.remark"></textarea>
+        </div>
+    </div>
+
+    <div *ngIf="isAssistant">
+        <label class="label">助教课时费</label>
+        <div class="form-group" *ngFor="let item of currentPlan.assistant">
+            <label class="label"><em>*</em>{{item.coach_name+':'}}</label>
+            <nz-input-number [nzMin]="0" style="width: 200px;" [(ngModel)]="item.course_fee"></nz-input-number>
+        </div>
+    </div>
+    <div class="logs" *ngIf="confirmVisible">
+        <div style="margin-bottom: 8px;font-size: 14px;font-weight: bold;">确认记录</div>
+        <nz-table [nzData]="[{}]"
+                  [nzSize]="'small'" [nzScroll]="{ y: '120px' }" [nzFrontPagination]="false" [nzShowPagination]="false">
+            <thead>
+            <tr>
+                <th nzWidth="100px">教练</th>
+                <th nzWidth="160px">操作时间</th>
+                <th nzWidth="100px">确认人数</th>
+                <th nzWidth="140px">课时费(系统计算)</th>
+                <th nzWidth="100px">课时费</th>
+                <th nzWidth="90px">操作人</th>
+                <th>备注</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of confirmRecordList">
+                <td>{{data.coach_name}}</td>
+                <td>{{ data.created_at}}</td>
+                <td>{{ data.attend_amount}}</td>
+                <td>{{ data.sys_course_fee }}</td>
+                <td>{{ data.course_fee }}</td>
+                <td>{{ data.operator_name }}</td>
+                <td>{{ data.remark }}</td>
+            </tr>
+            </tbody>
+        </nz-table>
+    </div>
+</nz-modal>
+<nz-modal [(nzVisible)]="isVisiblesSignIn" nzTitle="确认替教练签到？" (nzOnCancel)="handleCancelsignIn()"
+          (nzOnOk)="handleOksignOff()">
+          <div class="form-group">
+            <label style="width: 54px">
+                <span style="color: red">*</span>备注：
+            </label>
+            <textarea style="width: 390px;" rows="4" nz-input placeholder="请填写教练签到异常的原因" [(ngModel)]="SignInInputValue"></textarea>
+        </div>
+</nz-modal>
+<nz-modal [(nzVisible)]="isVisiblesSignOut" nzTitle="确认替教练签出结算？" (nzOnCancel)="handleCancelsignout()"
+          (nzOnOk)="handleOksignOut()">
+          <div class="form-group">
+            <label style="width: 54px;">
+                <span style="color: red;">*</span>备注：
+            </label>
+            <textarea style="width: 390px;" rows="4" nz-input placeholder="请填写强制结算的原因" [(ngModel)]="SignOutInputValue"></textarea>
+          </div>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="exportModalIsVisible" nzTitle="导出" (nzOnCancel)="handleCancel()" [nzFooter]="modalFooter">
+    <div class="form-group"> 
+        <label class="label"><em>*</em>选择月份:</label>
+        <div>
+            <nz-month-picker [(ngModel)]="monthDate" nzPlaceHolder="请选择月份" style="width: 200px;">
+            </nz-month-picker>
+        </div>
+    </div>
+    <ng-template #modalFooter>
+        <button nz-button nzType="default" (click)="cancelExportModal()">取消</button>
+        <button nz-button nzType="primary" (click)="exportModalOk()" [nzLoading]="requsetLoading">确定</button>
+      </ng-template>
+</nz-modal>

@@ -1,0 +1,34 @@
+:host{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+//.search-box {
+//    display: flex;
+//}
+
+//.table-box {
+//    tr > td {
+//        word-break: break-all;
+//    }
+//}
+
+.group {
+    display: flex;
+    .label {
+        display: inline-block;
+        line-height: 32px;
+        margin-right: 8px;
+    }
+}
+
+.text-center{
+    display: flex;
+    align-items: center;
+}
+.unit{
+    margin-right: 8px;
+    line-height: 32px;
+    max-height: 32px;
+}

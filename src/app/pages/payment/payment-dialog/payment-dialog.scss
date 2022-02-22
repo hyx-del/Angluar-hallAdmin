@@ -1,0 +1,20 @@
+.form-group {
+    nz-select {
+        width: 200px;
+    }
+}
+
+.pay-info {
+    .add {
+        color: #3388ff;
+    }
+    .remove {
+        color: #ff4444;
+    }
+    .add,
+    .remove {
+        line-height: 32px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+}

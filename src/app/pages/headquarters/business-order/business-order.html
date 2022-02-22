@@ -1,0 +1,9 @@
+<content-header [collection]="collection">
+    <ny-complex-search [uri]="'hall/admin/business-order'" [pageSize]="50" (collection)="setCollection($event)"></ny-complex-search>
+</content-header>  
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template let-item nyColumn="remark" maxWidth="300px">
+        <span class="remarkStyle">{{item.remark}}</span>
+    </ng-template>
+</ny-table>

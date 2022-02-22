@@ -1,0 +1,51 @@
+<div style="margin-bottom: 8px;">
+    <button nz-button nzType="primary" (click)="showModal()">新建评价标签</button>
+</div>
+
+<nz-table #basicTable [nzData]="tagsList" [nzShowPagination]="false" [nzFrontPagination]="false" [nzSize]="'small'">
+    <thead>
+        <tr>
+            <th>名称</th>
+            <th>对应评分</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let data of basicTable.data">
+            <td>
+                <a (click)="edit(data)">{{data.name}}</a>
+            </td>
+            <td>{{data.match_score}}</td>
+            <td>
+                <a *ngIf="data.status" (click)="disabledTags(data)">禁用</a>
+                <a *ngIf="!data.status" (click)="enableTags(data)">启用</a>
+            </td>
+        </tr>
+    </tbody>
+</nz-table>
+
+
+<nz-modal [(nzVisible)]="isVisible" nzTitle="新建评价标签" (nzOnCancel)="closeModal()" (nzOnOk)="confirm()" [nzWidth]="600">
+    <div nyForm="form" (onInit)="onFormInit()">
+        <div class="form-group">
+            <label class="label"><em>*</em>名称:</label>
+            <div>
+                <input nz-input placeholder="名称" nyName="name" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>标签对象:</label>
+            <div>
+                <nz-select nyName="tag_to" errorStyle="float" style="width: 200px;">
+                    <nz-option [nzLabel]="'教练'" [nzValue]="10"></nz-option>
+                </nz-select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>对应评分:</label>
+            <div>
+                <nz-input-number [nzMin]="1" [nzMax]="5" nyName="match_score"></nz-input-number>
+            </div>
+        </div>
+    </div>
+</nz-modal>

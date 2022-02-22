@@ -1,0 +1,63 @@
+<div>
+    <ng-content></ng-content>
+</div>
+
+<nz-modal [(nzVisible)]="isVisible" nzTitle="图片裁剪" (nzOnCancel)="cancelCrop()" (nzOnOk)="cropImage()"
+ [nzWidth]="680" [nzFooter]="footer" [nzMaskClosable]="false">
+
+    <!-- <div class="handle-buttons">
+        <nz-button-group *ngFor="let buttons of buttonGroups" [nzSize]="buttonSize"
+            style="margin-right: 8px;margin-bottom: 8px;">
+            <button nz-button nzType="primary" *ngFor="let button of buttons" (click)="handleButton(button)" nz-tooltip
+                nzPlacement="top" [nzTitle]="button.tipTitle">
+                <i nz-icon [nzType]="button.icon" nzTheme="outline"></i>
+            </button>
+        </nz-button-group>
+
+        <nz-button-group [nzSize]="buttonSize">
+            <button nz-button nzType="primary" (click)="cropperClear()">
+            <i nz-icon nzType="close" nzTheme="outline"></i>
+        </button>
+            <button nz-button nzType="primary" (click)="cropperReset()" nz-tooltip nzPlacement="top" nzTitle="重置">
+                <i nz-icon nzType="sync" nzTheme="outline"></i>
+            </button>
+            <label nz-button nzType="primary" class="upload-btn" for="inputImage" nz-tooltip nzPlacement="top"
+                nzTitle="导入图片">
+                <i nz-icon nzType="upload" nzTheme="outline"></i>
+                <input type="file" class="hidden-input" id="inputImage" #inputImage (change)="fileChange($event)" name="file"
+                    accept="image/*">
+            </label>
+        </nz-button-group>
+    </div> -->
+    
+    <input type="file" class="hidden-input" id="inputImage" #inputImage (change)="fileChange($event)" name="file"
+    accept="image/*">
+
+    <div class="wrapper">
+        <div class="cropper-wrapper">
+            <!-- LOADING -->
+            <div class="loading-block" *ngIf="isLoading">
+                <div class="spinner"></div>
+            </div>
+
+            <!-- CROPPER -->
+            <div class="img-container">
+                <img #image alt="image" [src]="imageUrl" (load)="imageLoaded($event)" />
+            </div>
+        </div>
+
+        <div class="img-preview">
+
+        </div>
+    </div>
+
+    <ng-template #footer>
+        <button nz-button (click)="cancelCrop()">取消</button>
+
+        <button nz-button nzType="primary" (click)="cropImage()" style="margin-left: 8px;">
+            <i class="upload-icon" *ngIf="isUpload" nz-icon nzType="loading"></i>
+            <span>确定</span>
+        </button>
+    </ng-template>
+
+</nz-modal>

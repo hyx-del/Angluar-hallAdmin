@@ -1,0 +1,8 @@
+<nz-modal [(nzVisible)]="isVisible" nzTitle="签到二维码" (nzOnCancel)="handleCancel()" [nzFooter]="null" [nzMaskClosable]="false">
+    <div class="qrcode-wrapper">
+        <div id="qrcode-wrap" class="qrcode">
+            <img id="qrcode">
+        </div>
+        <div *ngIf="hasOverdue"></div>
+    </div>
+</nz-modal>

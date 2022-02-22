@@ -1,0 +1,8 @@
+<content-header [collection]="collection">
+    <ny-search-input uri="mix/video/admin/member/recharge/orders" [pageSize]="20" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" showIndex="true">
+
+</ny-table>

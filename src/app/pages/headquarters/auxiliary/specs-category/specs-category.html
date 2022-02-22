@@ -1,0 +1,29 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'hall/course/admin/course-card/spec-category/list'" [pageSize]="50"
+        (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection">
+    <ng-template nyColumn label="操作" width="120px" let-item>
+        <a (click)="remove(item)">删除</a>
+    </ng-template>
+</ny-table>
+
+<nz-modal [(nzVisible)]="isVisible" [nzTitle]="params.id ? '修改规格类别' : '添加规格类别'" (nzOnCancel)="handleCancel()"
+    (nzOnOk)="confirm()">
+    <div nyForm="form" (onInit)="onFormInit($event)">
+        <div class="form-group">
+            <label class="label"><em>*</em>类别名称:</label>
+            <div>
+                <input nz-input nyName="name" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>天数:</label>
+            <div>
+                <nz-input-number [nzMin]="0" nyName="days" errorStyle="float" style="width: 200px;"></nz-input-number>
+            </div>
+        </div>
+    </div>
+</nz-modal>

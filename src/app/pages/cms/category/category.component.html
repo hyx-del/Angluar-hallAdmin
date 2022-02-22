@@ -1,0 +1,91 @@
+<div style="margin-bottom: 10px;">
+    <button nz-button nzType="primary" (click)="add()">
+        <i nz-icon nzType="plus" nzTheme="outline"></i>添加分类
+    </button>
+    <button nz-button nzType="defailt" (click)="refreshData()" [nzLoading]="isLoading" style="margin-left: 16px;">刷新</button>
+</div>
+
+<nz-table #nzTable [nzData]="categoryList" [nzSize]="'small'" [nzBordered]="true" [nzShowPagination]="false"
+ [nzLoading]="isLoading" >
+    <thead>
+        <tr>
+            <th nzWidth="120px">编号</th>
+            <th>分组名称</th>
+            <th nzWidth="160px">标签</th>
+            <th nzWidth="200px">操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        <ng-template ngFor let-data [ngForOf]="categoryList">
+            <tr>
+                <td>{{ data.id }}</td>
+                <td>
+                    <a (click)="edit(data)">{{ data.name }}</a>
+                </td>
+                <td>{{ data.tag }}</td>
+                <td>
+                    <a (click)="remove(data)">删除</a>
+                </td>
+            </tr>
+            <tr *ngFor="let item of data.children">
+                <td>{{ item.id }}</td>
+                <td [nzIndentSize]="1">
+                    <a (click)="edit(item)">{{ item.name }}</a>
+                </td>
+                <td>{{ item.tag }}</td>
+                <td>
+                    <a (click)="remove(item)">删除</a>
+                </td>
+            </tr>
+        </ng-template>
+    </tbody>
+</nz-table>
+
+<nz-modal [(nzVisible)]="visible" [nzTitle]="params.id ? '修改分类' : '添加分类'" (nzOnCancel)="cancel()" (nzOnOk)="save()"
+    [nzOkText]="'保存'" [nzWidth]="620" [nzMaskClosable]="false">
+    <div *ngIf="visible" nyForm="form" (onInit)="onFormInit($event)">
+        <div class="form-group">
+            <span class="label"><em>*</em>分类名称:</span>
+            <div>
+                <input nz-input class="input" nyName="name" [(ngModel)]="params.name"
+                    errorStyle="float" />
+
+            </div>
+        </div>
+        <div class="form-group">
+            <span class="label">选择父类:</span>
+            <div>
+                <nz-select nyName="parent_id" [(ngModel)]="params.parent_id" style="width: 200px;" nzAllowClear >
+                    <nz-option *ngFor="let item of categoryList" [nzValue]="item.id" [nzLabel]="item.name"></nz-option>
+                </nz-select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">标签:</label>
+            <div>
+                <input nz-input placeholder="标签名称" nyName="tag" errorStyle="float" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <span class="label">分类图片:</span>
+
+            <nz-upload class="avatar-uploader" nzName="avatar" nzListType="picture-card" [nzShowUploadList]="false"
+                nzAction="" [nzCustomRequest]="uploadImg">
+                <ng-container *ngIf="!params.thumb_url">
+                    <i nz-icon [nzType]="isUploadLoading ? 'loading' : 'plus'"></i>
+                    <div class="ant-upload-text">上传图片</div>
+                </ng-container>
+                <img *ngIf="params.thumb_url" style="width: 100%;" [src]="ossPath + params.thumb_url" class="avatar">
+            </nz-upload>
+        </div>
+
+        <div class="form-group">
+            <span class="label"><em>*</em>排序:</span>
+            <div>
+                <nz-input-number nyName="sort" [(ngModel)]="params.sort" [nzMin]="0" errorStyle="float"></nz-input-number>
+            </div>
+        </div>
+    </div>
+</nz-modal>

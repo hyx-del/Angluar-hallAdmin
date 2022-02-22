@@ -1,0 +1,275 @@
+<div style="margin-bottom: 8px;">
+    <button nz-button nzType="primary" (click)="showModal()">新建分类</button>
+    <button nz-button nzType="defailt" (click)="refreshData()" [nzLoading]="isLoading" style="margin-left: 16px;">刷新</button>
+</div>
+
+<nz-table #nzTable [nzData]="categoryList" [nzSize]="'small'" [nzBordered]="true" [nzShowPagination]="false" [nzLoading]="isLoading" >
+    <thead>
+        <tr>
+            <th nzWidth="120px">编号</th>
+            <th>分类名称</th>
+            <th>优先级别</th>
+            <th nzWidth="200px">操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        <ng-template ngFor let-data [ngForOf]="categoryList">
+            <tr>
+                <td>{{ data.id }}</td>
+                <td>
+                    <a (click)="edit(data)">{{ data.name }}</a>
+                </td>
+                <td>{{ data.priority }}</td>
+                <td>
+                    <a (click)="showAddChild(data)">添加子类</a>
+                    <nz-divider nzType="vertical"></nz-divider>
+                    <a (click)="remove(data)">删除</a>
+                </td>
+            </tr>
+            <tr *ngFor="let item of data.children">
+                <td>{{ item.id }}</td>
+                <td [nzIndentSize]="1">
+                    <a *ngIf="item.is_internal" style="color: red;" (click)="edit(item)">{{ item.name }}</a>
+                    <a *ngIf="!item.is_internal" (click)="edit(item)">{{ item.name }}</a>
+                </td>
+                <td>{{ item.priority }}</td>
+                <td>
+                    <a (click)="remove(item)">删除</a>
+                </td>
+            </tr>
+        </ng-template>
+    </tbody>
+</nz-table>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" (onClose)="cancel()">
+    <ny-header>
+        <h2>添加分类</h2>
+        <p style="flex: 1"></p>
+        <button nz-button nzType="default" (click)="cancel()" style="margin-right: 16px;">取消</button>
+        <button nz-button nzType="primary" (click)="save()">保存</button>
+    </ny-header>
+    <div nyForm="form" (onInit)="onFormInit($event)">
+        <div class="form-group">
+            <label class="label"><em>*</em>分类名称:</label>
+            <div>
+                <input nz-input placeholder="请输入分类名称" nyName="name" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">标签:</label>
+            <div>
+                <input nz-input placeholder="标签名称" nyName="tag" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">优先级别:</label>
+            <div>
+                <nz-input-number [nzMin]="0" [nzStep]="1" style="width:110px;" nyName="priority" errorStyle="float">
+                </nz-input-number>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">图片:</label>
+            <div>
+                <nz-upload class="avatar-uploader" nzName="avatar" nzListType="picture-card" [nzShowUploadList]="false"
+                    [nzCustomRequest]="uploadImg">
+                    <ng-container *ngIf="!params.image">
+                        <i class="upload-icon" nz-icon [nzType]=" isUploadLoading ? 'loading' : 'plus'"></i>
+                        <div class="ant-upload-text">上传图片</div>
+                    </ng-container>
+                    <img *ngIf="params.image" [src]="params.imageUrl" alt="分类图片" class="avatar" />
+                </nz-upload>
+                <input nz-input nyName="image" hidden />
+            </div>
+        </div>
+        <div class="form-group" *ngIf="params.parent_id">
+            <label class="label">内部分区：</label>
+            <div style="padding-top: 5px;">
+                <nz-switch [(ngModel)]="params.is_internal" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">说明(手机端显示):</label>
+            <div>
+                <textarea nz-input placeholder="输入说明内容" nyName="describe" [nzAutosize]="{ minRows: 3, maxRows: 6 }"
+                    style="width: 300px;"></textarea>
+            </div>
+        </div>
+    </div>
+</ny-modal>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="detailVisible" (onClose)="closeDetailModal()">
+    <ny-header>
+        <h2>分类详情  -  {{ params.name }}</h2>
+        <p style="flex: 1"></p>
+    </ny-header>
+    <div class="modal-content">
+        <nz-tabset [(nzSelectedIndex)]="tabIndex" (nzSelectChange)="tabSelectChange($event)">
+            <nz-tab nzTitle="分区设置">
+                <div nyForm="detailForm" (onInit)="onDetailFormInit($event)">
+                    <div class="form-group">
+                        <label class="label"><em>*</em>分类名称:</label>
+                        <div>
+                            <input nz-input placeholder="请输入分类名称" nyName="name" errorStyle="float" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">标签:</label>
+                        <div>
+                            <input nz-input placeholder="标签名称" nyName="tag" errorStyle="float" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">优先级别:</label>
+                        <div>
+                            <nz-input-number [nzMin]="0" [nzStep]="1" style="width:110px;" nyName="priority" errorStyle="float">
+                            </nz-input-number>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">图片:</label>
+                        <div>
+                            <nz-upload class="avatar-uploader" nzName="avatar" nzListType="picture-card" [nzShowUploadList]="false"
+                                [nzCustomRequest]="uploadImg">
+                                <ng-container *ngIf="!params.image">
+                                    <i class="upload-icon" nz-icon [nzType]="'plus'"></i>
+                                    <div class="ant-upload-text">上传图片</div>
+                                </ng-container>
+                                <img *ngIf="params.image" [src]="params.imageUrl" alt="分类图片" class="avatar" />
+                            </nz-upload>
+                            <input nz-input nyName="image" hidden />
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="params.parent_id">
+                        <label class="label">内部分区：</label>
+                        <div style="padding-top: 5px;">
+                            <nz-switch [(ngModel)]="params.is_internal" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">说明(手机端显示):</label>
+                        <div>
+                            <textarea nz-input placeholder="输入说明内容" nyName="describe" [nzAutosize]="{ minRows: 3, maxRows: 6 }"
+                                style="width: 300px;"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="label"></label>
+                        <div>
+                            <button nz-button nzType="primary" (click)="updateCategory()">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </nz-tab>
+            <nz-tab nzTitle="分享链接设置" *ngIf="params.parent_id">
+                <div class="setting-row">
+                    <div class="left">
+                        <div class="scroll-wrap">
+                            <div class="link-item" *ngFor="let link of shareLinkList; let i = index;" [ngClass]="{'active': link.id == currentLink.id}"
+                                (click)="linkTapHandle(i)">
+                                <div class="info">
+                                    <div class="name">{{ link.name }}<span>（{{ link.number || 0 }}人）</span></div>
+                                    <div class="">链接有效期：{{ link.expire_at }}</div>
+                                    <div class="">观看有效期：{{ link.share_expire_at }}</div>
+                                </div>
+                                <div class="handle-btn">
+                                    <span class="text" (click)="copyLink($event, i)">复制链接</span>
+                                    <span class="text" (click)="removeShareLink($event, link)">删除</span>
+                                    <span class="text" (click)="showUpdateShareLink($event, link)">修改</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button nz-button nzType="primary" (click)="showShareModal()">添加分享</button>
+                    </div>
+                    <div class="right">
+                        <nz-tabset>
+                            <nz-tab nzTitle="申请列表">
+                                <div style="height: 100%; display: flex;flex-direction: column;"
+                                *ngIf="currentLink.id">
+                                    <content-header [collection]="collection">
+                                        <ny-search-input #searchInput [uri]="'mix/video/admin/category-application/list?id=' + currentLink.id"
+                                        [pageSize]="20" (collection)="setCollection($event)">
+                                        </ny-search-input>
+                                    </content-header>
+                                    
+                                    <ny-table [collection]="collection" showIndex="true">
+                                        <ng-template nyColumn label="操作" width="180px" let-item>
+                                            <a (click)="removeMember(item)">移除</a>
+                                            <nz-divider nzType="vertical"></nz-divider>
+                                            <span *ngIf="!item.status">
+                                                <a (click)="agree(item)">同意</a>
+                                                <nz-divider nzType="vertical"></nz-divider>
+                                                <a (click)="refuse(item)">驳回</a>
+                                            </span>
+                                            <span *ngIf="item.status == 1 || item.status == -1">
+                                                <a (click)="cancelHandle(item)">{{ item.status == 1 ? '取消审核' : '取消驳回'  }}</a>
+                                            </span>
+
+                                        </ng-template>
+                                    </ny-table>
+                                </div>
+                            </nz-tab>
+                            <nz-tab nzTitle="授权人员名单">
+                                <div style="height: 100%; display: flex;flex-direction: column;"
+                                *ngIf="currentLink.id">
+                                    <div style="margin-bottom: 8px;">
+                                        <input type="text" nz-input [(ngModel)]="addMemberMobile" style="width: 220px;">
+                                        <button nz-button nzType="primary" (click)="addWhiteList()"
+                                         style="margin-left: 8px;" [disabled]="!addMemberMobile">添加</button>
+                                    </div>
+                                    <div style="display: flex;">
+                                        <!-- <button nz-button nzType="default" (click)="importData()" style="margin-right: 8px;">导入</button> -->
+                                        <content-header [collection]="whiteListCollection" style="flex: 1;">
+                                            <ny-search-input #searchInput [uri]="'mix/video/admin/category-share/whitelist?share_id=' + currentLink.share_id"
+                                            [pageSize]="20" (collection)="setWhiteListCollection($event)">
+                                            </ny-search-input>
+                                        </content-header>
+                                    </div>
+
+                                    <ny-table [collection]="whiteListCollection" showIndex="true">
+                                        <ng-template nyColumn label="操作" width="180px" let-item>
+                                            <a (click)="removeWhiteList(item)">移除</a>
+                                        </ng-template>
+                                    </ny-table>
+                                </div>  
+                            </nz-tab>
+                        </nz-tabset>
+                        
+                    </div>
+                </div>
+            </nz-tab>
+        </nz-tabset>
+    </div>
+</ny-modal>
+
+<nz-modal [nzTitle]="shareParams.id ? '修改分享' : '添加分享'" [(nzVisible)]="shareVisible" (nzOnCancel)="cancelShareLink()" (nzOnOk)="saveShareLink()">
+    <div class="share-link-modal">
+        <div class="form-group">
+            <label class="label"><em>*</em>分享名称：</label>
+            <div><input nz-input [(ngModel)]="shareParams.name" [disabled]="shareParams.id" /></div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>分区观看有效期：</label>
+            <div>
+                <nz-date-picker [(ngModel)]="shareParams.share_expire_at"
+                [nzDisabledDate]="disabledDateTime" style="width: 200px;"></nz-date-picker>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>链接有效期：</label>
+            <div>
+                <nz-date-picker [(ngModel)]="shareParams.expire_at"
+                [nzDisabledDate]="disabledDateTime" style="width: 200px;"></nz-date-picker>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">备注：</label>
+            <div>
+                <textarea nz-input style="width: 200px;" [(ngModel)]="shareParams.remark"
+                    [nzAutosize]="{ minRows: 2, maxRows: 6 }" [disabled]="shareParams.id"></textarea>
+            </div>
+        </div>
+    </div>
+
+</nz-modal>

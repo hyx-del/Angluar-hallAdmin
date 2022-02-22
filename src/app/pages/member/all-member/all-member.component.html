@@ -1,0 +1,138 @@
+<content-header [collection]="collection">
+    <ny-search-input [uri]="'member/admin/member/list'" [pageSize]="50" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template nyColumn="birthday" let-item>
+        {{ item.birthday }}
+    </ng-template>
+</ny-table>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" (onClose)="close()">
+    <ny-header>
+        <h2>会员详情</h2>
+        <p style="flex: 1"></p>
+        <button nz-button nzType="default" (click)="close()" style="margin-right: 16px;">取消</button>
+        <button nz-button nzType="primary" (click)="save()">保存</button>
+    </ny-header>
+    <div nyForm="form" (onInit)="onFormInit()">
+        <div class="form-group">
+            <label class="label"><em>*</em>姓名:</label>
+            <div>
+                <input nz-input placeholder="姓名" nyName="name" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">身份证号:</label>
+            <div>
+                <input nz-input placeholder="身份证号" nyName="id_card" errorStyle="float" />
+            </div>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label"><em>*</em>性别:</label>
+            <div>
+                <nz-radio-group nyName="gender">
+                    <label nz-radio [nzValue]="1">男</label>
+                    <label nz-radio [nzValue]="2">女</label>
+                </nz-radio-group>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">照片:</label>
+            <div>
+                <crop-image [aspectRatio]="1" (onComplete)="uploadImgComplete($event)">
+                    <nz-upload class="avatar-uploader" nzName="avatar" nzListType="picture-card"
+                        [nzShowUploadList]="false">
+                        <ng-container *ngIf="!params.avatar">
+                            <i class="upload-icon" nz-icon [nzType]=" isUploadLoading ? 'loading' : 'plus'"></i>
+                            <div class="ant-upload-text">上传图片</div>
+                        </ng-container>
+                        <img *ngIf="params.avatar" [src]="ossPath + params.avatar" class="avatar" />
+                    </nz-upload>
+                </crop-image>
+                <input nz-input nyName="avatar" hidden />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label"><em>*</em>手机号:</label>
+            <div>
+                <input nz-input placeholder="手机号" nyName="contact" errorStyle="float"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">微信:</label>
+            <div>
+                <button nz-button (click)="wechatUnbind()">微信解绑</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">邮箱:</label>
+            <div>
+                <input nz-input placeholder="邮箱" nyName="email" errorStyle="float"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">生日:</label>
+            <div>
+                <nz-date-picker nyName="birthday" errorStyle="float" style="width: 200px;"></nz-date-picker>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">地区:</label>
+            <nz-select style="width: 160px;margin-right: 10px;" [(ngModel)]="params.province_id"
+                (ngModelChange)="onChange($event, 'province')">
+                <nz-option *ngFor="let province of provinceList" [nzLabel]="province.name" [nzValue]="province.id">
+                </nz-option>
+            </nz-select>
+            <nz-select style="width: 160px;margin-right: 10px;" [(ngModel)]="params.city_id"
+                (ngModelChange)="onChange($event, 'city')">
+                <nz-option *ngFor="let city of cityList" [nzLabel]="city.name" [nzValue]="city.id"></nz-option>
+            </nz-select>
+            <nz-select style="width: 160px;" [(ngModel)]="params.area_id" (ngModelChange)="onChange($event)">
+                <nz-option *ngFor="let area of areaList" [nzLabel]="area.name" [nzValue]="area.id"></nz-option>
+            </nz-select>
+        </div>
+        <div class="form-group">
+            <label class="label">住址:</label>
+            <div>
+                <textarea nz-input placeholder="住址" nyName="address" errorStyle="float"
+                    [nzAutosize]="{ minRows: 3, maxRows: 6 }" style="width: 300px;resize: none;"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">注册日期:</label>
+            <div>
+                <nz-date-picker [(ngModel)]="params.created_at" style="width: 200px;" [nzShowTime]="true"
+                    [nzDisabled]="true"></nz-date-picker>
+            </div>
+        </div>
+        <div  class="form-group" *ngIf="serviceList.length">
+            <label class="label">开通服务:</label>
+            <div style="max-width: 500px; width: 400px;">
+                <nz-table [nzData]="[{}]" [nzSize]="'small'" [nzFrontPagination]="false" [nzShowPagination]="false">
+                    <thead>
+                        <tr>
+                            <th>服务名称</th>
+                            <th nzWidth="150px">开通时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let data of serviceList">
+                            <td>{{ data.service_name }}</td>
+                            <td>{{ data.created_at }}</td>
+                        </tr>
+                    </tbody>
+                </nz-table>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">重新实名认证链接:</label>
+            <div>
+                <textarea nz-input placeholder="获取实名认证链接"  errorStyle="float"
+                [nzAutosize]="{ minRows: 3, maxRows: 6 }" style="width: 300px;resize: none;" [(ngModel)]="params.realName"></textarea>
+            </div>
+        <button nz-button nzType="primary" (click)="realName()" style="margin-left: 16px;">获取链接</button>
+        </div>
+    </div>
+</ny-modal>

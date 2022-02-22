@@ -1,0 +1,82 @@
+<div class="business">
+    <nz-tabset (nzSelectChange)="tabSelectChange($event)">
+        <nz-tab nzTitle="按日">
+            <div class="form-group">
+                <span class="label">选择时间</span>
+                <nz-month-picker [(ngModel)]="dayDate" nzPlaceHolder="选择月" (ngModelChange)="monthChangeByDay($event)"
+                    [nzAllowClear]="false">
+                </nz-month-picker>
+                <button nz-button nzType="primary" (click)="refreshDayData()" [nzLoading]="isLoading"
+                    style="margin-left: 16px;">查询</button>
+                <button nz-button nzType="default" (click)="export('day')" style="margin-left: 16px;">导出</button>
+            </div>
+
+            <nz-table [nzData]="[{}]" [nzShowPagination]="false" [nzFrontPagination]="false" [nzBordered]="true"
+                [nzSize]="'small'" [nzScroll]="{ x: '1800px' }">
+                <thead>
+                    <tr>
+                        <th *ngFor="let item of dayData.headers">{{ item.label }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let data of dayData.dataList">
+                        <td *ngFor="let header of dayData.headers">{{ data[header.key] }}</td>
+                    </tr>
+                </tbody>
+            </nz-table>
+        </nz-tab>
+        <nz-tab nzTitle="按周">
+            <div class="form-group">
+                <span class="label">选择时间</span>
+                <nz-month-picker [(ngModel)]="weekDate" nzPlaceHolder="选择月" (ngModelChange)="monthChangeByWeek($event)"
+                    [nzAllowClear]="false">
+                </nz-month-picker>
+                <button nz-button nzType="primary" (click)="refreshWeekData()" [nzLoading]="isLoading2"
+                    style="margin-left: 16px;">查询</button>
+                <button nz-button nzType="default" (click)="export('week')" style="margin-left: 16px;">导出</button>
+
+            </div>
+
+            <nz-table [nzData]="[{}]" [nzShowPagination]="false" [nzFrontPagination]="false" [nzBordered]="true"
+                [nzSize]="'small'" [nzScroll]="{ x: '1800px' }">
+                <thead>
+                    <tr>
+                        <th *ngFor="let item of weekData.headers">{{ item.label }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let data of weekData.dataList">
+                        <td *ngFor="let header of weekData.headers">{{ data[header.key] }}</td>
+                    </tr>
+                </tbody>
+            </nz-table>
+        </nz-tab>
+        <nz-tab nzTitle="按月">
+            <div class="form-group">
+                <span class="label">选择时间</span>
+                <nz-year-picker [(ngModel)]="monthDate" (ngModelChange)="yearChange($event)" nzPlaceHolder="选择年"
+                    [nzAllowClear]="false">
+                </nz-year-picker>
+
+                <button nz-button nzType="primary" (click)="refreshMonthData()" [nzLoading]="isLoading3"
+                    style="margin-left: 16px;">查询</button>
+                <button nz-button nzType="default" (click)="export('month')" style="margin-left: 16px;">导出</button>
+
+            </div>
+
+            <nz-table [nzData]="[{}]" [nzShowPagination]="false" [nzFrontPagination]="false" [nzBordered]="true"
+                [nzSize]="'small'" [nzScroll]="{ x: '1800px' }">
+                <thead>
+                    <tr>
+                        <th *ngFor="let item of monthData.headers">{{ item.label }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let data of monthData.dataList">
+                        <td *ngFor="let header of monthData.headers">{{ data[header.key] }}</td>
+                    </tr>
+                </tbody>
+            </nz-table>
+        </nz-tab>
+    </nz-tabset>
+</div>

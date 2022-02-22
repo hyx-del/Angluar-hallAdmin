@@ -1,0 +1,14 @@
+<content-header [collection]="collection">
+  <ny-complex-search [uri]="'hall/member/admin/member-course-card/unit-price-change/list'" [pageSize]="50" (collection)="setCollection($event)">
+  </ny-complex-search>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+  <ng-template nyColumn label="操作" width="120px" let-item>
+    <ng-container *ngIf='item.status == 0'>
+      <a (click)="pass(item)">通过</a>
+      <nz-divider nzType="vertical"></nz-divider>
+    </ng-container>
+      <a (click)="reject(item)" *ngIf='item.status == 0'>驳回</a>
+  </ng-template>
+</ny-table>

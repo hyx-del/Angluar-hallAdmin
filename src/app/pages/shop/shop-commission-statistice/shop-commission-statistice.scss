@@ -1,0 +1,38 @@
+:host {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.search-group {
+    margin-right: 16px;
+    .label {
+        display: inline-block;
+        margin-right: 8px;
+        line-height: 32px;
+    }
+}
+
+.modal_content {
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .detail-group {
+        display: inline-block;
+        line-height: 32px;
+        margin-right: 16px;
+        margin-bottom: 8px;
+    }
+}
+.detail-item {
+    display: inline-block;
+    line-height: 24px;
+    margin-right: 16px;
+}

@@ -1,0 +1,65 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.form-group {
+    .add,
+    .remove {
+        display: inline-block;
+        line-height: 32px;
+        cursor: pointer;
+    }
+    .add {
+        color: #38f;
+    }
+    .remove {
+        color: #ff4444;
+    }
+}
+.setting-head {
+    display: flex;
+    margin-bottom: 16px;
+    .title {
+        width: 120px;
+        text-align: right;
+        font-weight: bold;
+        margin-right: 180px;
+    }
+    &-border {
+        padding-top: 16px;
+        border-top: 1px solid #e8e8e8;
+    }
+}
+.pad {
+    padding: 0 !important;
+}
+.app-calendar{
+    height: 760px;
+}
+.list-group{
+    width: 168px;
+    height: 36px;
+    margin-bottom: 16px;
+    display: flex;
+    >span{
+        flex: 1;
+        display: inline-block;
+        width: 32px;
+        height: 36px;
+        font-size: 16px;
+        font-family: PingFangSC, PingFangSC-Medium;
+        font-weight: 400;
+        text-align: center;
+        color: rgba(0,0,0,0.65);
+        line-height: 24px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        border-bottom:2px solid transparent;
+    }
+}
+.activeBorder{
+    color: #1890FF !important;
+    border-bottom:2px solid #1890FF !important;
+}

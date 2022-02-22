@@ -1,0 +1,82 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'mix/video/admin/recharge-specs/list'" [pageSize]="50" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template nyColumn label="操作" width="120px" let-item>
+        <a *ngIf="item.status" (click)="disabled(item)">禁用</a>
+        <a *ngIf="!item.status" (click)="enable(item)">启用</a>
+        <nz-divider nzType="vertical"></nz-divider>
+        <a (click)="remove(item)">删除</a>
+    </ng-template>
+</ny-table>
+
+
+<nz-modal [(nzVisible)]="visible" nzTitle="充值规格" (nzOnCancel)="cancel()" (nzOnOk)="save()" [nzMaskClosable]="false">
+    <div nyForm="form" (onInit)="onFormInit()">
+        <div class="form-group flex-center">
+            <label class="label"><em>*</em>适用系统:</label>
+            <div>
+                <nz-checkbox-group [(ngModel)]="sysTypes"></nz-checkbox-group>
+            </div>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">充值类型:</label>
+            <div>
+                <nz-radio-group nyName="type" [(ngModel)]="params.type">
+                    <label nz-radio *ngFor="let item of rechargeTypes" [nzValue]="item.value">{{ item.label }}</label>
+                </nz-radio-group>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label"><em>*</em>名称:</label>
+            <div>
+                <input nz-input nyName="name" errorStyle="float" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label"><em>*</em>数量:</label>
+            <div>
+                <nz-input-number nyName="amount" errorStyle="float" [nzMin]="0" style="width: 120px;"></nz-input-number>
+            </div>
+            <span class="unit">{{ params.type == 1 ? '天' : '点' }}</span>
+        </div>
+
+        <div class="form-group">
+            <label class="label"><em>*</em>赠送数量:</label>
+            <div>
+                <nz-input-number nyName="gift_amount" errorStyle="float" [nzMin]="0" style="width: 120px;">
+                </nz-input-number>
+            </div>
+            <span class="unit">{{ params.type == 1 ? '天' : '点' }}</span>
+        </div>
+
+        <div class="form-group">
+            <label class="label"><em>*</em>价格:</label>
+            <div>
+                <nz-input-number nyName="price" errorStyle="float" [nzMin]="0" style="width: 200px;"></nz-input-number>
+            </div>
+            <span class="unit"></span>
+        </div>
+
+        <div class="form-group">
+            <label class="label">权重:</label>
+            <div>
+                <nz-input-number nyName="weight" errorStyle="float" [nzMin]="0" style="width: 120px;">
+                </nz-input-number>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">苹果商品id:</label>
+            <div>
+                <input nz-input nyName="apple_product_id" errorStyle="float" />
+            </div>
+        </div>
+    </div>
+
+</nz-modal>

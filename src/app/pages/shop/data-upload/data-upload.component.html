@@ -1,0 +1,101 @@
+<nz-tabset class="push_order" [(nzSelectedIndex)]="selectedIndex" (nzSelectChange)="tabChange()">
+    <nz-tab nzTitle="上传失败">
+        <div style="height: 100%;display: flex;flex-direction: column;">
+            <div class="button-bar">
+                <button nz-button (click)="refreshFaildOrder()" [nzLoading]="isFaildLoading">刷新</button>
+                <nz-pagination [nzPageIndex]="pushFaildPageIndex" [nzPageSize]="pageSize" (nzPageIndexChange)="faildPageIndexChange()" 
+                    [nzTotal]="pushFaildTotal" *ngIf="pushFaildTotal"></nz-pagination>
+            </div>
+
+            <div class="table-content">
+                <nz-table [nzData]="[{}]" [nzSize]="'small'" style="width: 100%;"
+                    [nzShowPagination]="false" [nzFrontPagination]="false" [nzScroll]="{ x: '1100px' }">
+                    <thead>
+                        <tr>
+                            <th nzWidth="80px">id</th>
+                            <th nzWidth="180px">订单id</th>
+                            <th>错误</th>
+                            <th nzWidth="80px">重试次数</th>
+                            <th nzWidth="180px">执行时间</th>
+                            <th nzWidth="120px">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let data of faildOrderList">
+                            <td>{{ data.id }}</td>
+                            <td>{{ data.order_id }}</td>
+                            <td>
+                                <a (click)="previewException(data)">{{ data.shortException }}</a>
+                            </td>
+                            <td>{{ data.attempts }}</td>
+                            <td>{{ data.failed_at }}</td>
+                            <td>
+                                <a (click)="retryPushOrder(data)">重试</a>
+                                <nz-divider nzType="vertical"></nz-divider>
+                                <a (click)="previewException(data)">详情</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </nz-table>
+
+            </div>
+        </div>
+    </nz-tab>
+    <nz-tab nzTitle="上传中">
+        <div style="height: 100%;display: flex;flex-direction: column;">
+         
+            <div class="button-bar">
+                <button nz-button (click)="refresh()" [nzLoading]="isLoading">刷新</button>
+                <nz-pagination [nzPageIndex]="pushPageIndex" [nzPageSize]="pageSize" (nzPageIndexChange)="pageIndexChange()" 
+                    [nzTotal]="pushTotal"  *ngIf="pushTotal"></nz-pagination>
+            </div>
+
+            <div class="table-content">
+                <nz-table [nzData]="[{}]" [nzSize]="'small'" style="width: 100%;"
+                    [nzShowPagination]="false" [nzFrontPagination]="false" >
+                    <thead>
+                        <tr>
+                            <th nzWidth="80px">id</th>
+                            <th>订单id</th>
+                            <th nzWidth="80px">重试次数</th>
+                            <th nzWidth="180px">上传时间</th>
+                            <th nzWidth="120px">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let data of orderList">
+                            <td>{{ data.id }}</td>
+                            <td>{{ data.order_id }}</td>
+                            <td>{{ data.attempts }}</td>
+                            <td>{{ data.created_time }}</td>
+                            <td>
+                                <a (click)="showDetail(data)">详情</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </nz-table>
+
+            </div>
+        </div>
+    </nz-tab>
+    <nz-tab nzTitle="订单上传记录">
+        <div style="height: 100%;display: flex;flex-direction: column;">
+            <content-header [collection]="collection">
+                <ny-complex-search [uri]="'hall/admin-hall/business-order/order-push-records'" [pageSize]="50" (collection)="setCollection($event)"></ny-complex-search>
+            </content-header>  
+            
+            <ny-table [collection]="collection"></ny-table>
+        </div>
+    </nz-tab>
+</nz-tabset>
+
+
+<nz-modal [(nzVisible)]="isVisible" [nzTitle]="currentData.id + ''" (nzOnCancel)="closeModal()" [nzWidth]="700" [nzFooter]="null">
+    <div style="max-height: calc(100vh - 260px); overflow: auto;">
+        <button nz-button *ngIf="selectedIndex === 0" (click)="retryPushOrder(currentData)">重试</button>
+        <h3>payload</h3>
+        <div>{{ currentData.payload }}</div>
+        <h3 *ngIf="currentData.exception" style="margin-top: 16px;">错误</h3>
+        <div *ngIf="currentData.exception">{{ currentData.exception }}</div>
+    </div>
+</nz-modal>

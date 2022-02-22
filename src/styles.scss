@@ -1,0 +1,415 @@
+/* You can add global styles to this file, and also import other style files */
+@import '~@fullcalendar/core/main.css';
+@import '~@fullcalendar/daygrid/main.css';
+body {
+    min-width: 1230px;
+    // overflow-y: hidden;
+}
+
+::-webkit-scrollbar {
+    background: 0 0;
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 4px;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.35);
+    }
+}
+
+.ant-layout-sider-children {
+    overflow: auto;
+    height: calc(100% - 48px);
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.keywords {
+    color: orange;
+}
+
+ny-table {
+    overflow: hidden;
+}
+
+.form-group {
+    margin-bottom: 16px;
+    display: flex;
+    & > em {
+        color: #ff0000;
+        margin-right: 4px;
+    }
+    .label {
+        display: inline-block;
+        width: 120px;
+        margin-right: 8px;
+        line-height: 32px;
+        text-align: right;
+        em {
+            color: #ff0000;
+            margin-right: 4px;
+        }
+    }
+
+    .unit {
+        display: inline-block;
+        margin-left: 8px;
+        line-height: 32px;
+    }
+
+    .pointer {
+        cursor: pointer;
+    }
+
+    nz-time-picker {
+        input {
+            width: 128px;
+        }
+    }
+
+    input {
+        width: 200px;
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+        width: auto;
+    }
+
+    // nz-input-number,
+    // nz-picker {
+    nz-input-number {
+        input {
+            width: 100%;
+        }
+    }
+
+    .ant-calendar-range-picker-input {
+        width: 44% !important;
+    }
+}
+
+.flex-center {
+    align-items: center;
+}
+
+.ml8 {
+    margin-left: 8px;
+}
+
+.mr8 {
+    margin-right: 8px;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .ant-tabs {
+        flex: 1;
+
+        .ant-tabs-top-content {
+            height: calc(100% - 60px);
+
+            .ant-tabs-tabpane {
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+        }
+        
+        .edui-default .edui-editor-toolbarbox {
+            position: sticky!important;
+            top: 0px;
+            z-index: 1000;
+        }
+    }
+}
+
+.editor-wrap {
+    opacity: 1;
+    .ql-editor {
+        min-height: 300px;
+        ol,
+        ul {
+            padding-left: 0;
+        }
+    }
+}
+
+
+.ql-snow .ql-tooltip a.ql-action::after {
+    content: '编辑'!important;
+}
+.ql-snow .ql-tooltip a.ql-remove::before {
+    content: '删除'!important;
+}
+
+.ql-snow .ql-tooltip.ql-editing a.ql-action::after {
+    content: '保存'!important;
+}
+.ql-snow .ql-tooltip[data-mode=link]::before {
+    content: "输入链接:"!important;
+}
+
+
+$primaryColor: #f08336;
+.player-container-inner {
+    .plyr--full-ui input[type="range"] {
+        color: $primaryColor;
+    }
+
+    .plyr__control--overlaid {
+        background: rgba($primaryColor, 0.8);
+    }
+
+    .plyr--video .plyr__control.plyr__tab-focus,
+    .plyr--video .plyr__control:hover,
+    .plyr--video .plyr__control[aria-expanded="true"] {
+        background: $primaryColor;
+    }
+
+    .plyr__control.plyr__tab-focus {
+        box-shadow: 0 0 0 5px rgba($primaryColor, 0.5);
+    }
+
+    .plyr__menu__container
+        .plyr__control[role="menuitemradio"][aria-checked="true"]::before {
+        background: $primaryColor;
+    }
+
+    .plyr--audio .plyr__control.plyr__tab-focus,
+    .plyr--audio .plyr__control:hover,
+    .plyr--audio .plyr__control[aria-expanded="true"] {
+        background: $primaryColor;
+    }
+    
+}
+
+.edui-for-image .edui-icon{
+    background-position: -380px 0px;
+}
+
+.edui-for-video .edui-icon{
+    background-position: -320px -20px;
+}
+.edui-default .edui-editor-toolbarbox {
+    position: sticky!important;
+    top: -16px;
+    z-index: 1000;
+}
+.fc-center{
+
+    height: 25px;
+    line-height: 25px;
+    >h2{
+        font-size: 16px;
+        font-family: PingFang, PingFang-SC;
+        font-weight: 600;
+        color: rgba(0,0,0,0.85);
+    }
+}
+.fc-toolbar.fc-header-toolbar {
+    margin-bottom:16px;
+    height: 32px !important;
+}
+.fc-head{
+    background-color: #fafafa;
+}
+.fc-left{
+    display: flex !important;
+    position: relative;
+}
+.fc-button-primary {
+    color: #fff;
+    border-color:1px solid #d9d9d9; 
+    // color: rgba(0,0,0,0.65);
+}
+.fc-button-primary:not(:disabled):active:focus, .fc-button-primary:not(:disabled).fc-button-active:focus {
+  box-shadow: none !important;
+}
+.fc
+.fc-right{
+    display: flex;
+    height: 32px;
+}
+.fc-button-group{
+    display: flex;
+    height: 32px;
+}
+.fc-button{
+    display: flex;
+    height: 32px;
+    justify-content: center;
+    align-items: center;
+}
+.fc-today-button{
+    display: flex;
+    height: 32px;
+}
+.fc-unthemed th{
+    border-color: #D9D9D9;
+    height: 48px;
+    >span{
+        height: 48px;
+        width: 100%;
+        line-height: 48px;
+        display: -ms-flexbox; 
+        display: -webkit-flex;
+        display: -webkit-box;
+        display: flex;
+        justify-content: center;
+        line-height: 48px;
+        align-items: center;
+    }
+}
+.fc-event{
+   border-radius: 0px;
+   margin: 0;
+   border: none;
+   border: 1px solid #ffffff;
+   padding: 14px 0;
+   box-sizing: border-box;
+   font-size: 14px;
+   font-family: PingFangSC, PingFangSC-Regular;
+   font-weight: 400;
+   text-align: center;
+   height: 88px;
+}
+.fc-day-top,.fc-fri,.fc-past{
+   border-bottom: 1px solid #D9D9D9;
+}
+.fc-unthemed td.fc-today {
+    background: transparent;
+}
+
+.fc-day-top>.fc-day-number{
+    padding: 0 !important;
+    text-align: center;
+    line-height: 36px;
+    display: inline-block;
+    font-size: 14px;
+    vertical-align: top;
+}
+.fc-more{
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    padding: 34px 0;
+}
+
+.fc-dayGrid-view .fc-body .fc-row {
+    min-height:72px !important;
+}
+.fc-button-primary:not(:disabled).fc-button-active {
+    color: #1890FF;
+    background-color: transparent;
+    border-color: #1890FF;
+}
+tr:first-child > td > .fc-day-grid-event {
+    margin: 0;
+}
+.fc-button-primary{
+    width: 73px;
+    color: rgba(0,0,0,0.65);
+    background-color:#ffffff;
+    border-color: #D9D9D9;
+}
+.fc-button-primary:hover{
+    color: #1890FF !important; 
+    background-color: transparent !important; 
+    border-color: #1890FF !important;
+   
+}
+.fc-button-primary:active{
+     color: #1890FF !important; 
+     background-color: transparent !important; 
+     border-color: #1890FF !important;
+}
+.fc-prev-button,.fc-next-button{
+    width: 32px;
+}
+.fc-next-button{
+    margin-left: 61px !important;
+}
+.unchecked{
+    position: absolute;
+    bottom:5px;
+    right: 5px;
+    display: inline-block;
+    width: 45px;
+    height: 30px;
+    background-image: url("./assets/img/unreviewed.svg")
+}
+.my-but{
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    cursor: pointer;
+    background-image: url("./assets/img/add.svg");
+   
+}
+.fc-day-top{
+    text-align: center;
+    height: 34px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #D8D8D8 !important;
+}
+.fc-ltr .fc-dayGrid-view .fc-day-top .fc-day-number {
+    float: none;
+}
+.icon{
+    display: inline-block;
+    margin: 10px 8px 0 0 ;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    background-image: url("./assets/img/add.svg");
+}
+.fc-today-button{
+    display: inline-block;
+    position: absolute;
+    left: 32px;
+    top: 0;
+    width: 61px;
+    font-size: 14px;
+    font-family: HelveticaNeue;
+    text-align: center;
+    color: rgba(0,0,0,0.65);
+    line-height: 19px;
+    border-radius:0;
+    &[disabled]:hover{
+        color: rgba(0,0,0,0.65) !important;
+        background-color: #ffffff !important;
+        border-color: #D9D9D9 !important;
+    }
+    &:disabled {
+        color: rgba(0,0,0,0.65);
+        cursor:no-drop
+    }
+}
+.fc-toolbar > * > :not(:first-child) {
+   margin-left: 0;
+   background-color: #fff;
+   border-color: #fff;
+   border-bottom: 1px solid rgba(0,0,0,0.15);
+   border-top: 1px solid rgba(0,0,0,0.15);
+}
+.weekfont{
+    color: rgba(0,0,0,0.85);
+    line-height: 20px;
+    font-size: 14px;
+    font-family: PingFang, PingFang-SC;
+    font-weight: 600;
+}
+
+.salary-sheet .content .condition-container {
+    flex: none !important;
+}

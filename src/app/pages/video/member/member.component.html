@@ -1,0 +1,203 @@
+<content-header [collection]="collection">
+    <ny-search-input uri="mix/video/admin/member/list" [pageSize]="20" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" showIndex="true">
+    <ng-template nyColumn label="操作" width="120px" let-item>
+        <a (click)="disabledMember(item)" *ngIf="item.status">暂停</a>
+        <a (click)="enableMember(item)" *ngIf="!item.status">启用</a>
+    </ng-template>
+</ny-table>
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="isVisible" (onClose)="closeModal()">
+    <ny-header>
+        <h2>会员详情</h2>
+        <p style="flex: 1"></p>
+    </ny-header>
+    <div class="modal-content member-modal-content" *ngIf="isVisible">
+        <div class="user-info">
+            <div class="head-avatar">
+                <img *ngIf="!detail.avatar && detail.id" src="../../../../../assets/img/user-30.svg" width="100%" />
+                <img *ngIf="detail.avatar" [src]="ossPath + detail.avatar" width="100%" />
+            </div>
+            <div class="info">
+                <div class="name mb8">{{ detail.name }}</div>
+                <div>{{ detail.contact }}</div>
+            </div>
+            <div class="account">
+                <div class="mb8">账户余额：</div>
+                <div><span>天数：{{ detail.days_remaining }}</span></div>
+                <div><span>点数：{{ detail.account.points }}</span></div>
+            </div>
+            <div class="btn-wrap">
+                <button class="mb8" nz-button nzType="primary" (click)="showRechargeModal()">充值</button>
+
+                <button class="mb8" nz-button nzType="default" (click)="showAdjustModal()">余额调整</button>
+            </div>
+        </div>
+        <div style="flex: 1; overflow: hidden;display: flex;">
+            <nz-tabset>
+                <nz-tab nzTitle="基本信息">
+                    <div class="form-group flex-center">
+                        <span class="label">姓名:</span>
+                        <span>{{ detail.name }}</span>
+                    </div>
+                    <div class="form-group flex-center">
+                        <span class="label">手机号:</span>
+                        <span>{{ detail.mobile }}</span>
+
+                    </div>
+                    <div class="form-group flex-center">
+                        <span class="label">注册日期:</span>
+                        <span>{{ detail.created_at }}</span>
+                    </div>
+                </nz-tab>
+                <nz-tab nzTitle="充值记录">
+                    <div style="height: 100%; display: flex;flex-direction: column;">
+                        <content-header [collection]="rechargeCollection">
+                            <ny-search-input [uri]="'mix/video/admin/member/recharge-record?member_id=' + detail.id"
+                                [pageSize]="50" (collection)="setRechargeCollection($event)">
+                            </ny-search-input>
+                        </content-header>
+                        <ny-table [collection]="rechargeCollection"></ny-table>
+                    </div>
+                </nz-tab>
+                <nz-tab nzTitle="点数明细">
+                    <div style="height: 100%; display: flex;flex-direction: column;">
+                        <content-header [collection]="pointsCollection">
+                            <ny-search-input [uri]="'mix/video/admin/member/point-log?member_id=' + detail.id"
+                                [pageSize]="50" (collection)="setPointsCollection($event)">
+                            </ny-search-input>
+                        </content-header>
+                        <ny-table [collection]="pointsCollection"></ny-table>
+                    </div>
+                </nz-tab>
+                <nz-tab nzTitle="有效期明细">
+                    <div style="height: 100%; display: flex;flex-direction: column;">
+                        <content-header [collection]="daysCollection">
+                            <ny-search-input [uri]="'mix/video/admin/member/days-log?member_id=' + detail.id"
+                                [pageSize]="50" (collection)="setDaysCollection($event)">
+                            </ny-search-input>
+                        </content-header>
+                        <ny-table [collection]="daysCollection"></ny-table>
+                    </div>
+                </nz-tab>
+            </nz-tabset>
+        </div>
+    </div>
+</ny-modal>
+
+<nz-modal [(nzVisible)]="rechargeVisible" nzTitle="充值" [nzMaskClosable]="false" (nzOnCancel)="handleCancel()" (nzOnOk)="confirmRecharge()" nyForm="form">
+    <div class="form-group">
+        <label class="label"><em>*</em>充值规格:</label>
+        <div>
+            <nz-select [(ngModel)]="rechargeParams.recharge_specs_id" style="width: 240px;" (ngModelChange)="specificationCharge()">
+                <nz-option *ngFor="let specs of rechargeSpecsList" [nzLabel]="specs.name" [nzValue]="specs.id">
+                </nz-option>
+            </nz-select>
+        </div>
+    </div>
+
+    <div class="form-group" *ngIf="isCustomized">
+        <label class="label">类型:</label>
+        <div style="padding-top: 4px;">
+            <nz-radio-group [(ngModel)]="recharge.type" (ngModelChange)="adjustTypeChange()">
+                <label nz-radio [nzValue]="1">天数</label>
+                <label nz-radio [nzValue]="2">点数</label>
+            </nz-radio-group>
+        </div>
+    </div>
+
+    <div class="form-group" *ngIf="isCustomized">
+        <label class="label"><em>*</em>充值数量:</label>
+        <div>
+            <nz-input-number [nzPrecision]="2" [(ngModel)]="rechargeParams.amount" [nzMin]="0" style="width: 200px;" 
+                             nyName="amount" 
+                             errorStyle="float">
+             </nz-input-number>
+            <span class="unit">{{ recharge.type == 1 ? '天' : '点' }}</span>
+        </div>
+    </div>
+
+    <div class="form-group" *ngIf="isCustomized">
+        <label class="label"><em>*</em>金额:</label>
+        <div>
+            <nz-input-number [nzPrecision]="2" [(ngModel)]="rechargeParams.price" [nzMin]="0" style="width: 200px;" 
+                             nyName="price" 
+                             errorStyle="float">
+            </nz-input-number>
+            <span class="unit">元</span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="label"><em>*</em>支付方式:</label>
+        <div>
+            <nz-select [(ngModel)]="rechargeParams.payment_mode" style="width: 200px;">
+                <nz-option *ngFor="let payment of paymentOptions" [nzLabel]="payment.name" [nzValue]="payment.id">
+                </nz-option>
+            </nz-select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label">备注:</label>
+        <div>
+            <textarea nz-input style="width: 200px;" [(ngModel)]="rechargeParams.remark"
+                [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+        </div>
+    </div>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="adjustVisible" nzTitle="调整有效期" [nzMaskClosable]="false" 
+(nzOnCancel)="cancelAdjust()" (nzOnOk)="adjustDays()" [nzWidth]="620">
+    <div class="form-group">
+        <label class="label">类型:</label>
+        <div style="padding-top: 4px;">
+            <nz-radio-group [(ngModel)]="adjustParams.type" (ngModelChange)="adjustTypeChange()">
+                <label nz-radio [nzValue]="1">天数</label>
+                <label nz-radio [nzValue]="2">点数</label>
+            </nz-radio-group>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="label">当前余额:</label>
+        <span style="line-height: 32px;" *ngIf="adjustParams.type == 1">
+            {{ detail.days_remaining || '0'}}天
+        </span>
+        <span style="line-height: 32px;" *ngIf="adjustParams.type == 2">
+            {{ detail.account.points || '0'}}点
+        </span>
+    </div>
+    <div class="form-group">
+        <label class="label"><em>*</em>调整:</label>
+        <div>
+            <nz-radio-group [(ngModel)]="adjustType" (ngModelChange)="adjustTypeChange()">
+                <label nz-radio-button nzValue="plus">增加</label>
+                <label nz-radio-button nzValue="minus">减少</label>
+            </nz-radio-group>
+        </div>
+        <div style="margin-left: 8px;" *ngIf="adjustType == 'plus'">
+            <nz-input-number [(ngModel)]="adjustParams.amount" style="width: 200px;"></nz-input-number>
+        </div>
+        <div style="margin-left: 8px;" *ngIf="adjustType == 'minus'">
+            <nz-input-number [(ngModel)]="adjustParams.amount"  [nzMin]="0" [nzMax]="adjustMinAmount()" style="width: 200px;"></nz-input-number>
+        </div>
+    </div>
+    <div class="form-group" *ngIf="adjustVisible">
+        <label class="label">调整后余额:</label>
+        <div style="line-height: 32px;">
+            <span>{{ adjustAfter() }}</span>
+            <span>{{ adjustParams.type == 1 ? '天' : '点' }}</span>
+        </div>
+
+    </div>
+
+    <div class="form-group">
+        <label class="label">备注:</label>
+        <div>
+            <textarea nz-input style="width: 200px;" [(ngModel)]="adjustParams.remark"
+                [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+        </div>
+    </div>
+</nz-modal>

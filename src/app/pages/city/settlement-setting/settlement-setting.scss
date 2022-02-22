@@ -1,0 +1,62 @@
+.form-group .label {
+    width: 86px;
+}
+.setting-row {
+    display: flex;
+    height: 100%;
+    .left {
+        width: 230px;
+        padding: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,.15);
+        overflow: auto;
+        .course-item {
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            // &.active {
+            //     background: #38f;
+            //     color: white;
+            // }
+            &.active {
+                background: #f1f1f1;
+            }
+        }
+    }
+    .right {
+        padding: 8px 0;
+        flex: 1;
+        margin-left: 24px;
+        overflow: auto;
+        .add {
+            color: #38f;
+            cursor: pointer;
+            margin-left: 16px;
+        }
+        .remove {
+            color: #f44;
+            margin-left: 16px;
+            cursor: pointer;
+        }
+    }
+}
+
+.area-title {
+    padding-left: 24px;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+.right {
+    .add {
+        color: #38f;
+        cursor: pointer;
+        margin-left: 16px;
+    }
+    .remove {
+        color: #f44;
+        margin-left: 16px;
+        cursor: pointer;
+    }
+}

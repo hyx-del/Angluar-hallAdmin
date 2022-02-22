@@ -1,0 +1,232 @@
+<content-header [collection]="collection">
+    <ny-search-input [uri]="'hall/member/admin-city/member-course-card-purchase/list'" [pageSize]="50" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template nyColumn label="操作" width="180px" let-item>
+        <span *ngIf="item.status == 0">
+            <a (click)="pass(item)">通过</a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <a (click)="noPass(item)">不通过</a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <a (click)="invaild(item)">作废</a>
+        </span>
+        <a *ngIf="item.status == 10" (click)="invaild(item)">作废</a>
+    </ng-template>
+</ny-table>
+
+<nz-modal nzTitle="查看附件" [(nzVisible)]="isVisible" [nzFooter]="null" (nzOnCancel)="closeModal()" [nzWidth]="750">
+    <div>
+        <div *ngFor="let imageUrl of imageList" style="margin-bottom: 8px;">
+            <img [src]="ossPath + imageUrl" style="max-width: 100%;" />
+        </div>
+    </div>
+</nz-modal>
+
+
+<ny-modal appendTo="nz-content" [isFull]="true" [(visible)]="detailVisible" (onClose)="closeDetailModal()">
+    <ny-header>
+        <h2>订单详情</h2>
+        <p style="flex: 1"></p>
+    </ny-header>
+    <div>
+        <div class="form-group">
+            <label class="label">会员:</label>
+            <div>
+                <input nz-input [(ngModel)]="params.member_name" [disabled]="true" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">课程卡:</label>
+            <div>
+                <input nz-input [(ngModel)]="params.course_card_name" [disabled]="true" />
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="label">卡规格:</label>
+            <nz-select [(ngModel)]="params.course_card_spec_id" [nzDisabled]="true" style="width: 200px;">
+                <nz-option *ngFor="let specs of courseCardSpecsList" [nzLabel]="specs.label" [nzValue]="specs.id">
+                </nz-option>
+            </nz-select>
+        </div>
+
+        <div class="form-group" *ngIf="isCustomSpecs">
+            <label class="label">{{ courseType == 1 ? '次数' : '天数' }}:</label>
+            <nz-input-number [(ngModel)]="params.amount" [nzMin]="0" style="width: 200px;"
+                [nzDisabled]="true"></nz-input-number>
+            <span class="unit">{{ courseType == 1 ? '次' : '天' }}</span>
+        </div>
+
+        <div class="form-group">
+            <label class="label">价格:</label>
+            <nz-input-number [(ngModel)]="params.price" [nzPrecision]="2" [disabled]="true"
+                style="width: 200px;"></nz-input-number>
+            <span class="unit">元</span>
+        </div>
+
+        <div class="form-group">
+            <label class="label">销售员:</label>
+            <nz-select [(ngModel)]="params.salesman_id" [nzDisabled]="true" style="width: 200px;">
+                <nz-option *ngFor="let sales of salesmanList" [nzLabel]="sales.name" [nzValue]="sales.id">
+                </nz-option>
+            </nz-select>
+        </div>
+        
+        <div class="form-group" *ngIf="!isCustomSpecs">
+            <label class="label">调整价格:</label>
+            <nz-input-number [(ngModel)]="params.adjust_price" [nzPrecision]="2" [nzDisabled]="true"
+                style="width: 200px;"></nz-input-number>
+            <span class="unit">元</span>
+        </div>
+
+        <div class="form-group">
+            <label class="label">优惠劵:</label>
+            <nz-select [(ngModel)]="params.privileges" [nzMode]="'multiple'" [nzDisabled]="true" style="width: 200px;">
+                <nz-option *ngFor="let coupon of couponList" [nzLabel]="coupon.name" [nzValue]="coupon.id">
+                </nz-option>
+            </nz-select>
+        </div>
+
+        <div class="form-group">
+            <label class="label">总优惠:</label>
+            <nz-input-number [(ngModel)]="params.privilege_total" [nzPrecision]="2" [disabled]="true"
+                style="width: 200px;"></nz-input-number>
+            <span class="unit">元</span>
+        </div>
+
+        <div class="form-group">
+            <label class="label">实际支付:</label>
+            <nz-input-number [(ngModel)]="params.actual_price" [nzPrecision]="2" [disabled]="true"
+                style="width: 200px;"></nz-input-number>
+            <span class="unit">元</span>
+        </div>
+    
+
+        <div class="form-group" *ngIf="courseType == 1">
+            <label class="label">有效天数:</label>
+            <input nz-input [(ngModel)]="params.effective_days" [disabled]="true" />
+        </div>
+
+        <div class="form-group">
+            <label class="label">生效日期:</label>
+            <nz-date-picker [(ngModel)]="params.start_date" [nzDisabled]="true"></nz-date-picker>
+        </div>
+
+        <div class="form-group">
+            <label class="label">咨询方式:</label>
+            <input type="text" nz-input [(ngModel)]="params.consult_mode" [disabled]="true" >
+        </div>
+        <div class="form-group">
+            <label class="label">赠品:</label>
+            <input type="text" nz-input [(ngModel)]="params.gift" [disabled]="true" >
+        </div>
+
+        <div class="form-group">
+            <label class="label">备注:</label>
+            <textarea nz-input [(ngModel)]="params.remark" [nzAutosize]="{ minRows: 2, maxRows: 6 }"
+                style="resize: none;width: 200px;" [disabled]="true"></textarea>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">用户首次开卡:</label>
+            <div>
+                <nz-radio-group [(ngModel)]="params.is_first_sign" disabled>
+                    <label nz-radio [nzValue]="1">是</label>
+                    <label nz-radio [nzValue]="0">否</label>
+                </nz-radio-group>
+            </div>
+        </div>
+
+        <div *ngIf="params.payments && params.payments.length" style="margin-bottom: 40px;">
+            <span class="info-title"><strong>支付信息:</strong></span>
+            <div class="form-group flex-center">
+                <label class="label">合同签订方式:</label>
+                <nz-radio-group [(ngModel)]="contractType" [nzDisabled]="params.status == 20 || params.status === 0">
+                    <label nz-radio [nzValue]="1">电子合同</label>
+                    <label nz-radio [nzValue]="2" [nzDisabled]="!params.allow_paper_contract">纸质合同</label>
+                    <!-- <label nz-radio [nzValue]="0">无</label> -->
+                </nz-radio-group>
+            </div>
+
+            <div class="form-group flex-center" *ngIf="contractType == 1 && contract && contract.contract_id">
+                <label class="label"></label>
+                <div>
+                    <a nz-button [href]="contract.view_url" target="_blank" style="margin: 0 8px;">预览</a>
+                </div>
+            </div>
+
+            <div class="form-group flex-center" *ngIf="contractType == 1">
+                <label class="label">签署状态:</label>
+                <span *ngIf="contract.contract_status == 0" style="color: red;" >未签署</span>
+                <span *ngIf="contract.contract_status == 1" style="color: red;" >待审核</span>
+                <span *ngIf="contract.contract_status == -1" style="color: red;" >已作废</span>
+                <span *ngIf="contract.contract_status == 2" style="color: #38f;">签署完成</span>
+            </div>
+
+            <div class="form-group">
+                <label class="label">附件:</label>
+                <div style="display: flex;">
+                    <div class="upload-card" *ngFor="let imageUrl of imageList; let i = index;">
+                        <div class="upload" (click)="showPreview()">
+                            <div>
+                                <img [src]="ossPath + imageUrl" class="avatar">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="label">支付类型:</label>
+                <nz-radio-group [(ngModel)]="paymentMethod" [nzDisabled]="true">
+                    <label nz-radio-button [nzValue]="'one'">单一支付</label>
+                    <label nz-radio-button [nzValue]="'multiple'">组合支付</label>
+                </nz-radio-group>
+            </div>
+
+            <div *ngIf="paymentMethod == 'one'">
+                <div class="form-group">
+                    <label class="label">支付方式:</label>
+                    <nz-select [(ngModel)]="payment.mode" errorStyle="float" [nzDisabled]="true" style="width: 200px;">
+                        <nz-option *ngFor="let payment of paymentOptions" [nzLabel]="payment.name"
+                            [nzValue]="payment.id">
+                        </nz-option>
+                    </nz-select>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">交易号:</label>
+                    <nz-input-number [(ngModel)]="payment.trade_no" [nzMin]="0" style="width: 200px;" [nzDisabled]="true"></nz-input-number>
+                </div>
+            </div>
+            <div *ngIf="paymentMethod == 'multiple'">
+                <div class="form-group pay-info"
+                    *ngFor="let pay of payInfo; let index = index; let isFirst = first; let isLast = last;">
+                    <label class="label">支付方式:</label>
+                    <nz-select [(ngModel)]="pay.mode" [nzDisabled]="true" style="width: 200px;">
+                        <nz-option *ngFor="let payment of paymentOptions" [nzLabel]="payment.name"
+                            [nzValue]="payment.id">
+                        </nz-option>
+                    </nz-select>
+                    <span class="ml8 mr8 unit">支付金额:</span>
+                    <nz-input-number [(ngModel)]="pay.amount" [nzPrecision]="2" [nzDisabled]="true"></nz-input-number>
+                    <span class="ml8 mr8 unit">交易号:</span>
+                    <nz-input-number [(ngModel)]="pay.trade_no" [nzMin]="0" style="width: 200px;" [nzDisabled]="true"></nz-input-number>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">允许签署纸质合同:</label>
+            <nz-switch [(ngModel)]="allowPaperContract" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label"></label>
+            <button nz-button (click)="updateContractType()">保存</button>
+        </div>
+
+    </div>
+</ny-modal>

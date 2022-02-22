@@ -1,0 +1,46 @@
+<content-header [buttonGroups]="buttons" [collection]="collection">
+    <ny-search-input [uri]="'hall/admin-hall/classroom/list'" [pageSize]="50" (collection)="setCollection($event)">
+    </ny-search-input>
+</content-header>
+
+<ny-table [collection]="collection" [showIndex]="true">
+    <ng-template nyColumn label="操作" width="120px" let-item>
+        <a *ngIf="item.status" (click)="disabled(item)">禁用</a>
+        <a *ngIf="!item.status" (click)="enable(item)">启用</a>
+        <nz-divider nzType="vertical"></nz-divider>
+        <a (click)="remove(item)">删除</a>
+    </ng-template>
+</ny-table>
+
+<nz-modal [(nzVisible)]="isVisible" [nzTitle]="params.id ? '修改' : '添加教室'" (nzOnCancel)="cancel()" (nzOnOk)="save()"
+    [nzWidth]="800" [nzMaskClosable]="false">
+    <div nyForm="form" (onInit)="onFormInit($event)">
+        <div class="form-group">
+            <label class="label"><em>*</em>教室名称:</label>
+            <div>
+                <input nz-input placeholder="请输入教室名称" nyName="name" errorStyle="float" [(ngModel)]="params.name" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="label">容纳人数:</label>
+            <nz-input-number [(ngModel)]="params.max_number" [nzMin]="1" [nzStep]="1" style="width:110px;"
+                nyName="max_number" errorStyle="float">
+            </nz-input-number>
+        </div>
+        <div class="form-group flex-center">
+            <label class="label">可上团课:</label>
+            <nz-radio-group [(ngModel)]="params.support_group" nyName="support_group">
+                <label nz-radio [nzValue]="1">是</label>
+                <label nz-radio [nzValue]="0">否</label>
+            </nz-radio-group>
+        </div>
+
+        <div class="form-group flex-center">
+            <label class="label">可上私课:</label>
+            <nz-radio-group [(ngModel)]="params.support_private" nyName="support_private">
+                <label nz-radio [nzValue]="1">是</label>
+                <label nz-radio [nzValue]="0">否</label>
+            </nz-radio-group>
+        </div>
+    </div>
+</nz-modal>
